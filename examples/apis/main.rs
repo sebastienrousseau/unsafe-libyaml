@@ -1,3 +1,4 @@
+#![allow(missing_docs)]
 pub(crate) use core::primitive::u8 as yaml_char_t;
 use libyml::api::{
     yaml_free, yaml_malloc, yaml_parser_delete, yaml_parser_initialize,
