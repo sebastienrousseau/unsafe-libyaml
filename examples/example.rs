@@ -14,5 +14,4 @@ mod apis;
 fn main() {
     // Run the example module `apis`.
     apis::main::main();
-
 }
