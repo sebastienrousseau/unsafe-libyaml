@@ -1,8 +1,4 @@
-// Copyright notice and licensing information.
-// These lines indicate the copyright of the software and its licensing terms.
-// SPDX-License-Identifier: Apache-2.0 OR MIT indicates dual licensing under Apache 2.0 or MIT licenses.
-// Copyright © 2024 LibYML. All rights reserved.
-
+#![allow(missing_docs)]
 /// This module contains the `yaml_parser_initialize` example.
 mod apis;
 
@@ -14,5 +10,4 @@ mod apis;
 fn main() {
     // Run the example module `apis`.
     apis::main::main();
-
 }

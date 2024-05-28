@@ -1,8 +1,4 @@
-// Copyright notice and licensing information.
-// These lines indicate the copyright of the software and its licensing terms.
-// SPDX-License-Identifier: Apache-2.0 OR MIT indicates dual licensing under Apache 2.0 or MIT licenses.
-// Copyright © 2024 LibYML. All rights reserved.
-
+#![allow(missing_docs)]
 pub(crate) use core::primitive::u8 as yaml_char_t;
 use libyml::api::{
     yaml_free, yaml_malloc, yaml_parser_delete, yaml_parser_initialize,

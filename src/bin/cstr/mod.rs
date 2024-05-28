@@ -1,8 +1,3 @@
-// Copyright notice and licensing information.
-// These lines indicate the copyright of the software and its licensing terms.
-// SPDX-License-Identifier: Apache-2.0 OR MIT indicates dual licensing under Apache 2.0 or MIT licenses.
-// Copyright © 2024 LibYML. All rights reserved.
-
 use std::fmt::{self, Display, Write as _};
 use std::slice;
 use std::str;
@@ -29,9 +24,12 @@ impl Display for CStr {
                 Ok(valid) => return formatter.write_str(valid),
                 Err(utf8_error) => {
                     let valid_up_to = utf8_error.valid_up_to();
-                    let valid = unsafe { str::from_utf8_unchecked(&bytes[..valid_up_to]) };
+                    let valid = unsafe {
+                        str::from_utf8_unchecked(&bytes[..valid_up_to])
+                    };
                     formatter.write_str(valid)?;
-                    formatter.write_char(char::REPLACEMENT_CHARACTER)?;
+                    formatter
+                        .write_char(char::REPLACEMENT_CHARACTER)?;
                     if let Some(error_len) = utf8_error.error_len() {
                         bytes = &bytes[valid_up_to + error_len..];
                     } else {

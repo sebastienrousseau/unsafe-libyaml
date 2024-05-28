@@ -1,8 +1,3 @@
-// Copyright notice and licensing information.
-// These lines indicate the copyright of the software and its licensing terms.
-// SPDX-License-Identifier: Apache-2.0 OR MIT indicates dual licensing under Apache 2.0 or MIT licenses.
-// Copyright © 2024 LibYML. All rights reserved.
-
 use crate::api::{
     yaml_free, yaml_queue_extend, yaml_stack_extend, yaml_strdup,
 };
@@ -732,17 +727,22 @@ unsafe fn yaml_emitter_emit_flow_sequence_item(
         (*emitter).state = POP!((*emitter).states);
         return OK;
     }
-    if !first && yaml_emitter_write_indicator(
+    if !first
+        && yaml_emitter_write_indicator(
             emitter,
             b",\0" as *const u8 as *const libc::c_char,
             false,
             false,
             false,
         )
-        .fail {
+        .fail
+    {
         return FAIL;
     }
-    if ((*emitter).canonical || (*emitter).column > (*emitter).best_width) && yaml_emitter_write_indent(emitter).fail {
+    if ((*emitter).canonical
+        || (*emitter).column > (*emitter).best_width)
+        && yaml_emitter_write_indent(emitter).fail
+    {
         return FAIL;
     }
     PUSH!((*emitter).states, YamlEmitFlowSequenceItemState);
@@ -807,17 +807,22 @@ unsafe fn yaml_emitter_emit_flow_mapping_key(
         (*emitter).state = POP!((*emitter).states);
         return OK;
     }
-    if !first && yaml_emitter_write_indicator(
+    if !first
+        && yaml_emitter_write_indicator(
             emitter,
             b",\0" as *const u8 as *const libc::c_char,
             false,
             false,
             false,
         )
-        .fail {
+        .fail
+    {
         return FAIL;
     }
-    if ((*emitter).canonical || (*emitter).column > (*emitter).best_width) && yaml_emitter_write_indent(emitter).fail {
+    if ((*emitter).canonical
+        || (*emitter).column > (*emitter).best_width)
+        && yaml_emitter_write_indent(emitter).fail
+    {
         return FAIL;
     }
     if !(*emitter).canonical && yaml_emitter_check_simple_key(emitter) {
@@ -860,7 +865,10 @@ unsafe fn yaml_emitter_emit_flow_mapping_value(
             return FAIL;
         }
     } else {
-        if ((*emitter).canonical || (*emitter).column > (*emitter).best_width) && yaml_emitter_write_indent(emitter).fail {
+        if ((*emitter).canonical
+            || (*emitter).column > (*emitter).best_width)
+            && yaml_emitter_write_indent(emitter).fail
+        {
             return FAIL;
         }
         if yaml_emitter_write_indicator(
@@ -1219,11 +1227,17 @@ unsafe fn yaml_emitter_select_scalar_style(
             style = YamlSingleQuotedScalarStyle;
         }
     }
-    if style == YamlSingleQuotedScalarStyle && !(*emitter).scalar_data.single_quoted_allowed {
+    if style == YamlSingleQuotedScalarStyle
+        && !(*emitter).scalar_data.single_quoted_allowed
+    {
         style = YamlDoubleQuotedScalarStyle;
     }
-    if (style == YamlLiteralScalarStyle || style == YamlFoldedScalarStyle) && (!(*emitter).scalar_data.block_allowed
-            || (*emitter).flow_level != 0 || (*emitter).simple_key_context) {
+    if (style == YamlLiteralScalarStyle
+        || style == YamlFoldedScalarStyle)
+        && (!(*emitter).scalar_data.block_allowed
+            || (*emitter).flow_level != 0
+            || (*emitter).simple_key_context)
+    {
         style = YamlDoubleQuotedScalarStyle;
     }
     if no_tag
@@ -1285,13 +1299,15 @@ unsafe fn yaml_emitter_process_tag(
         {
             return FAIL;
         }
-        if !(*emitter).tag_data.suffix.is_null() && yaml_emitter_write_tag_content(
+        if !(*emitter).tag_data.suffix.is_null()
+            && yaml_emitter_write_tag_content(
                 emitter,
                 (*emitter).tag_data.suffix,
                 (*emitter).tag_data.suffix_length,
                 false,
             )
-            .fail {
+            .fail
+        {
             return FAIL;
         }
     } else {
@@ -1743,21 +1759,26 @@ unsafe fn yaml_emitter_analyze_event(
             true,
         ),
         YamlScalarEvent => {
-            if !(*event).data.scalar.anchor.is_null() && yaml_emitter_analyze_anchor(
+            if !(*event).data.scalar.anchor.is_null()
+                && yaml_emitter_analyze_anchor(
                     emitter,
                     (*event).data.scalar.anchor,
                     false,
                 )
-                .fail {
+                .fail
+            {
                 return FAIL;
             }
-            if !(*event).data.scalar.tag.is_null() && ((*emitter).canonical
+            if !(*event).data.scalar.tag.is_null()
+                && ((*emitter).canonical
                     || !(*event).data.scalar.plain_implicit
-                        && !(*event).data.scalar.quoted_implicit) && yaml_emitter_analyze_tag(
+                        && !(*event).data.scalar.quoted_implicit)
+                && yaml_emitter_analyze_tag(
                     emitter,
                     (*event).data.scalar.tag,
                 )
-                .fail {
+                .fail
+            {
                 return FAIL;
             }
             yaml_emitter_analyze_scalar(
@@ -1767,39 +1788,49 @@ unsafe fn yaml_emitter_analyze_event(
             )
         }
         YamlSequenceStartEvent => {
-            if !(*event).data.sequence_start.anchor.is_null() && yaml_emitter_analyze_anchor(
+            if !(*event).data.sequence_start.anchor.is_null()
+                && yaml_emitter_analyze_anchor(
                     emitter,
                     (*event).data.sequence_start.anchor,
                     false,
                 )
-                .fail {
+                .fail
+            {
                 return FAIL;
             }
-            if !(*event).data.sequence_start.tag.is_null() && ((*emitter).canonical
-                    || !(*event).data.sequence_start.implicit) && yaml_emitter_analyze_tag(
+            if !(*event).data.sequence_start.tag.is_null()
+                && ((*emitter).canonical
+                    || !(*event).data.sequence_start.implicit)
+                && yaml_emitter_analyze_tag(
                     emitter,
                     (*event).data.sequence_start.tag,
                 )
-                .fail {
+                .fail
+            {
                 return FAIL;
             }
             OK
         }
         YamlMappingStartEvent => {
-            if !(*event).data.mapping_start.anchor.is_null() && yaml_emitter_analyze_anchor(
+            if !(*event).data.mapping_start.anchor.is_null()
+                && yaml_emitter_analyze_anchor(
                     emitter,
                     (*event).data.mapping_start.anchor,
                     false,
                 )
-                .fail {
+                .fail
+            {
                 return FAIL;
             }
-            if !(*event).data.mapping_start.tag.is_null() && ((*emitter).canonical
-                    || !(*event).data.mapping_start.implicit) && yaml_emitter_analyze_tag(
+            if !(*event).data.mapping_start.tag.is_null()
+                && ((*emitter).canonical
+                    || !(*event).data.mapping_start.implicit)
+                && yaml_emitter_analyze_tag(
                     emitter,
                     (*event).data.mapping_start.tag,
                 )
-                .fail {
+                .fail
+            {
                 return FAIL;
             }
             OK
@@ -1838,7 +1869,10 @@ unsafe fn yaml_emitter_write_indent(
         0
     };
     if (!(*emitter).indention
-        || (*emitter).column > indent || (*emitter).column == indent && !(*emitter).whitespace) && put_break(emitter).fail {
+        || (*emitter).column > indent
+        || (*emitter).column == indent && !(*emitter).whitespace)
+        && put_break(emitter).fail
+    {
         return FAIL;
     }
     if (*emitter).column < indent {
@@ -1866,7 +1900,10 @@ unsafe fn yaml_emitter_write_indicator(
     let indicator_length: size_t = strlen(indicator);
     let mut string =
         STRING_ASSIGN!(indicator as *mut yaml_char_t, indicator_length);
-    if need_whitespace && !(*emitter).whitespace && put(emitter, b' ').fail {
+    if need_whitespace
+        && !(*emitter).whitespace
+        && put(emitter, b' ').fail
+    {
         return FAIL;
     }
     while string.pointer != string.end {
@@ -1921,7 +1958,10 @@ unsafe fn yaml_emitter_write_tag_content(
     need_whitespace: bool,
 ) -> Success {
     let mut string = STRING_ASSIGN!(value, length);
-    if need_whitespace && !(*emitter).whitespace && put(emitter, b' ').fail {
+    if need_whitespace
+        && !(*emitter).whitespace
+        && put(emitter, b' ').fail
+    {
         return FAIL;
     }
     while string.pointer != string.end {
@@ -2004,7 +2044,10 @@ unsafe fn yaml_emitter_write_plain_scalar(
     let mut spaces = false;
     let mut breaks = false;
     let mut string = STRING_ASSIGN!(value, length);
-    if !(*emitter).whitespace && (length != 0 || (*emitter).flow_level != 0) && put(emitter, b' ').fail {
+    if !(*emitter).whitespace
+        && (length != 0 || (*emitter).flow_level != 0)
+        && put(emitter, b' ').fail
+    {
         return FAIL;
     }
     while string.pointer != string.end {
@@ -2023,7 +2066,10 @@ unsafe fn yaml_emitter_write_plain_scalar(
             }
             spaces = true;
         } else if IS_BREAK!(string) {
-            if !breaks && CHECK!(string, b'\n') && put_break(emitter).fail {
+            if !breaks
+                && CHECK!(string, b'\n')
+                && put_break(emitter).fail
+            {
                 return FAIL;
             }
             if write_break!(emitter, string).fail {
@@ -2087,7 +2133,10 @@ unsafe fn yaml_emitter_write_single_quoted_scalar(
             }
             spaces = true;
         } else if IS_BREAK!(string) {
-            if !breaks && CHECK!(string, b'\n') && put_break(emitter).fail {
+            if !breaks
+                && CHECK!(string, b'\n')
+                && put_break(emitter).fail
+            {
                 return FAIL;
             }
             if write_break!(emitter, string).fail {
@@ -2407,10 +2456,12 @@ unsafe fn yaml_emitter_write_block_scalar_hints(
             }
         }
     }
-    if !chomp_hint.is_null() && yaml_emitter_write_indicator(
+    if !chomp_hint.is_null()
+        && yaml_emitter_write_indicator(
             emitter, chomp_hint, false, false, false,
         )
-        .fail {
+        .fail
+    {
         return FAIL;
     }
     OK
@@ -2497,7 +2548,9 @@ unsafe fn yaml_emitter_write_folded_scalar(
                 while IS_BREAK_AT!(string, k as isize) {
                     k += WIDTH_AT!(string, k as isize);
                 }
-                if !IS_BLANKZ_AT!(string, k as isize) && put_break(emitter).fail {
+                if !IS_BLANKZ_AT!(string, k as isize)
+                    && put_break(emitter).fail
+                {
                     return FAIL;
                 }
             }

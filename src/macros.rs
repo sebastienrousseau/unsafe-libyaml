@@ -1,8 +1,3 @@
-// Copyright notice and licensing information.
-// These lines indicate the copyright of the software and its licensing terms.
-// SPDX-License-Identifier: Apache-2.0 OR MIT indicates dual licensing under Apache 2.0 or MIT licenses.
-// Copyright © 2024 LibYML. All rights reserved.
-
 macro_rules! BUFFER_INIT {
     ($buffer:expr, $size:expr) => {{
         let start = addr_of_mut!($buffer.start);
@@ -259,16 +254,36 @@ macro_rules! IS_BREAK_AT {
     ($string:expr, $offset:expr) => {
         CHECK_AT!($string, b'\r', $offset)
             || CHECK_AT!($string, b'\n', $offset)
-            || CHECK_AT!($string, b'\xC2', $offset) && CHECK_AT!($string, b'\x85', ($offset + 1).try_into().unwrap())
+            || CHECK_AT!($string, b'\xC2', $offset)
+                && CHECK_AT!(
+                    $string,
+                    b'\x85',
+                    ($offset + 1).try_into().unwrap()
+                )
             || CHECK_AT!($string, b'\xE2', $offset)
-                && CHECK_AT!($string, b'\x80', ($offset + 1).try_into().unwrap())
-                && CHECK_AT!($string, b'\xA8', ($offset + 2).try_into().unwrap())
+                && CHECK_AT!(
+                    $string,
+                    b'\x80',
+                    ($offset + 1).try_into().unwrap()
+                )
+                && CHECK_AT!(
+                    $string,
+                    b'\xA8',
+                    ($offset + 2).try_into().unwrap()
+                )
             || CHECK_AT!($string, b'\xE2', $offset)
-                && CHECK_AT!($string, b'\x80', ($offset + 1).try_into().unwrap())
-                && CHECK_AT!($string, b'\xA9', ($offset + 2).try_into().unwrap())
+                && CHECK_AT!(
+                    $string,
+                    b'\x80',
+                    ($offset + 1).try_into().unwrap()
+                )
+                && CHECK_AT!(
+                    $string,
+                    b'\xA9',
+                    ($offset + 2).try_into().unwrap()
+                )
     };
 }
-
 
 macro_rules! IS_BREAK {
     ($string:expr) => {
@@ -296,7 +311,8 @@ macro_rules! IS_BREAKZ {
 
 macro_rules! IS_BLANKZ_AT {
     ($string:expr, $offset:expr) => {
-        IS_BLANK_AT!($string, $offset) || IS_BREAKZ_AT!($string, $offset)
+        IS_BLANK_AT!($string, $offset)
+            || IS_BREAKZ_AT!($string, $offset)
     };
 }
 
@@ -310,18 +326,23 @@ macro_rules! WIDTH_AT {
     ($string:expr, $offset:expr) => {
         if *$string.pointer.wrapping_offset($offset) & 0x80 == 0x00 {
             1
-        } else if *$string.pointer.wrapping_offset($offset) & 0xE0 == 0xC0 {
+        } else if *$string.pointer.wrapping_offset($offset) & 0xE0
+            == 0xC0
+        {
             2
-        } else if *$string.pointer.wrapping_offset($offset) & 0xF0 == 0xE0 {
+        } else if *$string.pointer.wrapping_offset($offset) & 0xF0
+            == 0xE0
+        {
             3
-        } else if *$string.pointer.wrapping_offset($offset) & 0xF8 == 0xF0 {
+        } else if *$string.pointer.wrapping_offset($offset) & 0xF8
+            == 0xF0
+        {
             4
         } else {
             0
         }
     };
 }
-
 
 macro_rules! WIDTH {
     ($string:expr) => {
@@ -331,7 +352,8 @@ macro_rules! WIDTH {
 
 macro_rules! MOVE {
     ($string:expr) => {
-        $string.pointer = $string.pointer.wrapping_offset(WIDTH!($string))
+        $string.pointer =
+            $string.pointer.wrapping_offset(WIDTH!($string))
     };
 }
 
@@ -377,7 +399,9 @@ macro_rules! copy {
 
 macro_rules! STACK_INIT {
     ($stack:expr, $type:ty) => {{
-        $stack.start = yaml_malloc(16 * size_of::<$type>() as libc::c_ulong) as *mut $type;
+        $stack.start =
+            yaml_malloc(16 * size_of::<$type>() as libc::c_ulong)
+                as *mut $type;
         $stack.top = $stack.start;
         $stack.end = $stack.start.offset(16_isize);
     }};
@@ -400,7 +424,9 @@ macro_rules! STACK_EMPTY {
 
 macro_rules! STACK_LIMIT {
     ($context:expr, $stack:expr) => {
-        if $stack.top.c_offset_from($stack.start) < libc::c_int::MAX as isize - 1 {
+        if $stack.top.c_offset_from($stack.start)
+            < libc::c_int::MAX as isize - 1
+        {
             OK
         } else {
             (*$context).error = YamlMemoryError;
@@ -440,7 +466,9 @@ macro_rules! POP {
 
 macro_rules! QUEUE_INIT {
     ($queue:expr, $type:ty) => {{
-        $queue.start = yaml_malloc(16 * size_of::<$type>() as libc::c_ulong) as *mut $type;
+        $queue.start =
+            yaml_malloc(16 * size_of::<$type>() as libc::c_ulong)
+                as *mut $type;
         $queue.tail = $queue.start;
         $queue.head = $queue.tail;
         $queue.end = $queue.start.offset(16_isize);
@@ -509,8 +537,10 @@ macro_rules! QUEUE_INSERT {
             $queue
                 .head
                 .wrapping_offset($index as isize)
-                .wrapping_offset(1_isize) as *mut libc::c_void,
-            $queue.head.wrapping_offset($index as isize) as *const libc::c_void,
+                .wrapping_offset(1_isize)
+                as *mut libc::c_void,
+            $queue.head.wrapping_offset($index as isize)
+                as *const libc::c_void,
             ($queue.tail.c_offset_from($queue.head) as libc::c_ulong)
                 .wrapping_sub($index)
                 .wrapping_mul(size_of::<YamlTokenT>() as libc::c_ulong),

@@ -4,10 +4,10 @@ on:
   push:
     branches:
       - master
-      - feat/serde_yml
+      - feat/libyml
   pull_request:
     branches:
-      - feat/serde_yml
+      - feat/libyml
   release:
     types: [created]
 
@@ -192,7 +192,7 @@ jobs:
           VERSION: ${{ env.VERSION }}
         with:
           tag_name: v${{ env.VERSION }}
-          release_name: LibYML 🦀 v${{ env.VERSION }}
+          release_name: v${{ env.VERSION }}
           body_path: ${{ github.workspace }}/CHANGELOG.md
           draft: true
           prerelease: false
