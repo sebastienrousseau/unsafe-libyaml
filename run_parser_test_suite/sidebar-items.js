@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["main","print_escaped","unsafe_main"],"mod":["cstr"]};

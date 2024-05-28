@@ -1,0 +1,1 @@
+window.SIDEBAR_ITEMS = {"fn":["strlen"],"struct":["CStr"],"type":["c_char"]};
