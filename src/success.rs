@@ -9,12 +9,12 @@ pub(crate) const OK: Success = Success { ok: true };
 pub(crate) const FAIL: Success = Success { ok: false };
 
 #[must_use]
-#[derive(Debug)]
+#[derive(Copy, Clone, Debug)]
 pub struct Success {
     pub ok: bool,
 }
 
-#[derive(Debug)]
+#[derive(Copy, Clone, Debug)]
 pub struct Failure {
     pub fail: bool,
 }
