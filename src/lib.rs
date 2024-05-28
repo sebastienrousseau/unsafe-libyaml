@@ -1,4 +1,3 @@
-
 //! # LibYML
 //!
 //! [`LibYML`][00] is a Rust library for parsing and emitting YAML data in a safe and efficient manner. The library is designed to be easy to use and provides a comprehensive set of tools for working with YAML data.

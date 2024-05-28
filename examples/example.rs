@@ -1,4 +1,3 @@
-
 /// This module contains the `yaml_parser_initialize` example.
 mod apis;
 

@@ -1,4 +1,3 @@
-
 use core::ops::Deref;
 
 pub(crate) const OK: Success = Success { ok: true };

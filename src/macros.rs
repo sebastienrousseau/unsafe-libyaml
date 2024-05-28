@@ -1,4 +1,3 @@
-
 macro_rules! BUFFER_INIT {
     ($buffer:expr, $size:expr) => {{
         let start = addr_of_mut!($buffer.start);

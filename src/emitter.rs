@@ -1,4 +1,3 @@
-
 use crate::api::{
     yaml_free, yaml_queue_extend, yaml_stack_extend, yaml_strdup,
 };

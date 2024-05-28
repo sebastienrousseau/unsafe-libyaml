@@ -1,4 +1,3 @@
-
 use crate::api::{yaml_free, yaml_malloc};
 use crate::externs::{memset, strcmp};
 use crate::fmt::WriteToPtr;
