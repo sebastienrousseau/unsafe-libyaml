@@ -114,7 +114,7 @@
 //!
 //! You can run the `apis` example using the following command:
 //!
-//! ```rust
+//! ```shell
 //! cargo run --example apis
 //! ```
 //!
