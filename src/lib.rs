@@ -311,6 +311,7 @@ impl<T> PointerExt for *mut T {
 #[macro_use]
 mod macros;
 
+/// API module for LibYML
 pub mod api;
 mod dumper;
 mod emitter;
@@ -321,6 +322,7 @@ mod reader;
 mod scanner;
 mod success;
 mod writer;
+/// YAML API module for LibYML
 pub mod yaml;
 
 pub use crate::api::{

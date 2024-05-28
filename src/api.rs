@@ -1154,13 +1154,21 @@ pub unsafe fn yaml_alias_event_initialize(
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
 #[repr(C)]
 pub struct ScalarEventData<'a> {
+    /// Anchor name or null.
     pub anchor: *const yaml_char_t,
+    /// Tag or null.
     pub tag: *const yaml_char_t,
+    /// Value.
     pub value: *const yaml_char_t,
+    /// Value length.
     pub length: libc::c_int,
+    /// Is the tag optional for the plain style?
     pub plain_implicit: bool,
+    /// Is the tag optional for any non-plain style?
     pub quoted_implicit: bool,
+    /// Scalar style.
     pub style: YamlScalarStyleT,
+    /// Lifetime marker.
     pub _marker: core::marker::PhantomData<&'a ()>,
 }
 

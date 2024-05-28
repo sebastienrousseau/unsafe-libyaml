@@ -142,7 +142,7 @@ pub enum YamlMappingStyleT {
     YamlFlowMappingStyle = 2,
 }
 
-/// Token types.
+/// The token types.
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)]
 #[repr(u32)]
 #[non_exhaustive]
@@ -262,6 +262,7 @@ pub struct YamlTokenT {
 
 #[derive(Copy, Clone, Debug)]
 #[repr(C)]
+/// The data structure for YAML tokens.
 pub struct UnnamedYamlTokenTData {
     /// The stream start (for YamlStreamStartToken).
     pub stream_start: UnnamedYamlTokenTdataStreamStart,
@@ -279,6 +280,7 @@ pub struct UnnamedYamlTokenTData {
     pub tag_directive: UnnamedYamlTokenTdataTagDirective,
 }
 
+/// Represents the start of a YAML data stream.
 #[derive(Copy, Clone, Debug)]
 #[repr(C)]
 #[non_exhaustive]
@@ -287,6 +289,7 @@ pub struct UnnamedYamlTokenTdataStreamStart {
     pub encoding: YamlEncodingT,
 }
 
+/// Represents an alias in a YAML document.
 #[derive(Copy, Clone, Debug)]
 #[repr(C)]
 #[non_exhaustive]
@@ -295,6 +298,7 @@ pub struct UnnamedYamlTokenTdataAlias {
     pub value: *mut yaml_char_t,
 }
 
+/// Represents an anchor in a YAML document.
 #[derive(Copy, Clone, Debug)]
 #[repr(C)]
 #[non_exhaustive]
@@ -303,6 +307,7 @@ pub struct UnnamedYamlTokenTdataAnchor {
     pub value: *mut yaml_char_t,
 }
 
+/// Represents a tag in a YAML document.
 #[derive(Copy, Clone, Debug)]
 #[repr(C)]
 #[non_exhaustive]
@@ -313,6 +318,7 @@ pub struct UnnamedYamlTokenTdataTag {
     pub suffix: *mut yaml_char_t,
 }
 
+/// Represents a scalar value in a YAML document.
 #[derive(Copy, Clone, Debug)]
 #[repr(C)]
 #[non_exhaustive]
@@ -325,6 +331,7 @@ pub struct UnnamedYamlTokenTdataScalar {
     pub style: YamlScalarStyleT,
 }
 
+/// Represents the version directive in a YAML document.
 #[derive(Copy, Clone, Debug)]
 #[repr(C)]
 #[non_exhaustive]
@@ -335,6 +342,7 @@ pub struct UnnamedYamlTokenTdataVersionDirective {
     pub minor: libc::c_int,
 }
 
+/// Represents the tag directive in a YAML document.
 #[derive(Copy, Clone, Debug)]
 #[repr(C)]
 #[non_exhaustive]
@@ -464,6 +472,7 @@ pub struct YamlEventT {
     pub end_mark: YamlMarkT,
 }
 
+/// Represents the data associated with a YAML event.
 #[derive(Copy, Clone, Debug)]
 #[repr(C)]
 pub struct UnnamedYamlEventTData {
@@ -483,6 +492,7 @@ pub struct UnnamedYamlEventTData {
     pub mapping_start: UnnamedYamlEventTdataMappingStart,
 }
 
+/// Represents the data associated with the start of a YAML stream.
 #[derive(Copy, Clone, Debug)]
 #[repr(C)]
 #[non_exhaustive]
@@ -491,6 +501,7 @@ pub struct UnnamedYamlEventTdataStreamStart {
     pub encoding: YamlEncodingT,
 }
 
+/// Represents the data associated with the start of a YAML document.
 #[derive(Copy, Clone, Debug)]
 #[repr(C)]
 #[non_exhaustive]
@@ -503,6 +514,7 @@ pub struct UnnamedYamlEventTdataDocumentStart {
     pub implicit: bool,
 }
 
+/// Represents the list of tag directives at the start of a YAML document.
 #[derive(Copy, Clone, Debug)]
 #[repr(C)]
 #[non_exhaustive]
@@ -513,6 +525,7 @@ pub struct UnnamedYamlEventTdataDocumentStartTagDirectives {
     pub end: *mut YamlTagDirectiveT,
 }
 
+/// Represents the data associated with the end of a YAML document.
 #[derive(Copy, Clone, Debug)]
 #[repr(C)]
 #[non_exhaustive]
@@ -521,6 +534,7 @@ pub struct UnnamedYamlEventTdataDocumentEnd {
     pub implicit: bool,
 }
 
+/// Represents the data associated with a YAML alias event.
 #[derive(Copy, Clone, Debug)]
 #[repr(C)]
 #[non_exhaustive]
@@ -529,6 +543,7 @@ pub struct UnnamedYamlEventTdataAlias {
     pub anchor: *mut yaml_char_t,
 }
 
+/// Represents the data associated with a YAML scalar event.
 #[derive(Copy, Clone, Debug)]
 #[repr(C)]
 #[non_exhaustive]
@@ -549,6 +564,7 @@ pub struct UnnamedYamlEventTdataScalar {
     pub style: YamlScalarStyleT,
 }
 
+/// Represents the data associated with the start of a YAML sequence.
 #[derive(Copy, Clone, Debug)]
 #[repr(C)]
 #[non_exhaustive]
@@ -563,6 +579,7 @@ pub struct UnnamedYamlEventTdataSequenceStart {
     pub style: YamlSequenceStyleT,
 }
 
+/// Represents the data associated with the start of a YAML mapping.
 #[derive(Copy, Clone, Debug)]
 #[repr(C)]
 #[non_exhaustive]
@@ -639,6 +656,7 @@ pub struct YamlNodeT {
     pub end_mark: YamlMarkT,
 }
 
+/// Represents the data associated with a YAML node.
 #[derive(Copy, Clone, Debug)]
 #[repr(C)]
 pub struct UnnamedYamlNodeTData {
@@ -650,6 +668,7 @@ pub struct UnnamedYamlNodeTData {
     pub mapping: UnnamedYamlNodeTDataMapping,
 }
 
+/// Represents the data associated with a YAML scalar node.
 #[derive(Copy, Clone, Debug)]
 #[repr(C)]
 #[non_exhaustive]
@@ -662,9 +681,10 @@ pub struct UnnamedYamlNodeTDataScalar {
     pub style: YamlScalarStyleT,
 }
 
-/// An element of a sequence node.
+/// Represents an element of a YAML sequence node.
 pub type YamlNodeItemT = libc::c_int;
 
+/// Represents the data associated with a YAML sequence node.
 #[derive(Copy, Clone, Debug)]
 #[repr(C)]
 #[non_exhaustive]
@@ -675,6 +695,7 @@ pub struct UnnamedYamlNodeTDataSequence {
     pub style: YamlSequenceStyleT,
 }
 
+/// Represents the data associated with a YAML mapping node.
 #[derive(Copy, Clone, Debug)]
 #[repr(C)]
 #[non_exhaustive]
@@ -728,6 +749,7 @@ pub struct YamlDocumentT {
     pub end_mark: YamlMarkT,
 }
 
+/// Represents the list of tag directives in a YAML document.
 #[derive(Copy, Clone, Debug)]
 #[repr(C)]
 #[non_exhaustive]
@@ -936,13 +958,14 @@ pub struct YamlParserT {
     pub(crate) document: *mut YamlDocumentT,
 }
 
+/// Represents the prefix data associated with a YAML parser.
 #[derive(Copy, Clone, Debug)]
 #[repr(C)]
 #[non_exhaustive]
 pub struct YamlParserTPrefix {
-    /// Error type.
+    /// The error type.
     pub error: YamlErrorTypeT,
-    /// Error description.
+    /// The error description.
     pub problem: *const libc::c_char,
     /// The byte about which the problem occurred.
     pub problem_offset: size_t,
@@ -1140,13 +1163,14 @@ pub struct YamlEmitterT {
     pub(crate) document: *mut YamlDocumentT,
 }
 
+/// Represents the prefix data associated with a YAML emitter.
 #[derive(Copy, Clone, Debug)]
 #[repr(C)]
 #[non_exhaustive]
 pub struct YamlEmitterTPrefix {
-    /// Error type.
+    /// The error type.
     pub error: YamlErrorTypeT,
-    /// Error description.
+    /// The error description.
     pub problem: *const libc::c_char,
 }
 
