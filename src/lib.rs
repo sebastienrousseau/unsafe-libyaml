@@ -13,7 +13,7 @@
 //!
 //! [![Made With RustRust](https://img.shields.io/badge/rust-f04041?style=for-the-badge&labelColor=c0282d&logo=rust)](https://www.rust-lang.org "Rust")
 //! [![Crates.io](https://img.shields.io/crates/v/libyml.svg?style=for-the-badge&color=success&labelColor=27A006)](https://crates.io/crates/libyml "Crates.io")
-//! [![Lib.rs](https://img.shields.io/badge/lib.rs-v0.0.2-success.svg?style=for-the-badge&color=8A48FF&labelColor=6F36E4)](https://lib.rs/crates/libyml "Lib.rs")
+//! [![Lib.rs](https://img.shields.io/badge/lib.rs-v0.0.3-success.svg?style=for-the-badge&color=8A48FF&labelColor=6F36E4)](https://lib.rs/crates/libyml "Lib.rs")
 //! [![Github](https://img.shields.io/badge/github-8da0cb?style=for-the-badge&labelColor=555555&logo=github)](https://github.com/sebastienrousseau/libyml "Github")
 //! [![License](https://img.shields.io/crates/l/libyml.svg?style=for-the-badge&color=007EC6&labelColor=03589B)](https://opensource.org/license/apache-2-0/ "MIT or Apache License, Version 2.0")
 //!
