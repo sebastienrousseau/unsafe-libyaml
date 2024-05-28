@@ -590,21 +590,81 @@
 <a href="#590" id="590">590</a>
 <a href="#591" id="591">591</a>
 <a href="#592" id="592">592</a>
-</pre></div><pre class="rust"><code><span class="comment">// Copyright notice and licensing information.
-// These lines indicate the copyright of the software and its licensing terms.
-// SPDX-License-Identifier: Apache-2.0 OR MIT indicates dual licensing under Apache 2.0 or MIT licenses.
-// Copyright © 2024 LibYML. All rights reserved.
-
-</span><span class="kw">use </span><span class="kw">crate</span>::api::{yaml_free, yaml_malloc, yaml_stack_extend, yaml_strdup};
+<a href="#593" id="593">593</a>
+<a href="#594" id="594">594</a>
+<a href="#595" id="595">595</a>
+<a href="#596" id="596">596</a>
+<a href="#597" id="597">597</a>
+<a href="#598" id="598">598</a>
+<a href="#599" id="599">599</a>
+<a href="#600" id="600">600</a>
+<a href="#601" id="601">601</a>
+<a href="#602" id="602">602</a>
+<a href="#603" id="603">603</a>
+<a href="#604" id="604">604</a>
+<a href="#605" id="605">605</a>
+<a href="#606" id="606">606</a>
+<a href="#607" id="607">607</a>
+<a href="#608" id="608">608</a>
+<a href="#609" id="609">609</a>
+<a href="#610" id="610">610</a>
+<a href="#611" id="611">611</a>
+<a href="#612" id="612">612</a>
+<a href="#613" id="613">613</a>
+<a href="#614" id="614">614</a>
+<a href="#615" id="615">615</a>
+<a href="#616" id="616">616</a>
+<a href="#617" id="617">617</a>
+<a href="#618" id="618">618</a>
+<a href="#619" id="619">619</a>
+<a href="#620" id="620">620</a>
+<a href="#621" id="621">621</a>
+<a href="#622" id="622">622</a>
+<a href="#623" id="623">623</a>
+<a href="#624" id="624">624</a>
+<a href="#625" id="625">625</a>
+<a href="#626" id="626">626</a>
+<a href="#627" id="627">627</a>
+<a href="#628" id="628">628</a>
+<a href="#629" id="629">629</a>
+<a href="#630" id="630">630</a>
+<a href="#631" id="631">631</a>
+<a href="#632" id="632">632</a>
+<a href="#633" id="633">633</a>
+<a href="#634" id="634">634</a>
+<a href="#635" id="635">635</a>
+<a href="#636" id="636">636</a>
+<a href="#637" id="637">637</a>
+<a href="#638" id="638">638</a>
+<a href="#639" id="639">639</a>
+<a href="#640" id="640">640</a>
+<a href="#641" id="641">641</a>
+<a href="#642" id="642">642</a>
+<a href="#643" id="643">643</a>
+<a href="#644" id="644">644</a>
+<a href="#645" id="645">645</a>
+<a href="#646" id="646">646</a>
+<a href="#647" id="647">647</a>
+<a href="#648" id="648">648</a>
+<a href="#649" id="649">649</a>
+<a href="#650" id="650">650</a>
+<a href="#651" id="651">651</a>
+<a href="#652" id="652">652</a>
+<a href="#653" id="653">653</a>
+</pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::api::{
+    yaml_free, yaml_malloc, yaml_stack_extend, yaml_strdup,
+};
 <span class="kw">use </span><span class="kw">crate</span>::externs::{memset, strcmp};
 <span class="kw">use </span><span class="kw">crate</span>::success::{Success, FAIL, OK};
 <span class="kw">use </span><span class="kw">crate</span>::yaml::yaml_char_t;
 <span class="kw">use crate</span>::{
-    libc, YamlAliasDataT, yaml_document_delete, YamlDocumentT, YamlEventT, YamlMarkT,
-    YamlNodeItemT, YamlNodePairT, YamlNodeT, yaml_parser_parse, YamlParserT, PointerExt,
-    YamlAliasEvent, YamlComposerError, YamlDocumentEndEvent, YamlDocumentStartEvent,
-    YamlMappingEndEvent, YamlMappingNode, YamlMappingStartEvent, YamlMemoryError,
-    YamlScalarEvent, YamlScalarNode, YamlSequenceEndEvent, YamlSequenceNode,
+    libc, yaml_document_delete, yaml_parser_parse, PointerExt,
+    YamlAliasDataT, YamlAliasEvent, YamlComposerError,
+    YamlDocumentEndEvent, YamlDocumentStartEvent, YamlDocumentT,
+    YamlEventT, YamlMappingEndEvent, YamlMappingNode,
+    YamlMappingStartEvent, YamlMarkT, YamlMemoryError, YamlNodeItemT,
+    YamlNodePairT, YamlNodeT, YamlParserT, YamlScalarEvent,
+    YamlScalarNode, YamlSequenceEndEvent, YamlSequenceNode,
     YamlSequenceStartEvent, YamlStreamEndEvent, YamlStreamStartEvent,
 };
 <span class="kw">use </span>core::mem::{size_of, MaybeUninit};
@@ -738,11 +798,14 @@
     <span class="macro">__assert!</span>((<span class="kw-2">*</span>event).type_ == YamlDocumentStartEvent);
     <span class="kw">let </span>fresh16 = <span class="macro">addr_of_mut!</span>((<span class="kw-2">*</span>(<span class="kw-2">*</span>parser).document).version_directive);
     <span class="kw-2">*</span>fresh16 = (<span class="kw-2">*</span>event).data.document_start.version_directive;
-    <span class="kw">let </span>fresh17 = <span class="macro">addr_of_mut!</span>((<span class="kw-2">*</span>(<span class="kw-2">*</span>parser).document).tag_directives.start);
+    <span class="kw">let </span>fresh17 =
+        <span class="macro">addr_of_mut!</span>((<span class="kw-2">*</span>(<span class="kw-2">*</span>parser).document).tag_directives.start);
     <span class="kw-2">*</span>fresh17 = (<span class="kw-2">*</span>event).data.document_start.tag_directives.start;
-    <span class="kw">let </span>fresh18 = <span class="macro">addr_of_mut!</span>((<span class="kw-2">*</span>(<span class="kw-2">*</span>parser).document).tag_directives.end);
+    <span class="kw">let </span>fresh18 =
+        <span class="macro">addr_of_mut!</span>((<span class="kw-2">*</span>(<span class="kw-2">*</span>parser).document).tag_directives.end);
     <span class="kw-2">*</span>fresh18 = (<span class="kw-2">*</span>event).data.document_start.tag_directives.end;
-    (<span class="kw-2">*</span>(<span class="kw-2">*</span>parser).document).start_implicit = (<span class="kw-2">*</span>event).data.document_start.implicit;
+    (<span class="kw-2">*</span>(<span class="kw-2">*</span>parser).document).start_implicit =
+        (<span class="kw-2">*</span>event).data.document_start.implicit;
     (<span class="kw-2">*</span>(<span class="kw-2">*</span>parser).document).start_mark = (<span class="kw-2">*</span>event).start_mark;
     <span class="macro">STACK_INIT!</span>(ctx, libc::c_int);
     <span class="kw">if </span>yaml_parser_load_nodes(parser, <span class="macro">addr_of_mut!</span>(ctx)).fail {
@@ -753,7 +816,10 @@
     OK
 }
 
-<span class="kw">unsafe fn </span>yaml_parser_load_nodes(parser: <span class="kw-2">*mut </span>YamlParserT, ctx: <span class="kw-2">*mut </span>LoaderCtx) -&gt; Success {
+<span class="kw">unsafe fn </span>yaml_parser_load_nodes(
+    parser: <span class="kw-2">*mut </span>YamlParserT,
+    ctx: <span class="kw-2">*mut </span>LoaderCtx,
+) -&gt; Success {
     <span class="kw">let </span><span class="kw-2">mut </span>event = MaybeUninit::&lt;YamlEventT&gt;::uninit();
     <span class="kw">let </span>event = event.as_mut_ptr();
     <span class="kw">loop </span>{
@@ -777,7 +843,9 @@
                 }
             }
             YamlSequenceEndEvent =&gt; {
-                <span class="kw">if </span>yaml_parser_load_sequence_end(parser, event, ctx).fail {
+                <span class="kw">if </span>yaml_parser_load_sequence_end(parser, event, ctx)
+                    .fail
+                {
                     <span class="kw">return </span>FAIL;
                 }
             }
@@ -787,7 +855,8 @@
                 }
             }
             YamlMappingEndEvent =&gt; {
-                <span class="kw">if </span>yaml_parser_load_mapping_end(parser, event, ctx).fail {
+                <span class="kw">if </span>yaml_parser_load_mapping_end(parser, event, ctx).fail
+                {
                     <span class="kw">return </span>FAIL;
                 }
             }
@@ -800,7 +869,8 @@
             <span class="kw">break</span>;
         }
     }
-    (<span class="kw-2">*</span>(<span class="kw-2">*</span>parser).document).end_implicit = (<span class="kw-2">*</span>event).data.document_end.implicit;
+    (<span class="kw-2">*</span>(<span class="kw-2">*</span>parser).document).end_implicit =
+        (<span class="kw-2">*</span>event).data.document_end.implicit;
     (<span class="kw-2">*</span>(<span class="kw-2">*</span>parser).document).end_mark = (<span class="kw-2">*</span>event).end_mark;
     OK
 }
@@ -833,9 +903,11 @@
             yaml_free(anchor <span class="kw">as </span><span class="kw-2">*mut </span>libc::c_void);
             <span class="kw">return </span>yaml_parser_set_composer_error_context(
                 parser,
-                <span class="string">b"found duplicate anchor; first occurrence\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8 <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
+                <span class="string">b"found duplicate anchor; first occurrence\0"
+                    </span><span class="kw">as </span><span class="kw-2">*const </span>u8 <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
                 (<span class="kw-2">*</span>alias_data).mark,
-                <span class="string">b"second occurrence\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8 <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
+                <span class="string">b"second occurrence\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8
+                    <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
                 (<span class="kw-2">*</span>data).mark,
             );
         }
@@ -853,14 +925,16 @@
     <span class="kw">if </span><span class="macro">STACK_EMPTY!</span>(<span class="kw-2">*</span>ctx) {
         <span class="kw">return </span>OK;
     }
-    <span class="kw">let </span>parent_index: libc::c_int = <span class="kw-2">*</span>(<span class="kw-2">*</span>ctx).top.wrapping_offset(-<span class="number">1_isize</span>);
-    <span class="kw">let </span>parent: <span class="kw-2">*mut </span>YamlNodeT = <span class="macro">addr_of_mut!</span>(
-        <span class="kw-2">*</span>((<span class="kw-2">*</span>(<span class="kw-2">*</span>parser).document).nodes.start).wrapping_offset((parent_index - <span class="number">1</span>) <span class="kw">as </span>isize)
-    );
+    <span class="kw">let </span>parent_index: libc::c_int =
+        <span class="kw-2">*</span>(<span class="kw-2">*</span>ctx).top.wrapping_offset(-<span class="number">1_isize</span>);
+    <span class="kw">let </span>parent: <span class="kw-2">*mut </span>YamlNodeT =
+        <span class="macro">addr_of_mut!</span>(<span class="kw-2">*</span>((<span class="kw-2">*</span>(<span class="kw-2">*</span>parser).document).nodes.start)
+            .wrapping_offset((parent_index - <span class="number">1</span>) <span class="kw">as </span>isize));
     <span class="kw">let </span>current_block_17: u64;
     <span class="kw">match </span>(<span class="kw-2">*</span>parent).type_ {
         YamlSequenceNode =&gt; {
-            <span class="kw">if </span><span class="macro">STACK_LIMIT!</span>(parser, (<span class="kw-2">*</span>parent).data.sequence.items).fail {
+            <span class="kw">if </span><span class="macro">STACK_LIMIT!</span>(parser, (<span class="kw-2">*</span>parent).data.sequence.items).fail
+            {
                 <span class="kw">return </span>FAIL;
             }
             <span class="macro">PUSH!</span>((<span class="kw-2">*</span>parent).data.sequence.items, index);
@@ -869,8 +943,12 @@
             <span class="kw">let </span><span class="kw-2">mut </span>pair = MaybeUninit::&lt;YamlNodePairT&gt;::uninit();
             <span class="kw">let </span>pair = pair.as_mut_ptr();
             <span class="kw">if </span>!<span class="macro">STACK_EMPTY!</span>((<span class="kw-2">*</span>parent).data.mapping.pairs) {
-                <span class="kw">let </span>p: <span class="kw-2">*mut </span>YamlNodePairT =
-                    (<span class="kw-2">*</span>parent).data.mapping.pairs.top.wrapping_offset(-<span class="number">1_isize</span>);
+                <span class="kw">let </span>p: <span class="kw-2">*mut </span>YamlNodePairT = (<span class="kw-2">*</span>parent)
+                    .data
+                    .mapping
+                    .pairs
+                    .top
+                    .wrapping_offset(-<span class="number">1_isize</span>);
                 <span class="kw">if </span>(<span class="kw-2">*</span>p).key != <span class="number">0 </span>&amp;&amp; (<span class="kw-2">*</span>p).value == <span class="number">0 </span>{
                     (<span class="kw-2">*</span>p).value = index;
                     current_block_17 = <span class="number">11307063007268554308</span>;
@@ -885,7 +963,12 @@
                 <span class="kw">_ </span>=&gt; {
                     (<span class="kw-2">*</span>pair).key = index;
                     (<span class="kw-2">*</span>pair).value = <span class="number">0</span>;
-                    <span class="kw">if </span><span class="macro">STACK_LIMIT!</span>(parser, (<span class="kw-2">*</span>parent).data.mapping.pairs).fail {
+                    <span class="kw">if </span><span class="macro">STACK_LIMIT!</span>(
+                        parser,
+                        (<span class="kw-2">*</span>parent).data.mapping.pairs
+                    )
+                    .fail
+                    {
                         <span class="kw">return </span>FAIL;
                     }
                     <span class="macro">PUSH!</span>((<span class="kw-2">*</span>parent).data.mapping.pairs, <span class="kw-2">*</span>pair);
@@ -914,7 +997,11 @@
         ) == <span class="number">0
         </span>{
             yaml_free(anchor <span class="kw">as </span><span class="kw-2">*mut </span>libc::c_void);
-            <span class="kw">return </span>yaml_parser_load_node_add(parser, ctx, (<span class="kw-2">*</span>alias_data).index);
+            <span class="kw">return </span>yaml_parser_load_node_add(
+                parser,
+                ctx,
+                (<span class="kw-2">*</span>alias_data).index,
+            );
         }
         alias_data = alias_data.wrapping_offset(<span class="number">1</span>);
     }
@@ -945,7 +1032,9 @@
         </span>{
             yaml_free(tag <span class="kw">as </span><span class="kw-2">*mut </span>libc::c_void);
             tag = yaml_strdup(
-                <span class="string">b"tag:yaml.org,2002:str\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8 <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char <span class="kw">as </span><span class="kw-2">*mut </span>yaml_char_t,
+                <span class="string">b"tag:yaml.org,2002:str\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8
+                    <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char
+                    <span class="kw">as </span><span class="kw-2">*mut </span>yaml_char_t,
             );
             <span class="kw">if </span>tag.is_null() {
                 current_block = <span class="number">10579931339944277179</span>;
@@ -974,7 +1063,13 @@
                 .top
                 .c_offset_from((<span class="kw-2">*</span>(<span class="kw-2">*</span>parser).document).nodes.start)
                 <span class="kw">as </span>libc::c_int;
-            <span class="kw">if </span>yaml_parser_register_anchor(parser, index, (<span class="kw-2">*</span>event).data.scalar.anchor).fail {
+            <span class="kw">if </span>yaml_parser_register_anchor(
+                parser,
+                index,
+                (<span class="kw-2">*</span>event).data.scalar.anchor,
+            )
+            .fail
+            {
                 <span class="kw">return </span>FAIL;
             }
             <span class="kw">return </span>yaml_parser_load_node_add(parser, ctx, index);
@@ -1015,7 +1110,9 @@
         </span>{
             yaml_free(tag <span class="kw">as </span><span class="kw-2">*mut </span>libc::c_void);
             tag = yaml_strdup(
-                <span class="string">b"tag:yaml.org,2002:seq\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8 <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char <span class="kw">as </span><span class="kw-2">*mut </span>yaml_char_t,
+                <span class="string">b"tag:yaml.org,2002:seq\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8
+                    <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char
+                    <span class="kw">as </span><span class="kw-2">*mut </span>yaml_char_t,
             );
             <span class="kw">if </span>tag.is_null() {
                 current_block = <span class="number">13474536459355229096</span>;
@@ -1039,14 +1136,20 @@
             (<span class="kw-2">*</span>node).data.sequence.items.start = items.start;
             (<span class="kw-2">*</span>node).data.sequence.items.end = items.end;
             (<span class="kw-2">*</span>node).data.sequence.items.top = items.start;
-            (<span class="kw-2">*</span>node).data.sequence.style = (<span class="kw-2">*</span>event).data.sequence_start.style;
+            (<span class="kw-2">*</span>node).data.sequence.style =
+                (<span class="kw-2">*</span>event).data.sequence_start.style;
             <span class="macro">PUSH!</span>((<span class="kw-2">*</span>(<span class="kw-2">*</span>parser).document).nodes, <span class="kw-2">*</span>node);
             index = (<span class="kw-2">*</span>(<span class="kw-2">*</span>parser).document)
                 .nodes
                 .top
                 .c_offset_from((<span class="kw-2">*</span>(<span class="kw-2">*</span>parser).document).nodes.start)
                 <span class="kw">as </span>libc::c_int;
-            <span class="kw">if </span>yaml_parser_register_anchor(parser, index, (<span class="kw-2">*</span>event).data.sequence_start.anchor).fail
+            <span class="kw">if </span>yaml_parser_register_anchor(
+                parser,
+                index,
+                (<span class="kw-2">*</span>event).data.sequence_start.anchor,
+            )
+            .fail
             {
                 <span class="kw">return </span>FAIL;
             }
@@ -1070,10 +1173,15 @@
     event: <span class="kw-2">*mut </span>YamlEventT,
     ctx: <span class="kw-2">*mut </span>LoaderCtx,
 ) -&gt; Success {
-    <span class="macro">__assert!</span>(((<span class="kw-2">*</span>ctx).top).c_offset_from((<span class="kw-2">*</span>ctx).start) <span class="kw">as </span>libc::c_long &gt; <span class="number">0_i64</span>);
+    <span class="macro">__assert!</span>(
+        ((<span class="kw-2">*</span>ctx).top).c_offset_from((<span class="kw-2">*</span>ctx).start) <span class="kw">as </span>libc::c_long
+            &gt; <span class="number">0_i64
+    </span>);
     <span class="kw">let </span>index: libc::c_int = <span class="kw-2">*</span>(<span class="kw-2">*</span>ctx).top.wrapping_offset(-<span class="number">1_isize</span>);
     <span class="macro">__assert!</span>(
-        (<span class="kw-2">*</span>((<span class="kw-2">*</span>(<span class="kw-2">*</span>parser).document).nodes.start).wrapping_offset((index - <span class="number">1</span>) <span class="kw">as </span>isize)).type_
+        (<span class="kw-2">*</span>((<span class="kw-2">*</span>(<span class="kw-2">*</span>parser).document).nodes.start)
+            .wrapping_offset((index - <span class="number">1</span>) <span class="kw">as </span>isize))
+        .type_
             == YamlSequenceNode
     );
     (<span class="kw-2">*</span>(<span class="kw-2">*</span>(<span class="kw-2">*</span>parser).document)
@@ -1114,7 +1222,9 @@
         </span>{
             yaml_free(tag <span class="kw">as </span><span class="kw-2">*mut </span>libc::c_void);
             tag = yaml_strdup(
-                <span class="string">b"tag:yaml.org,2002:map\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8 <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char <span class="kw">as </span><span class="kw-2">*mut </span>yaml_char_t,
+                <span class="string">b"tag:yaml.org,2002:map\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8
+                    <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char
+                    <span class="kw">as </span><span class="kw-2">*mut </span>yaml_char_t,
             );
             <span class="kw">if </span>tag.is_null() {
                 current_block = <span class="number">13635467803606088781</span>;
@@ -1138,14 +1248,21 @@
             (<span class="kw-2">*</span>node).data.mapping.pairs.start = pairs.start;
             (<span class="kw-2">*</span>node).data.mapping.pairs.end = pairs.end;
             (<span class="kw-2">*</span>node).data.mapping.pairs.top = pairs.start;
-            (<span class="kw-2">*</span>node).data.mapping.style = (<span class="kw-2">*</span>event).data.mapping_start.style;
+            (<span class="kw-2">*</span>node).data.mapping.style =
+                (<span class="kw-2">*</span>event).data.mapping_start.style;
             <span class="macro">PUSH!</span>((<span class="kw-2">*</span>(<span class="kw-2">*</span>parser).document).nodes, <span class="kw-2">*</span>node);
             index = (<span class="kw-2">*</span>(<span class="kw-2">*</span>parser).document)
                 .nodes
                 .top
                 .c_offset_from((<span class="kw-2">*</span>(<span class="kw-2">*</span>parser).document).nodes.start)
                 <span class="kw">as </span>libc::c_int;
-            <span class="kw">if </span>yaml_parser_register_anchor(parser, index, (<span class="kw-2">*</span>event).data.mapping_start.anchor).fail {
+            <span class="kw">if </span>yaml_parser_register_anchor(
+                parser,
+                index,
+                (<span class="kw-2">*</span>event).data.mapping_start.anchor,
+            )
+            .fail
+            {
                 <span class="kw">return </span>FAIL;
             }
             <span class="kw">if </span>yaml_parser_load_node_add(parser, ctx, index).fail {
@@ -1168,10 +1285,15 @@
     event: <span class="kw-2">*mut </span>YamlEventT,
     ctx: <span class="kw-2">*mut </span>LoaderCtx,
 ) -&gt; Success {
-    <span class="macro">__assert!</span>(((<span class="kw-2">*</span>ctx).top).c_offset_from((<span class="kw-2">*</span>ctx).start) <span class="kw">as </span>libc::c_long &gt; <span class="number">0_i64</span>);
+    <span class="macro">__assert!</span>(
+        ((<span class="kw-2">*</span>ctx).top).c_offset_from((<span class="kw-2">*</span>ctx).start) <span class="kw">as </span>libc::c_long
+            &gt; <span class="number">0_i64
+    </span>);
     <span class="kw">let </span>index: libc::c_int = <span class="kw-2">*</span>(<span class="kw-2">*</span>ctx).top.wrapping_offset(-<span class="number">1_isize</span>);
     <span class="macro">__assert!</span>(
-        (<span class="kw-2">*</span>((<span class="kw-2">*</span>(<span class="kw-2">*</span>parser).document).nodes.start).wrapping_offset((index - <span class="number">1</span>) <span class="kw">as </span>isize)).type_
+        (<span class="kw-2">*</span>((<span class="kw-2">*</span>(<span class="kw-2">*</span>parser).document).nodes.start)
+            .wrapping_offset((index - <span class="number">1</span>) <span class="kw">as </span>isize))
+        .type_
             == YamlMappingNode
     );
     (<span class="kw-2">*</span>(<span class="kw-2">*</span>(<span class="kw-2">*</span>parser).document)

@@ -2531,12 +2531,60 @@
 <a href="#2531" id="2531">2531</a>
 <a href="#2532" id="2532">2532</a>
 <a href="#2533" id="2533">2533</a>
-</pre></div><pre class="rust"><code><span class="comment">// Copyright notice and licensing information.
-// These lines indicate the copyright of the software and its licensing terms.
-// SPDX-License-Identifier: Apache-2.0 OR MIT indicates dual licensing under Apache 2.0 or MIT licenses.
-// Copyright © 2024 LibYML. All rights reserved.
-
-</span><span class="kw">use </span><span class="kw">crate</span>::api::{
+<a href="#2534" id="2534">2534</a>
+<a href="#2535" id="2535">2535</a>
+<a href="#2536" id="2536">2536</a>
+<a href="#2537" id="2537">2537</a>
+<a href="#2538" id="2538">2538</a>
+<a href="#2539" id="2539">2539</a>
+<a href="#2540" id="2540">2540</a>
+<a href="#2541" id="2541">2541</a>
+<a href="#2542" id="2542">2542</a>
+<a href="#2543" id="2543">2543</a>
+<a href="#2544" id="2544">2544</a>
+<a href="#2545" id="2545">2545</a>
+<a href="#2546" id="2546">2546</a>
+<a href="#2547" id="2547">2547</a>
+<a href="#2548" id="2548">2548</a>
+<a href="#2549" id="2549">2549</a>
+<a href="#2550" id="2550">2550</a>
+<a href="#2551" id="2551">2551</a>
+<a href="#2552" id="2552">2552</a>
+<a href="#2553" id="2553">2553</a>
+<a href="#2554" id="2554">2554</a>
+<a href="#2555" id="2555">2555</a>
+<a href="#2556" id="2556">2556</a>
+<a href="#2557" id="2557">2557</a>
+<a href="#2558" id="2558">2558</a>
+<a href="#2559" id="2559">2559</a>
+<a href="#2560" id="2560">2560</a>
+<a href="#2561" id="2561">2561</a>
+<a href="#2562" id="2562">2562</a>
+<a href="#2563" id="2563">2563</a>
+<a href="#2564" id="2564">2564</a>
+<a href="#2565" id="2565">2565</a>
+<a href="#2566" id="2566">2566</a>
+<a href="#2567" id="2567">2567</a>
+<a href="#2568" id="2568">2568</a>
+<a href="#2569" id="2569">2569</a>
+<a href="#2570" id="2570">2570</a>
+<a href="#2571" id="2571">2571</a>
+<a href="#2572" id="2572">2572</a>
+<a href="#2573" id="2573">2573</a>
+<a href="#2574" id="2574">2574</a>
+<a href="#2575" id="2575">2575</a>
+<a href="#2576" id="2576">2576</a>
+<a href="#2577" id="2577">2577</a>
+<a href="#2578" id="2578">2578</a>
+<a href="#2579" id="2579">2579</a>
+<a href="#2580" id="2580">2580</a>
+<a href="#2581" id="2581">2581</a>
+<a href="#2582" id="2582">2582</a>
+<a href="#2583" id="2583">2583</a>
+<a href="#2584" id="2584">2584</a>
+<a href="#2585" id="2585">2585</a>
+<a href="#2586" id="2586">2586</a>
+</pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::api::{
     yaml_free, yaml_queue_extend, yaml_stack_extend, yaml_strdup,
 };
 <span class="kw">use </span><span class="kw">crate</span>::externs::{strcmp, strlen, strncmp};
@@ -3265,17 +3313,22 @@
         (<span class="kw-2">*</span>emitter).state = <span class="macro">POP!</span>((<span class="kw-2">*</span>emitter).states);
         <span class="kw">return </span>OK;
     }
-    <span class="kw">if </span>!first &amp;&amp; yaml_emitter_write_indicator(
+    <span class="kw">if </span>!first
+        &amp;&amp; yaml_emitter_write_indicator(
             emitter,
             <span class="string">b",\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8 <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
             <span class="bool-val">false</span>,
             <span class="bool-val">false</span>,
             <span class="bool-val">false</span>,
         )
-        .fail {
+        .fail
+    {
         <span class="kw">return </span>FAIL;
     }
-    <span class="kw">if </span>((<span class="kw-2">*</span>emitter).canonical || (<span class="kw-2">*</span>emitter).column &gt; (<span class="kw-2">*</span>emitter).best_width) &amp;&amp; yaml_emitter_write_indent(emitter).fail {
+    <span class="kw">if </span>((<span class="kw-2">*</span>emitter).canonical
+        || (<span class="kw-2">*</span>emitter).column &gt; (<span class="kw-2">*</span>emitter).best_width)
+        &amp;&amp; yaml_emitter_write_indent(emitter).fail
+    {
         <span class="kw">return </span>FAIL;
     }
     <span class="macro">PUSH!</span>((<span class="kw-2">*</span>emitter).states, YamlEmitFlowSequenceItemState);
@@ -3340,17 +3393,22 @@
         (<span class="kw-2">*</span>emitter).state = <span class="macro">POP!</span>((<span class="kw-2">*</span>emitter).states);
         <span class="kw">return </span>OK;
     }
-    <span class="kw">if </span>!first &amp;&amp; yaml_emitter_write_indicator(
+    <span class="kw">if </span>!first
+        &amp;&amp; yaml_emitter_write_indicator(
             emitter,
             <span class="string">b",\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8 <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
             <span class="bool-val">false</span>,
             <span class="bool-val">false</span>,
             <span class="bool-val">false</span>,
         )
-        .fail {
+        .fail
+    {
         <span class="kw">return </span>FAIL;
     }
-    <span class="kw">if </span>((<span class="kw-2">*</span>emitter).canonical || (<span class="kw-2">*</span>emitter).column &gt; (<span class="kw-2">*</span>emitter).best_width) &amp;&amp; yaml_emitter_write_indent(emitter).fail {
+    <span class="kw">if </span>((<span class="kw-2">*</span>emitter).canonical
+        || (<span class="kw-2">*</span>emitter).column &gt; (<span class="kw-2">*</span>emitter).best_width)
+        &amp;&amp; yaml_emitter_write_indent(emitter).fail
+    {
         <span class="kw">return </span>FAIL;
     }
     <span class="kw">if </span>!(<span class="kw-2">*</span>emitter).canonical &amp;&amp; yaml_emitter_check_simple_key(emitter) {
@@ -3393,7 +3451,10 @@
             <span class="kw">return </span>FAIL;
         }
     } <span class="kw">else </span>{
-        <span class="kw">if </span>((<span class="kw-2">*</span>emitter).canonical || (<span class="kw-2">*</span>emitter).column &gt; (<span class="kw-2">*</span>emitter).best_width) &amp;&amp; yaml_emitter_write_indent(emitter).fail {
+        <span class="kw">if </span>((<span class="kw-2">*</span>emitter).canonical
+            || (<span class="kw-2">*</span>emitter).column &gt; (<span class="kw-2">*</span>emitter).best_width)
+            &amp;&amp; yaml_emitter_write_indent(emitter).fail
+        {
             <span class="kw">return </span>FAIL;
         }
         <span class="kw">if </span>yaml_emitter_write_indicator(
@@ -3752,11 +3813,17 @@
             style = YamlSingleQuotedScalarStyle;
         }
     }
-    <span class="kw">if </span>style == YamlSingleQuotedScalarStyle &amp;&amp; !(<span class="kw-2">*</span>emitter).scalar_data.single_quoted_allowed {
+    <span class="kw">if </span>style == YamlSingleQuotedScalarStyle
+        &amp;&amp; !(<span class="kw-2">*</span>emitter).scalar_data.single_quoted_allowed
+    {
         style = YamlDoubleQuotedScalarStyle;
     }
-    <span class="kw">if </span>(style == YamlLiteralScalarStyle || style == YamlFoldedScalarStyle) &amp;&amp; (!(<span class="kw-2">*</span>emitter).scalar_data.block_allowed
-            || (<span class="kw-2">*</span>emitter).flow_level != <span class="number">0 </span>|| (<span class="kw-2">*</span>emitter).simple_key_context) {
+    <span class="kw">if </span>(style == YamlLiteralScalarStyle
+        || style == YamlFoldedScalarStyle)
+        &amp;&amp; (!(<span class="kw-2">*</span>emitter).scalar_data.block_allowed
+            || (<span class="kw-2">*</span>emitter).flow_level != <span class="number">0
+            </span>|| (<span class="kw-2">*</span>emitter).simple_key_context)
+    {
         style = YamlDoubleQuotedScalarStyle;
     }
     <span class="kw">if </span>no_tag
@@ -3818,13 +3885,15 @@
         {
             <span class="kw">return </span>FAIL;
         }
-        <span class="kw">if </span>!(<span class="kw-2">*</span>emitter).tag_data.suffix.is_null() &amp;&amp; yaml_emitter_write_tag_content(
+        <span class="kw">if </span>!(<span class="kw-2">*</span>emitter).tag_data.suffix.is_null()
+            &amp;&amp; yaml_emitter_write_tag_content(
                 emitter,
                 (<span class="kw-2">*</span>emitter).tag_data.suffix,
                 (<span class="kw-2">*</span>emitter).tag_data.suffix_length,
                 <span class="bool-val">false</span>,
             )
-            .fail {
+            .fail
+        {
             <span class="kw">return </span>FAIL;
         }
     } <span class="kw">else </span>{
@@ -4276,21 +4345,26 @@
             <span class="bool-val">true</span>,
         ),
         YamlScalarEvent =&gt; {
-            <span class="kw">if </span>!(<span class="kw-2">*</span>event).data.scalar.anchor.is_null() &amp;&amp; yaml_emitter_analyze_anchor(
+            <span class="kw">if </span>!(<span class="kw-2">*</span>event).data.scalar.anchor.is_null()
+                &amp;&amp; yaml_emitter_analyze_anchor(
                     emitter,
                     (<span class="kw-2">*</span>event).data.scalar.anchor,
                     <span class="bool-val">false</span>,
                 )
-                .fail {
+                .fail
+            {
                 <span class="kw">return </span>FAIL;
             }
-            <span class="kw">if </span>!(<span class="kw-2">*</span>event).data.scalar.tag.is_null() &amp;&amp; ((<span class="kw-2">*</span>emitter).canonical
+            <span class="kw">if </span>!(<span class="kw-2">*</span>event).data.scalar.tag.is_null()
+                &amp;&amp; ((<span class="kw-2">*</span>emitter).canonical
                     || !(<span class="kw-2">*</span>event).data.scalar.plain_implicit
-                        &amp;&amp; !(<span class="kw-2">*</span>event).data.scalar.quoted_implicit) &amp;&amp; yaml_emitter_analyze_tag(
+                        &amp;&amp; !(<span class="kw-2">*</span>event).data.scalar.quoted_implicit)
+                &amp;&amp; yaml_emitter_analyze_tag(
                     emitter,
                     (<span class="kw-2">*</span>event).data.scalar.tag,
                 )
-                .fail {
+                .fail
+            {
                 <span class="kw">return </span>FAIL;
             }
             yaml_emitter_analyze_scalar(
@@ -4300,39 +4374,49 @@
             )
         }
         YamlSequenceStartEvent =&gt; {
-            <span class="kw">if </span>!(<span class="kw-2">*</span>event).data.sequence_start.anchor.is_null() &amp;&amp; yaml_emitter_analyze_anchor(
+            <span class="kw">if </span>!(<span class="kw-2">*</span>event).data.sequence_start.anchor.is_null()
+                &amp;&amp; yaml_emitter_analyze_anchor(
                     emitter,
                     (<span class="kw-2">*</span>event).data.sequence_start.anchor,
                     <span class="bool-val">false</span>,
                 )
-                .fail {
+                .fail
+            {
                 <span class="kw">return </span>FAIL;
             }
-            <span class="kw">if </span>!(<span class="kw-2">*</span>event).data.sequence_start.tag.is_null() &amp;&amp; ((<span class="kw-2">*</span>emitter).canonical
-                    || !(<span class="kw-2">*</span>event).data.sequence_start.implicit) &amp;&amp; yaml_emitter_analyze_tag(
+            <span class="kw">if </span>!(<span class="kw-2">*</span>event).data.sequence_start.tag.is_null()
+                &amp;&amp; ((<span class="kw-2">*</span>emitter).canonical
+                    || !(<span class="kw-2">*</span>event).data.sequence_start.implicit)
+                &amp;&amp; yaml_emitter_analyze_tag(
                     emitter,
                     (<span class="kw-2">*</span>event).data.sequence_start.tag,
                 )
-                .fail {
+                .fail
+            {
                 <span class="kw">return </span>FAIL;
             }
             OK
         }
         YamlMappingStartEvent =&gt; {
-            <span class="kw">if </span>!(<span class="kw-2">*</span>event).data.mapping_start.anchor.is_null() &amp;&amp; yaml_emitter_analyze_anchor(
+            <span class="kw">if </span>!(<span class="kw-2">*</span>event).data.mapping_start.anchor.is_null()
+                &amp;&amp; yaml_emitter_analyze_anchor(
                     emitter,
                     (<span class="kw-2">*</span>event).data.mapping_start.anchor,
                     <span class="bool-val">false</span>,
                 )
-                .fail {
+                .fail
+            {
                 <span class="kw">return </span>FAIL;
             }
-            <span class="kw">if </span>!(<span class="kw-2">*</span>event).data.mapping_start.tag.is_null() &amp;&amp; ((<span class="kw-2">*</span>emitter).canonical
-                    || !(<span class="kw-2">*</span>event).data.mapping_start.implicit) &amp;&amp; yaml_emitter_analyze_tag(
+            <span class="kw">if </span>!(<span class="kw-2">*</span>event).data.mapping_start.tag.is_null()
+                &amp;&amp; ((<span class="kw-2">*</span>emitter).canonical
+                    || !(<span class="kw-2">*</span>event).data.mapping_start.implicit)
+                &amp;&amp; yaml_emitter_analyze_tag(
                     emitter,
                     (<span class="kw-2">*</span>event).data.mapping_start.tag,
                 )
-                .fail {
+                .fail
+            {
                 <span class="kw">return </span>FAIL;
             }
             OK
@@ -4371,7 +4455,10 @@
         <span class="number">0
     </span>};
     <span class="kw">if </span>(!(<span class="kw-2">*</span>emitter).indention
-        || (<span class="kw-2">*</span>emitter).column &gt; indent || (<span class="kw-2">*</span>emitter).column == indent &amp;&amp; !(<span class="kw-2">*</span>emitter).whitespace) &amp;&amp; put_break(emitter).fail {
+        || (<span class="kw-2">*</span>emitter).column &gt; indent
+        || (<span class="kw-2">*</span>emitter).column == indent &amp;&amp; !(<span class="kw-2">*</span>emitter).whitespace)
+        &amp;&amp; put_break(emitter).fail
+    {
         <span class="kw">return </span>FAIL;
     }
     <span class="kw">if </span>(<span class="kw-2">*</span>emitter).column &lt; indent {
@@ -4399,7 +4486,10 @@
     <span class="kw">let </span>indicator_length: size_t = strlen(indicator);
     <span class="kw">let </span><span class="kw-2">mut </span>string =
         <span class="macro">STRING_ASSIGN!</span>(indicator <span class="kw">as </span><span class="kw-2">*mut </span>yaml_char_t, indicator_length);
-    <span class="kw">if </span>need_whitespace &amp;&amp; !(<span class="kw-2">*</span>emitter).whitespace &amp;&amp; put(emitter, <span class="string">b' '</span>).fail {
+    <span class="kw">if </span>need_whitespace
+        &amp;&amp; !(<span class="kw-2">*</span>emitter).whitespace
+        &amp;&amp; put(emitter, <span class="string">b' '</span>).fail
+    {
         <span class="kw">return </span>FAIL;
     }
     <span class="kw">while </span>string.pointer != string.end {
@@ -4454,7 +4544,10 @@
     need_whitespace: bool,
 ) -&gt; Success {
     <span class="kw">let </span><span class="kw-2">mut </span>string = <span class="macro">STRING_ASSIGN!</span>(value, length);
-    <span class="kw">if </span>need_whitespace &amp;&amp; !(<span class="kw-2">*</span>emitter).whitespace &amp;&amp; put(emitter, <span class="string">b' '</span>).fail {
+    <span class="kw">if </span>need_whitespace
+        &amp;&amp; !(<span class="kw-2">*</span>emitter).whitespace
+        &amp;&amp; put(emitter, <span class="string">b' '</span>).fail
+    {
         <span class="kw">return </span>FAIL;
     }
     <span class="kw">while </span>string.pointer != string.end {
@@ -4537,7 +4630,10 @@
     <span class="kw">let </span><span class="kw-2">mut </span>spaces = <span class="bool-val">false</span>;
     <span class="kw">let </span><span class="kw-2">mut </span>breaks = <span class="bool-val">false</span>;
     <span class="kw">let </span><span class="kw-2">mut </span>string = <span class="macro">STRING_ASSIGN!</span>(value, length);
-    <span class="kw">if </span>!(<span class="kw-2">*</span>emitter).whitespace &amp;&amp; (length != <span class="number">0 </span>|| (<span class="kw-2">*</span>emitter).flow_level != <span class="number">0</span>) &amp;&amp; put(emitter, <span class="string">b' '</span>).fail {
+    <span class="kw">if </span>!(<span class="kw-2">*</span>emitter).whitespace
+        &amp;&amp; (length != <span class="number">0 </span>|| (<span class="kw-2">*</span>emitter).flow_level != <span class="number">0</span>)
+        &amp;&amp; put(emitter, <span class="string">b' '</span>).fail
+    {
         <span class="kw">return </span>FAIL;
     }
     <span class="kw">while </span>string.pointer != string.end {
@@ -4556,7 +4652,10 @@
             }
             spaces = <span class="bool-val">true</span>;
         } <span class="kw">else if </span><span class="macro">IS_BREAK!</span>(string) {
-            <span class="kw">if </span>!breaks &amp;&amp; <span class="macro">CHECK!</span>(string, <span class="string">b'\n'</span>) &amp;&amp; put_break(emitter).fail {
+            <span class="kw">if </span>!breaks
+                &amp;&amp; <span class="macro">CHECK!</span>(string, <span class="string">b'\n'</span>)
+                &amp;&amp; put_break(emitter).fail
+            {
                 <span class="kw">return </span>FAIL;
             }
             <span class="kw">if </span><span class="macro">write_break!</span>(emitter, string).fail {
@@ -4620,7 +4719,10 @@
             }
             spaces = <span class="bool-val">true</span>;
         } <span class="kw">else if </span><span class="macro">IS_BREAK!</span>(string) {
-            <span class="kw">if </span>!breaks &amp;&amp; <span class="macro">CHECK!</span>(string, <span class="string">b'\n'</span>) &amp;&amp; put_break(emitter).fail {
+            <span class="kw">if </span>!breaks
+                &amp;&amp; <span class="macro">CHECK!</span>(string, <span class="string">b'\n'</span>)
+                &amp;&amp; put_break(emitter).fail
+            {
                 <span class="kw">return </span>FAIL;
             }
             <span class="kw">if </span><span class="macro">write_break!</span>(emitter, string).fail {
@@ -4940,10 +5042,12 @@
             }
         }
     }
-    <span class="kw">if </span>!chomp_hint.is_null() &amp;&amp; yaml_emitter_write_indicator(
+    <span class="kw">if </span>!chomp_hint.is_null()
+        &amp;&amp; yaml_emitter_write_indicator(
             emitter, chomp_hint, <span class="bool-val">false</span>, <span class="bool-val">false</span>, <span class="bool-val">false</span>,
         )
-        .fail {
+        .fail
+    {
         <span class="kw">return </span>FAIL;
     }
     OK
@@ -5030,7 +5134,9 @@
                 <span class="kw">while </span><span class="macro">IS_BREAK_AT!</span>(string, k <span class="kw">as </span>isize) {
                     k += <span class="macro">WIDTH_AT!</span>(string, k <span class="kw">as </span>isize);
                 }
-                <span class="kw">if </span>!<span class="macro">IS_BLANKZ_AT!</span>(string, k <span class="kw">as </span>isize) &amp;&amp; put_break(emitter).fail {
+                <span class="kw">if </span>!<span class="macro">IS_BLANKZ_AT!</span>(string, k <span class="kw">as </span>isize)
+                    &amp;&amp; put_break(emitter).fail
+                {
                     <span class="kw">return </span>FAIL;
                 }
             }

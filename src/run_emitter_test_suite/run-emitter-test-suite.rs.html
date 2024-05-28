@@ -326,12 +326,47 @@
 <a href="#326" id="326">326</a>
 <a href="#327" id="327">327</a>
 <a href="#328" id="328">328</a>
-</pre></div><pre class="rust"><code><span class="comment">// Copyright notice and licensing information.
-// These lines indicate the copyright of the software and its licensing terms.
-// SPDX-License-Identifier: Apache-2.0 OR MIT indicates dual licensing under Apache 2.0 or MIT licenses.
-// Copyright © 2024 LibYML. All rights reserved.
-
-</span><span class="attr">#![warn(clippy::pedantic)]
+<a href="#329" id="329">329</a>
+<a href="#330" id="330">330</a>
+<a href="#331" id="331">331</a>
+<a href="#332" id="332">332</a>
+<a href="#333" id="333">333</a>
+<a href="#334" id="334">334</a>
+<a href="#335" id="335">335</a>
+<a href="#336" id="336">336</a>
+<a href="#337" id="337">337</a>
+<a href="#338" id="338">338</a>
+<a href="#339" id="339">339</a>
+<a href="#340" id="340">340</a>
+<a href="#341" id="341">341</a>
+<a href="#342" id="342">342</a>
+<a href="#343" id="343">343</a>
+<a href="#344" id="344">344</a>
+<a href="#345" id="345">345</a>
+<a href="#346" id="346">346</a>
+<a href="#347" id="347">347</a>
+<a href="#348" id="348">348</a>
+<a href="#349" id="349">349</a>
+<a href="#350" id="350">350</a>
+<a href="#351" id="351">351</a>
+<a href="#352" id="352">352</a>
+<a href="#353" id="353">353</a>
+<a href="#354" id="354">354</a>
+<a href="#355" id="355">355</a>
+<a href="#356" id="356">356</a>
+<a href="#357" id="357">357</a>
+<a href="#358" id="358">358</a>
+<a href="#359" id="359">359</a>
+<a href="#360" id="360">360</a>
+<a href="#361" id="361">361</a>
+<a href="#362" id="362">362</a>
+<a href="#363" id="363">363</a>
+<a href="#364" id="364">364</a>
+<a href="#365" id="365">365</a>
+<a href="#366" id="366">366</a>
+<a href="#367" id="367">367</a>
+</pre></div><pre class="rust"><code><span class="attr">#![allow(missing_docs)]
+#![warn(clippy::pedantic)]
 #![allow(
     clippy::cast_lossless,
     clippy::cast_possible_truncation,
@@ -350,9 +385,9 @@
 
 </span><span class="kw">mod </span>cstr;
 
-<span class="kw">use </span>libyml::api::ScalarEventData;
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use </span>core::primitive::u8 <span class="kw">as </span>yaml_char_t;
 <span class="kw">use </span><span class="self">self</span>::cstr::CStr;
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use </span>core::primitive::u8 <span class="kw">as </span>yaml_char_t;
+<span class="kw">use </span>libyml::api::ScalarEventData;
 <span class="kw">use </span>std::env;
 <span class="kw">use </span>std::error::Error;
 <span class="kw">use </span>std::ffi::c_void;
@@ -364,19 +399,22 @@
 <span class="comment">// use std::slice;
 </span><span class="kw">use </span>libyml::{
     yaml_alias_event_initialize, yaml_document_end_event_initialize,
-    yaml_document_start_event_initialize, yaml_emitter_delete, yaml_emitter_emit,
-    yaml_emitter_initialize, yaml_emitter_set_canonical, yaml_emitter_set_output,
-    yaml_emitter_set_unicode, YamlEmitterT, YamlEventT, yaml_mapping_end_event_initialize,
-    yaml_mapping_start_event_initialize, yaml_scalar_event_initialize, YamlScalarStyleT,
-    yaml_sequence_end_event_initialize, yaml_sequence_start_event_initialize,
-    yaml_stream_end_event_initialize, yaml_stream_start_event_initialize, YamlTagDirectiveT,
-    YamlVersionDirectiveT, YamlAnyScalarStyle, YamlBlockMappingStyle,
-    YamlBlockSequenceStyle, YamlDoubleQuotedScalarStyle, YamlEmitterError,
-    YamlFoldedScalarStyle, YamlLiteralScalarStyle, YamlMemoryError,
-    YamlPlainScalarStyle, YamlSingleQuotedScalarStyle, YamlUtf8Encoding,
-    YamlWriterError,
+    yaml_document_start_event_initialize, yaml_emitter_delete,
+    yaml_emitter_emit, yaml_emitter_initialize,
+    yaml_emitter_set_canonical, yaml_emitter_set_output,
+    yaml_emitter_set_unicode, yaml_mapping_end_event_initialize,
+    yaml_mapping_start_event_initialize, yaml_scalar_event_initialize,
+    yaml_sequence_end_event_initialize,
+    yaml_sequence_start_event_initialize,
+    yaml_stream_end_event_initialize,
+    yaml_stream_start_event_initialize, YamlAnyScalarStyle,
+    YamlBlockMappingStyle, YamlBlockSequenceStyle,
+    YamlDoubleQuotedScalarStyle, YamlEmitterError, YamlEmitterT,
+    YamlEventT, YamlFoldedScalarStyle, YamlLiteralScalarStyle,
+    YamlMemoryError, YamlPlainScalarStyle, YamlScalarStyleT,
+    YamlSingleQuotedScalarStyle, YamlTagDirectiveT, YamlUtf8Encoding,
+    YamlVersionDirectiveT, YamlWriterError,
 };
-
 
 <span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">unsafe fn </span>unsafe_main(
     stdin: <span class="kw-2">&amp;mut </span><span class="kw">dyn </span>Read,
@@ -388,7 +426,11 @@
         <span class="kw">return </span><span class="prelude-val">Err</span>(<span class="string">"Could not initialize the emitter object"</span>.into());
     }
 
-    <span class="kw">unsafe fn </span>write_to_stdio(data: <span class="kw-2">*mut </span>c_void, buffer: <span class="kw-2">*mut </span>u8, size: u64) -&gt; i32 {
+    <span class="kw">unsafe fn </span>write_to_stdio(
+        data: <span class="kw-2">*mut </span>c_void,
+        buffer: <span class="kw-2">*mut </span>u8,
+        size: u64,
+    ) -&gt; i32 {
         <span class="kw">let </span>stdout: <span class="kw-2">*mut &amp;mut </span><span class="kw">dyn </span>Write = data <span class="kw">as _</span>;
         <span class="kw">let </span>bytes = std::slice::from_raw_parts(buffer, size <span class="kw">as </span>usize);
         <span class="kw">match </span>(<span class="kw-2">*</span>stdout).write(bytes) {
@@ -397,7 +439,11 @@
         }
     }
 
-    yaml_emitter_set_output(emitter, write_to_stdio, <span class="macro">addr_of_mut!</span>(stdout).cast());
+    yaml_emitter_set_output(
+        emitter,
+        write_to_stdio,
+        <span class="macro">addr_of_mut!</span>(stdout).cast(),
+    );
     yaml_emitter_set_canonical(emitter, <span class="bool-val">false</span>);
     yaml_emitter_set_unicode(emitter, <span class="bool-val">false</span>);
 
@@ -463,7 +509,7 @@
                 style,
                 _marker: core::marker::PhantomData,
             };
-            
+
             yaml_scalar_event_initialize(event, scalar_event_data)
             <span class="comment">// yaml_scalar_event_initialize(
             //     event,
@@ -476,24 +522,41 @@
             //     style,
             // )
         </span>} <span class="kw">else if </span>line.starts_with(<span class="string">b"=ALI"</span>) {
-            yaml_alias_event_initialize(event, get_anchor(<span class="string">b'*'</span>, line, anchor.as_mut_ptr()))
+            yaml_alias_event_initialize(
+                event,
+                get_anchor(<span class="string">b'*'</span>, line, anchor.as_mut_ptr()),
+            )
         } <span class="kw">else </span>{
             <span class="kw">let </span>line = line.as_mut_ptr() <span class="kw">as </span><span class="kw-2">*mut </span>i8;
-            <span class="kw">break </span><span class="prelude-val">Err</span>(<span class="macro">format!</span>(<span class="string">"Unknown event: '{}'"</span>, CStr::from_ptr(line)).into());
+            <span class="kw">break </span><span class="prelude-val">Err</span>(<span class="macro">format!</span>(
+                <span class="string">"Unknown event: '{}'"</span>,
+                CStr::from_ptr(line)
+            )
+            .into());
         };
 
         <span class="kw">if </span>result.fail {
-            <span class="kw">break </span><span class="prelude-val">Err</span>(<span class="string">"Memory error: Not enough memory for creating an event"</span>.into());
+            <span class="kw">break </span><span class="prelude-val">Err</span>(
+                <span class="string">"Memory error: Not enough memory for creating an event"
+                    </span>.into(),
+            );
         }
         <span class="kw">if </span>yaml_emitter_emit(emitter, event).fail {
             <span class="kw">break </span><span class="prelude-val">Err</span>(<span class="kw">match </span>(<span class="kw-2">*</span>emitter).error {
-                YamlMemoryError =&gt; <span class="string">"Memory error: Not enough memory for emitting"</span>.into(),
-                YamlWriterError =&gt; {
-                    <span class="macro">format!</span>(<span class="string">"Writer error: {}"</span>, CStr::from_ptr((<span class="kw-2">*</span>emitter).problem)).into()
+                YamlMemoryError =&gt; {
+                    <span class="string">"Memory error: Not enough memory for emitting"
+                        </span>.into()
                 }
-                YamlEmitterError =&gt; {
-                    <span class="macro">format!</span>(<span class="string">"Emitter error: {}"</span>, CStr::from_ptr((<span class="kw-2">*</span>emitter).problem)).into()
-                }
+                YamlWriterError =&gt; <span class="macro">format!</span>(
+                    <span class="string">"Writer error: {}"</span>,
+                    CStr::from_ptr((<span class="kw-2">*</span>emitter).problem)
+                )
+                .into(),
+                YamlEmitterError =&gt; <span class="macro">format!</span>(
+                    <span class="string">"Emitter error: {}"</span>,
+                    CStr::from_ptr((<span class="kw-2">*</span>emitter).problem)
+                )
+                .into(),
                 <span class="comment">// Couldn't happen.
                 </span><span class="kw">_ </span>=&gt; <span class="string">"Internal error"</span>.into(),
             });
@@ -530,7 +593,8 @@
                     <span class="kw">return </span><span class="prelude-val">Some</span>(line);
                 }
             }
-            <span class="kw">let </span><span class="kw-2">mut </span>remainder = <span class="kw-2">&amp;mut </span><span class="self">self</span>.buf[<span class="self">self</span>.offset + <span class="self">self</span>.filled..];
+            <span class="kw">let </span><span class="kw-2">mut </span>remainder =
+                <span class="kw-2">&amp;mut </span><span class="self">self</span>.buf[<span class="self">self</span>.offset + <span class="self">self</span>.filled..];
             <span class="kw">if </span>remainder.is_empty() {
                 <span class="kw">if </span><span class="self">self</span>.offset == <span class="number">0 </span>{
                     <span class="kw">let _ </span>= <span class="macro">writeln!</span>(
@@ -553,7 +617,11 @@
     }
 }
 
-<span class="kw">unsafe fn </span>get_anchor(sigil: u8, line: <span class="kw-2">&amp;</span>[u8], anchor: <span class="kw-2">*mut </span>u8) -&gt; <span class="kw-2">*mut </span>u8 {
+<span class="kw">unsafe fn </span>get_anchor(
+    sigil: u8,
+    line: <span class="kw-2">&amp;</span>[u8],
+    anchor: <span class="kw-2">*mut </span>u8,
+) -&gt; <span class="kw-2">*mut </span>u8 {
     <span class="kw">let </span>start = <span class="kw">match </span>line.iter().position(|ch| <span class="kw-2">*</span>ch == sigil) {
         <span class="prelude-val">Some</span>(offset) =&gt; offset + <span class="number">1</span>,
         <span class="prelude-val">None </span>=&gt; <span class="kw">return </span>ptr::null_mut(),
@@ -562,7 +630,10 @@
         <span class="prelude-val">Some</span>(offset) =&gt; start + offset,
         <span class="prelude-val">None </span>=&gt; line.len(),
     };
-    anchor.copy_from_nonoverlapping(line[start..end].as_ptr(), end - start);
+    anchor.copy_from_nonoverlapping(
+        line[start..end].as_ptr(),
+        end - start,
+    );
     <span class="kw-2">*</span>anchor.add(end - start) = <span class="string">b'\0'</span>;
     anchor
 }
@@ -576,12 +647,19 @@
         <span class="prelude-val">Some</span>(offset) =&gt; start + offset,
         <span class="prelude-val">None </span>=&gt; <span class="kw">return </span>ptr::null_mut(),
     };
-    tag.copy_from_nonoverlapping(line[start..end].as_ptr(), end - start);
+    tag.copy_from_nonoverlapping(
+        line[start..end].as_ptr(),
+        end - start,
+    );
     <span class="kw-2">*</span>tag.add(end - start) = <span class="string">b'\0'</span>;
     tag
 }
 
-<span class="kw">unsafe fn </span>get_value(line: <span class="kw-2">&amp;</span>[u8], value: <span class="kw-2">*mut </span>i8, style: <span class="kw-2">*mut </span>YamlScalarStyleT) {
+<span class="kw">unsafe fn </span>get_value(
+    line: <span class="kw-2">&amp;</span>[u8],
+    value: <span class="kw-2">*mut </span>i8,
+    style: <span class="kw-2">*mut </span>YamlScalarStyleT,
+) {
     <span class="kw">let </span>line_len = line.len();
     <span class="kw">let </span>line = line.as_ptr() <span class="kw">as </span><span class="kw-2">*mut </span>i8;
     <span class="kw">let </span><span class="kw-2">mut </span>start = ptr::null_mut::&lt;i8&gt;();

@@ -375,43 +375,255 @@
 <a href="#375" id="375">375</a>
 <a href="#376" id="376">376</a>
 <a href="#377" id="377">377</a>
-</pre></div><pre class="rust"><code><span class="comment">// Copyright notice and licensing information.
-// These lines indicate the copyright of the software and its licensing terms.
-// SPDX-License-Identifier: Apache-2.0 OR MIT indicates dual licensing under Apache 2.0 or MIT licenses.
-// Copyright © 2024 LibYML. All rights reserved.
-
-</span><span class="doccomment">//! # LibYML
+<a href="#378" id="378">378</a>
+<a href="#379" id="379">379</a>
+<a href="#380" id="380">380</a>
+<a href="#381" id="381">381</a>
+<a href="#382" id="382">382</a>
+<a href="#383" id="383">383</a>
+<a href="#384" id="384">384</a>
+<a href="#385" id="385">385</a>
+<a href="#386" id="386">386</a>
+<a href="#387" id="387">387</a>
+<a href="#388" id="388">388</a>
+<a href="#389" id="389">389</a>
+<a href="#390" id="390">390</a>
+<a href="#391" id="391">391</a>
+<a href="#392" id="392">392</a>
+<a href="#393" id="393">393</a>
+<a href="#394" id="394">394</a>
+<a href="#395" id="395">395</a>
+<a href="#396" id="396">396</a>
+<a href="#397" id="397">397</a>
+<a href="#398" id="398">398</a>
+<a href="#399" id="399">399</a>
+<a href="#400" id="400">400</a>
+<a href="#401" id="401">401</a>
+<a href="#402" id="402">402</a>
+<a href="#403" id="403">403</a>
+<a href="#404" id="404">404</a>
+<a href="#405" id="405">405</a>
+<a href="#406" id="406">406</a>
+<a href="#407" id="407">407</a>
+<a href="#408" id="408">408</a>
+<a href="#409" id="409">409</a>
+<a href="#410" id="410">410</a>
+<a href="#411" id="411">411</a>
+<a href="#412" id="412">412</a>
+<a href="#413" id="413">413</a>
+<a href="#414" id="414">414</a>
+<a href="#415" id="415">415</a>
+<a href="#416" id="416">416</a>
+<a href="#417" id="417">417</a>
+<a href="#418" id="418">418</a>
+<a href="#419" id="419">419</a>
+<a href="#420" id="420">420</a>
+<a href="#421" id="421">421</a>
+<a href="#422" id="422">422</a>
+<a href="#423" id="423">423</a>
+<a href="#424" id="424">424</a>
+<a href="#425" id="425">425</a>
+<a href="#426" id="426">426</a>
+<a href="#427" id="427">427</a>
+<a href="#428" id="428">428</a>
+<a href="#429" id="429">429</a>
+<a href="#430" id="430">430</a>
+<a href="#431" id="431">431</a>
+<a href="#432" id="432">432</a>
+<a href="#433" id="433">433</a>
+<a href="#434" id="434">434</a>
+<a href="#435" id="435">435</a>
+<a href="#436" id="436">436</a>
+<a href="#437" id="437">437</a>
+<a href="#438" id="438">438</a>
+<a href="#439" id="439">439</a>
+<a href="#440" id="440">440</a>
+<a href="#441" id="441">441</a>
+<a href="#442" id="442">442</a>
+<a href="#443" id="443">443</a>
+<a href="#444" id="444">444</a>
+<a href="#445" id="445">445</a>
+<a href="#446" id="446">446</a>
+<a href="#447" id="447">447</a>
+<a href="#448" id="448">448</a>
+<a href="#449" id="449">449</a>
+<a href="#450" id="450">450</a>
+<a href="#451" id="451">451</a>
+<a href="#452" id="452">452</a>
+<a href="#453" id="453">453</a>
+<a href="#454" id="454">454</a>
+<a href="#455" id="455">455</a>
+<a href="#456" id="456">456</a>
+<a href="#457" id="457">457</a>
+<a href="#458" id="458">458</a>
+<a href="#459" id="459">459</a>
+<a href="#460" id="460">460</a>
+<a href="#461" id="461">461</a>
+<a href="#462" id="462">462</a>
+<a href="#463" id="463">463</a>
+<a href="#464" id="464">464</a>
+<a href="#465" id="465">465</a>
+<a href="#466" id="466">466</a>
+<a href="#467" id="467">467</a>
+<a href="#468" id="468">468</a>
+<a href="#469" id="469">469</a>
+<a href="#470" id="470">470</a>
+<a href="#471" id="471">471</a>
+<a href="#472" id="472">472</a>
+<a href="#473" id="473">473</a>
+<a href="#474" id="474">474</a>
+<a href="#475" id="475">475</a>
+<a href="#476" id="476">476</a>
+<a href="#477" id="477">477</a>
+<a href="#478" id="478">478</a>
+<a href="#479" id="479">479</a>
+<a href="#480" id="480">480</a>
+<a href="#481" id="481">481</a>
+<a href="#482" id="482">482</a>
+<a href="#483" id="483">483</a>
+<a href="#484" id="484">484</a>
+</pre></div><pre class="rust"><code><span class="doccomment">//! # LibYML (a fork of unsafe-libyaml)
 //!
-//! [`LibYML`][00] is a Rust library for parsing and emitting YAML data in a safe and efficient manner. The library is designed to be easy to use and provides a comprehensive set of tools for working with YAML data.
+//! [![GitHub][github-badge]][06]
+//! [![Crates.io][crates-badge]][07]
+//! [![lib.rs][libs-badge]][06]
+//! [![Docs.rs][docs-badge]][08]
+//! [![Codecov][codecov-badge]][09]
+//! [![Build Status][build-badge]][10]
 //!
-//! [![LibYML Logo](https://kura.pro/libyml/images/banners/banner-libyml.svg)](https://libyml.one "LibYML: Unleashing the Power of Safe and Efficient YAML Parsing in Rust")
+//! This library is a fork of [unsafe-libyaml][01], a version of [libyaml][02]
+//! translated from C to unsafe Rust with the assistance of [c2rust][03].
 //!
-//! ## Seamless YAML Serialization for [Rust][01].
+//! This project, has been renamed to [LibYML][00] for simplicity and to avoid
+//! confusion with the original [unsafe-libyaml][01] crate which is now
+//! archived and no longer maintained.
 //!
-//! [![Made With RustRust](https://img.shields.io/badge/rust-f04041?style=for-the-badge&amp;labelColor=c0282d&amp;logo=rust)](https://www.rust-lang.org "Rust")
-//! [![Crates.io](https://img.shields.io/crates/v/libyml.svg?style=for-the-badge&amp;color=success&amp;labelColor=27A006)](https://crates.io/crates/libyml "Crates.io")
-//! [![Lib.rs](https://img.shields.io/badge/lib.rs-v0.0.2-success.svg?style=for-the-badge&amp;color=8A48FF&amp;labelColor=6F36E4)](https://lib.rs/crates/libyml "Lib.rs")
-//! [![Github](https://img.shields.io/badge/github-8da0cb?style=for-the-badge&amp;labelColor=555555&amp;logo=github)](https://github.com/sebastienrousseau/libyml "Github")
-//! [![License](https://img.shields.io/crates/l/libyml.svg?style=for-the-badge&amp;color=007EC6&amp;labelColor=03589B)](https://opensource.org/license/apache-2-0/ "MIT or Apache License, Version 2.0")
+//! ## Credits and Acknowledgements
 //!
-//! ## Features
+//! This library is a fork of the excellent work done by [David Tolnay][04] and the
+//! maintainers of the [unsafe-libyaml][01] library.
 //!
-//! - **Serialization and Deserialization**: LibYML provides easy-to-use APIs for serializing Rust structs and enums into YAML format and deserializing YAML data into Rust types.
-//! - **Custom Struct and Enum Support**: The library allows you to work with custom structs and enums, enabling seamless serialization and deserialization of your own data types.
-//! - **Error Handling**: LibYML provides comprehensive error handling mechanisms, including detailed error messages and the ability to handle and recover from parsing and emission errors.
-//! - **Streaming Support**: The library supports streaming of YAML data, allowing you to efficiently process large YAML documents incrementally.
-//! - **Alias and Anchor Support**: LibYML handles YAML aliases and anchors, enabling you to work with complex YAML structures that involve references and duplicated data.
-//! - **Tag Handling**: The library provides support for custom tags, allowing you to serialize and deserialize YAML data with specific type information.
-//! - **Configurable Emitter**: LibYML allows you to customize the emitter settings, such as indentation, line width, and scalar style, to generate YAML output according to your preferences.
-//! - **Extensive Documentation**: The library comes with detailed documentation and examples, making it easy to get started and understand how to use its various features effectively.
-//! - **Safety and Efficiency**: LibYML is designed with safety and efficiency in mind. It minimizes the use of unsafe code and provides an interface that helps prevent common pitfalls and errors.
+//! LibYML has now evolved into a separate library with its own goals and direction
+//! in mind and does not intend to replace the original unsafe-libyaml crate.
 //!
-//! ## Rust Version Compatibility
+//! If you are currently using unsafe-libyaml in your projects, we recommend
+//! carefully evaluating your requirements and considering the stability and
+//! maturity of the original library as well as looking at the features and
+//! improvements offered by other libraries in the Rust ecosystem.
+//!
+//! I would like to express my sincere gratitude to [David Tolnay][04] and the
+//! [unsafe-libyaml][01] and [libyaml][02] maintainers for their valuable
+//! contributions to the Rust and C programming communities.
+//!
+//! ```toml
+//! [dependencies]
+//! libyml = "0.0.3"
+//! ```
+//!
+//! Release notes are available under [GitHub releases][05].
+//!
+//! ### Rust Version Compatibility
 //!
 //! This library is compatible with Rust 1.60 and above.
 //!
-//! [00]: https://libyml.com "LibYML: Unleashing the Power of Safe and Efficient YAML Parsing in Rust"
-//! [01]: https://www.rust-lang.org "Rust Programming Language"
+//! ## Features
+//!
+//! - **Serialization and Deserialization**: LibYML provides easy-to-use APIs for
+//!   serializing Rust structs and enums into YAML format and deserializing YAML
+//!   data into Rust types.
+//! - **Custom Struct and Enum Support**: The library allows you to work with
+//!   custom structs and enums, enabling seamless serialization and deserialization
+//!   of your own data types.
+//! - **Error Handling**: LibYML provides comprehensive error handling mechanisms,
+//!   including detailed error messages and the ability to handle and recover from
+//!   parsing and emission errors.
+//! - **Streaming Support**: The library supports streaming of YAML data, allowing
+//!   you to efficiently process large YAML documents incrementally.
+//! - **Alias and Anchor Support**: LibYML handles YAML aliases and anchors,
+//!   enabling you to work with complex YAML structures that involve references and
+//!   duplicated data.
+//! - **Tag Handling**: The library provides support for custom tags, allowing you
+//!   to serialize and deserialize YAML data with specific type information.
+//! - **Configurable Emitter**: LibYML allows you to customize the emitter
+//!   settings, such as indentation, line width, and scalar style, to generate YAML
+//!   output according to your preferences.
+//! - **Extensive Documentation**: The library comes with detailed documentation
+//!   and examples, making it easy to get started and understand how to use its
+//!   various features effectively.
+//! - **Safety and Efficiency**: LibYML is designed with safety and efficiency in
+//!   mind. It minimizes the use of unsafe code and provides an interface that
+//!   helps prevent common pitfalls and errors.
+//!
+//! ## Examples
+//!
+//! To get started with LibYML, you can use the examples provided in the
+//! `examples` directory of the project.
+//!
+//! LibYML provides a set of comprehensive examples to demonstrate its usage and
+//! capabilities. The examples cover various aspects of the library, including
+//! initializing and deleting parsers, setting input strings, memory management,
+//! string manipulation, and more.
+//!
+//! To run the examples, clone the repository and navigate to the examples
+//! directory. Each example is contained in a separate file, focusing on specific
+//! functionalities or use cases.
+//!
+//! For instance, to run all the example demonstrating the usage of the LibYML
+//! APIs, you can execute the following command:
+//!
+//! ```shell
+//! cargo run --example example
+//! ```
+//!
+//! The command will execute all the examples code, demonstrating all the features
+//! and use cases of the LibYML library.
+//!
+//! Here are a few notable examples you can also run individually:
+//!
+//! ### 1) The `apis` Example
+//!
+//! The `api.rs` file provides a set of low-level API functions for working with
+//! YAML data in the LibYML library. The `apis` example showcases the usage of
+//! these low-level APIs covering functions such as:
+//!
+//! - `yaml_parser_initialize` - Initialize a YAML parser,
+//! - `yaml_parser_delete` - Delete a YAML parser,
+//! - `yaml_parser_set_input_string` - Set the input string for the parser,
+//! - `yaml_malloc` - Allocate memory,
+//! - `yaml_realloc` - Reallocate memory,
+//! - `yaml_free` - Free memory,
+//! - `yaml_strdup` - Duplicate a string,
+//! - `yaml_string_extend` - Extend a string,
+//! - `yaml_string_join` - Join strings,
+//!
+//! You can run the `apis` example using the following command:
+//!
+//! ```shell
+//! cargo run --example apis
+//! ```
+//!
+//! ## License
+//!
+//! [MIT license](https://opensource.org/license/MIT), same as libyaml.
+//!
+//! [00]: https://libyml.com
+//! [01]: https://github.com/dtolnay/unsafe-libyaml
+//! [02]: https://github.com/yaml/libyaml/tree/2c891fc7a770e8ba2fec34fc6b545c672beb37e6
+//! [03]: https://github.com/immunant/c2rust
+//! [04]: https://github.com/dtolnay
+//! [05]: https://github.com/sebastienrousseau/libyml/releases
+//! [06]: https://github.com/sebastienrousseau/libyml
+//! [07]: https://crates.io/crates/libyml
+//! [08]: https://docs.rs/libyml
+//! [09]: https://codecov.io/gh/sebastienrousseau/libyml
+//! [10]: https://github.com/sebastienrousseau/libyml/actions?query=branch%3Amaster
+//! [build-badge]: https://img.shields.io/github/actions/workflow/status/sebastienrousseau/libyml/release.yml?branch=master&amp;style=for-the-badge&amp;logo=github
+//! [codecov-badge]: https://img.shields.io/codecov/c/github/sebastienrousseau/libyml?style=for-the-badge&amp;token=Q9KJ6XXL67&amp;logo=codecov
+//! [crates-badge]: https://img.shields.io/crates/v/libyml.svg?style=for-the-badge&amp;color=fc8d62&amp;logo=rust
+//! [libs-badge]: https://img.shields.io/badge/lib.rs-v0.0.3-orange.svg?style=for-the-badge
+//! [docs-badge]: https://img.shields.io/badge/docs.rs-libyml-66c2a5?style=for-the-badge&amp;labelColor=555555&amp;logo=docs.rs
+//! [github-badge]: https://img.shields.io/badge/github-sebastienrousseau/libyml-8da0cb?style=for-the-badge&amp;labelColor=555555&amp;logo=github
+
 //!
 
 </span><span class="attr">#![no_std]
@@ -693,7 +905,8 @@
 <span class="attr">#[macro_use]
 </span><span class="kw">mod </span>macros;
 
-<span class="kw">pub mod </span>api;
+<span class="doccomment">/// API module for LibYML
+</span><span class="kw">pub mod </span>api;
 <span class="kw">mod </span>dumper;
 <span class="kw">mod </span>emitter;
 <span class="kw">mod </span>loader;
@@ -703,7 +916,8 @@
 <span class="kw">mod </span>scanner;
 <span class="kw">mod </span>success;
 <span class="kw">mod </span>writer;
-<span class="kw">pub mod </span>yaml;
+<span class="doccomment">/// YAML API module for LibYML
+</span><span class="kw">pub mod </span>yaml;
 
 <span class="kw">pub use </span><span class="kw">crate</span>::api::{
     yaml_alias_event_initialize, yaml_document_add_mapping,

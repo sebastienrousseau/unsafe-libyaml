@@ -1307,17 +1307,42 @@
 <a href="#1307" id="1307">1307</a>
 <a href="#1308" id="1308">1308</a>
 <a href="#1309" id="1309">1309</a>
-</pre></div><pre class="rust"><code><span class="comment">// Copyright notice and licensing information.
-// These lines indicate the copyright of the software and its licensing terms.
-// SPDX-License-Identifier: Apache-2.0 OR MIT indicates dual licensing under Apache 2.0 or MIT licenses.
-// Copyright © 2024 LibYML. All rights reserved.
-
-</span><span class="kw">use </span><span class="kw">crate</span>::libc;
+<a href="#1310" id="1310">1310</a>
+<a href="#1311" id="1311">1311</a>
+<a href="#1312" id="1312">1312</a>
+<a href="#1313" id="1313">1313</a>
+<a href="#1314" id="1314">1314</a>
+<a href="#1315" id="1315">1315</a>
+<a href="#1316" id="1316">1316</a>
+<a href="#1317" id="1317">1317</a>
+<a href="#1318" id="1318">1318</a>
+<a href="#1319" id="1319">1319</a>
+<a href="#1320" id="1320">1320</a>
+<a href="#1321" id="1321">1321</a>
+<a href="#1322" id="1322">1322</a>
+<a href="#1323" id="1323">1323</a>
+<a href="#1324" id="1324">1324</a>
+<a href="#1325" id="1325">1325</a>
+<a href="#1326" id="1326">1326</a>
+<a href="#1327" id="1327">1327</a>
+<a href="#1328" id="1328">1328</a>
+<a href="#1329" id="1329">1329</a>
+<a href="#1330" id="1330">1330</a>
+<a href="#1331" id="1331">1331</a>
+<a href="#1332" id="1332">1332</a>
+<a href="#1333" id="1333">1333</a>
+<a href="#1334" id="1334">1334</a>
+<a href="#1335" id="1335">1335</a>
+</pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::libc;
 <span class="kw">use </span>core::ops::Deref;
 <span class="kw">use </span>core::ptr::{<span class="self">self</span>, addr_of};
 
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use </span><span class="self">self</span>::{YamlEncodingT::<span class="kw-2">*</span>, YamlEventTypeT::<span class="kw-2">*</span>, YamlNodeTypeT::<span class="kw-2">*</span>};
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use </span>core::primitive::{i64 <span class="kw">as </span>ptrdiff_t, u64 <span class="kw">as </span>size_t, u8 <span class="kw">as </span>yaml_char_t};
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use </span><span class="self">self</span>::{
+    YamlEncodingT::<span class="kw-2">*</span>, YamlEventTypeT::<span class="kw-2">*</span>, YamlNodeTypeT::<span class="kw-2">*</span>,
+};
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">use </span>core::primitive::{
+    i64 <span class="kw">as </span>ptrdiff_t, u64 <span class="kw">as </span>size_t, u8 <span class="kw">as </span>yaml_char_t,
+};
 
 <span class="doccomment">/// The version directive data.
 </span><span class="attr">#[derive(Copy, Clone, Debug)]
@@ -1452,7 +1477,7 @@
     </span>YamlFlowMappingStyle = <span class="number">2</span>,
 }
 
-<span class="doccomment">/// Token types.
+<span class="doccomment">/// The token types.
 </span><span class="attr">#[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)]
 #[repr(u32)]
 #[non_exhaustive]
@@ -1572,6 +1597,7 @@
 
 <span class="attr">#[derive(Copy, Clone, Debug)]
 #[repr(C)]
+</span><span class="doccomment">/// The data structure for YAML tokens.
 </span><span class="kw">pub struct </span>UnnamedYamlTokenTData {
     <span class="doccomment">/// The stream start (for YamlStreamStartToken).
     </span><span class="kw">pub </span>stream_start: UnnamedYamlTokenTdataStreamStart,
@@ -1589,7 +1615,8 @@
     </span><span class="kw">pub </span>tag_directive: UnnamedYamlTokenTdataTagDirective,
 }
 
-<span class="attr">#[derive(Copy, Clone, Debug)]
+<span class="doccomment">/// Represents the start of a YAML data stream.
+</span><span class="attr">#[derive(Copy, Clone, Debug)]
 #[repr(C)]
 #[non_exhaustive]
 </span><span class="kw">pub struct </span>UnnamedYamlTokenTdataStreamStart {
@@ -1597,7 +1624,8 @@
     </span><span class="kw">pub </span>encoding: YamlEncodingT,
 }
 
-<span class="attr">#[derive(Copy, Clone, Debug)]
+<span class="doccomment">/// Represents an alias in a YAML document.
+</span><span class="attr">#[derive(Copy, Clone, Debug)]
 #[repr(C)]
 #[non_exhaustive]
 </span><span class="kw">pub struct </span>UnnamedYamlTokenTdataAlias {
@@ -1605,7 +1633,8 @@
     </span><span class="kw">pub </span>value: <span class="kw-2">*mut </span>yaml_char_t,
 }
 
-<span class="attr">#[derive(Copy, Clone, Debug)]
+<span class="doccomment">/// Represents an anchor in a YAML document.
+</span><span class="attr">#[derive(Copy, Clone, Debug)]
 #[repr(C)]
 #[non_exhaustive]
 </span><span class="kw">pub struct </span>UnnamedYamlTokenTdataAnchor {
@@ -1613,7 +1642,8 @@
     </span><span class="kw">pub </span>value: <span class="kw-2">*mut </span>yaml_char_t,
 }
 
-<span class="attr">#[derive(Copy, Clone, Debug)]
+<span class="doccomment">/// Represents a tag in a YAML document.
+</span><span class="attr">#[derive(Copy, Clone, Debug)]
 #[repr(C)]
 #[non_exhaustive]
 </span><span class="kw">pub struct </span>UnnamedYamlTokenTdataTag {
@@ -1623,7 +1653,8 @@
     </span><span class="kw">pub </span>suffix: <span class="kw-2">*mut </span>yaml_char_t,
 }
 
-<span class="attr">#[derive(Copy, Clone, Debug)]
+<span class="doccomment">/// Represents a scalar value in a YAML document.
+</span><span class="attr">#[derive(Copy, Clone, Debug)]
 #[repr(C)]
 #[non_exhaustive]
 </span><span class="kw">pub struct </span>UnnamedYamlTokenTdataScalar {
@@ -1635,7 +1666,8 @@
     </span><span class="kw">pub </span>style: YamlScalarStyleT,
 }
 
-<span class="attr">#[derive(Copy, Clone, Debug)]
+<span class="doccomment">/// Represents the version directive in a YAML document.
+</span><span class="attr">#[derive(Copy, Clone, Debug)]
 #[repr(C)]
 #[non_exhaustive]
 </span><span class="kw">pub struct </span>UnnamedYamlTokenTdataVersionDirective {
@@ -1645,7 +1677,8 @@
     </span><span class="kw">pub </span>minor: libc::c_int,
 }
 
-<span class="attr">#[derive(Copy, Clone, Debug)]
+<span class="doccomment">/// Represents the tag directive in a YAML document.
+</span><span class="attr">#[derive(Copy, Clone, Debug)]
 #[repr(C)]
 #[non_exhaustive]
 </span><span class="kw">pub struct </span>UnnamedYamlTokenTdataTagDirective {
@@ -1774,7 +1807,8 @@
     </span><span class="kw">pub </span>end_mark: YamlMarkT,
 }
 
-<span class="attr">#[derive(Copy, Clone, Debug)]
+<span class="doccomment">/// Represents the data associated with a YAML event.
+</span><span class="attr">#[derive(Copy, Clone, Debug)]
 #[repr(C)]
 </span><span class="kw">pub struct </span>UnnamedYamlEventTData {
     <span class="doccomment">/// The stream parameters (for YamlStreamStartEvent).
@@ -1793,7 +1827,8 @@
     </span><span class="kw">pub </span>mapping_start: UnnamedYamlEventTdataMappingStart,
 }
 
-<span class="attr">#[derive(Copy, Clone, Debug)]
+<span class="doccomment">/// Represents the data associated with the start of a YAML stream.
+</span><span class="attr">#[derive(Copy, Clone, Debug)]
 #[repr(C)]
 #[non_exhaustive]
 </span><span class="kw">pub struct </span>UnnamedYamlEventTdataStreamStart {
@@ -1801,7 +1836,8 @@
     </span><span class="kw">pub </span>encoding: YamlEncodingT,
 }
 
-<span class="attr">#[derive(Copy, Clone, Debug)]
+<span class="doccomment">/// Represents the data associated with the start of a YAML document.
+</span><span class="attr">#[derive(Copy, Clone, Debug)]
 #[repr(C)]
 #[non_exhaustive]
 </span><span class="kw">pub struct </span>UnnamedYamlEventTdataDocumentStart {
@@ -1813,7 +1849,8 @@
     </span><span class="kw">pub </span>implicit: bool,
 }
 
-<span class="attr">#[derive(Copy, Clone, Debug)]
+<span class="doccomment">/// Represents the list of tag directives at the start of a YAML document.
+</span><span class="attr">#[derive(Copy, Clone, Debug)]
 #[repr(C)]
 #[non_exhaustive]
 </span><span class="kw">pub struct </span>UnnamedYamlEventTdataDocumentStartTagDirectives {
@@ -1823,7 +1860,8 @@
     </span><span class="kw">pub </span>end: <span class="kw-2">*mut </span>YamlTagDirectiveT,
 }
 
-<span class="attr">#[derive(Copy, Clone, Debug)]
+<span class="doccomment">/// Represents the data associated with the end of a YAML document.
+</span><span class="attr">#[derive(Copy, Clone, Debug)]
 #[repr(C)]
 #[non_exhaustive]
 </span><span class="kw">pub struct </span>UnnamedYamlEventTdataDocumentEnd {
@@ -1831,7 +1869,8 @@
     </span><span class="kw">pub </span>implicit: bool,
 }
 
-<span class="attr">#[derive(Copy, Clone, Debug)]
+<span class="doccomment">/// Represents the data associated with a YAML alias event.
+</span><span class="attr">#[derive(Copy, Clone, Debug)]
 #[repr(C)]
 #[non_exhaustive]
 </span><span class="kw">pub struct </span>UnnamedYamlEventTdataAlias {
@@ -1839,7 +1878,8 @@
     </span><span class="kw">pub </span>anchor: <span class="kw-2">*mut </span>yaml_char_t,
 }
 
-<span class="attr">#[derive(Copy, Clone, Debug)]
+<span class="doccomment">/// Represents the data associated with a YAML scalar event.
+</span><span class="attr">#[derive(Copy, Clone, Debug)]
 #[repr(C)]
 #[non_exhaustive]
 </span><span class="kw">pub struct </span>UnnamedYamlEventTdataScalar {
@@ -1859,7 +1899,8 @@
     </span><span class="kw">pub </span>style: YamlScalarStyleT,
 }
 
-<span class="attr">#[derive(Copy, Clone, Debug)]
+<span class="doccomment">/// Represents the data associated with the start of a YAML sequence.
+</span><span class="attr">#[derive(Copy, Clone, Debug)]
 #[repr(C)]
 #[non_exhaustive]
 </span><span class="kw">pub struct </span>UnnamedYamlEventTdataSequenceStart {
@@ -1873,7 +1914,8 @@
     </span><span class="kw">pub </span>style: YamlSequenceStyleT,
 }
 
-<span class="attr">#[derive(Copy, Clone, Debug)]
+<span class="doccomment">/// Represents the data associated with the start of a YAML mapping.
+</span><span class="attr">#[derive(Copy, Clone, Debug)]
 #[repr(C)]
 #[non_exhaustive]
 </span><span class="kw">pub struct </span>UnnamedYamlEventTdataMappingStart {
@@ -1949,7 +1991,8 @@
     </span><span class="kw">pub </span>end_mark: YamlMarkT,
 }
 
-<span class="attr">#[derive(Copy, Clone, Debug)]
+<span class="doccomment">/// Represents the data associated with a YAML node.
+</span><span class="attr">#[derive(Copy, Clone, Debug)]
 #[repr(C)]
 </span><span class="kw">pub struct </span>UnnamedYamlNodeTData {
     <span class="doccomment">/// The scalar parameters (for YamlScalarNode).
@@ -1960,7 +2003,8 @@
     </span><span class="kw">pub </span>mapping: UnnamedYamlNodeTDataMapping,
 }
 
-<span class="attr">#[derive(Copy, Clone, Debug)]
+<span class="doccomment">/// Represents the data associated with a YAML scalar node.
+</span><span class="attr">#[derive(Copy, Clone, Debug)]
 #[repr(C)]
 #[non_exhaustive]
 </span><span class="kw">pub struct </span>UnnamedYamlNodeTDataScalar {
@@ -1972,10 +2016,11 @@
     </span><span class="kw">pub </span>style: YamlScalarStyleT,
 }
 
-<span class="doccomment">/// An element of a sequence node.
+<span class="doccomment">/// Represents an element of a YAML sequence node.
 </span><span class="kw">pub type </span>YamlNodeItemT = libc::c_int;
 
-<span class="attr">#[derive(Copy, Clone, Debug)]
+<span class="doccomment">/// Represents the data associated with a YAML sequence node.
+</span><span class="attr">#[derive(Copy, Clone, Debug)]
 #[repr(C)]
 #[non_exhaustive]
 </span><span class="kw">pub struct </span>UnnamedYamlNodeTDataSequence {
@@ -1985,7 +2030,8 @@
     </span><span class="kw">pub </span>style: YamlSequenceStyleT,
 }
 
-<span class="attr">#[derive(Copy, Clone, Debug)]
+<span class="doccomment">/// Represents the data associated with a YAML mapping node.
+</span><span class="attr">#[derive(Copy, Clone, Debug)]
 #[repr(C)]
 #[non_exhaustive]
 </span><span class="kw">pub struct </span>UnnamedYamlNodeTDataMapping {
@@ -2038,7 +2084,8 @@
     </span><span class="kw">pub </span>end_mark: YamlMarkT,
 }
 
-<span class="attr">#[derive(Copy, Clone, Debug)]
+<span class="doccomment">/// Represents the list of tag directives in a YAML document.
+</span><span class="attr">#[derive(Copy, Clone, Debug)]
 #[repr(C)]
 #[non_exhaustive]
 </span><span class="kw">pub struct </span>UnnamedYamlDocumentTTagDirectives {
@@ -2246,13 +2293,14 @@
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) document: <span class="kw-2">*mut </span>YamlDocumentT,
 }
 
-<span class="attr">#[derive(Copy, Clone, Debug)]
+<span class="doccomment">/// Represents the prefix data associated with a YAML parser.
+</span><span class="attr">#[derive(Copy, Clone, Debug)]
 #[repr(C)]
 #[non_exhaustive]
 </span><span class="kw">pub struct </span>YamlParserTPrefix {
-    <span class="doccomment">/// Error type.
+    <span class="doccomment">/// The error type.
     </span><span class="kw">pub </span>error: YamlErrorTypeT,
-    <span class="doccomment">/// Error description.
+    <span class="doccomment">/// The error description.
     </span><span class="kw">pub </span>problem: <span class="kw-2">*const </span>libc::c_char,
     <span class="doccomment">/// The byte about which the problem occurred.
     </span><span class="kw">pub </span>problem_offset: size_t,
@@ -2300,8 +2348,11 @@
 ///
 /// On success, the handler should return 1. If the handler failed, the returned
 /// value should be 0.
-</span><span class="kw">pub type </span>YamlWriteHandlerT =
-    <span class="kw">unsafe fn</span>(data: <span class="kw-2">*mut </span>libc::c_void, buffer: <span class="kw-2">*mut </span>libc::c_uchar, size: size_t) -&gt; libc::c_int;
+</span><span class="kw">pub type </span>YamlWriteHandlerT = <span class="kw">unsafe fn</span>(
+    data: <span class="kw-2">*mut </span>libc::c_void,
+    buffer: <span class="kw-2">*mut </span>libc::c_uchar,
+    size: size_t,
+) -&gt; libc::c_int;
 
 <span class="doccomment">/// The emitter states.
 </span><span class="attr">#[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)]
@@ -2447,13 +2498,14 @@
     </span><span class="kw">pub</span>(<span class="kw">crate</span>) document: <span class="kw-2">*mut </span>YamlDocumentT,
 }
 
-<span class="attr">#[derive(Copy, Clone, Debug)]
+<span class="doccomment">/// Represents the prefix data associated with a YAML emitter.
+</span><span class="attr">#[derive(Copy, Clone, Debug)]
 #[repr(C)]
 #[non_exhaustive]
 </span><span class="kw">pub struct </span>YamlEmitterTPrefix {
-    <span class="doccomment">/// Error type.
+    <span class="doccomment">/// The error type.
     </span><span class="kw">pub </span>error: YamlErrorTypeT,
-    <span class="doccomment">/// Error description.
+    <span class="doccomment">/// The error description.
     </span><span class="kw">pub </span>problem: <span class="kw-2">*const </span>libc::c_char,
 }
 

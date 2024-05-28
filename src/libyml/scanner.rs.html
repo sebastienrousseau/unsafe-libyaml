@@ -2699,31 +2699,354 @@
 <a href="#2699" id="2699">2699</a>
 <a href="#2700" id="2700">2700</a>
 <a href="#2701" id="2701">2701</a>
-</pre></div><pre class="rust"><code><span class="comment">// Copyright notice and licensing information.
-// These lines indicate the copyright of the software and its licensing terms.
-// SPDX-License-Identifier: Apache-2.0 OR MIT indicates dual licensing under Apache 2.0 or MIT licenses.
-// Copyright © 2024 LibYML. All rights reserved.
-
-
-</span><span class="kw">use </span><span class="kw">crate</span>::api::{
-    yaml_free, yaml_malloc, yaml_queue_extend, yaml_stack_extend, yaml_string_extend,
-    yaml_string_join,
+<a href="#2702" id="2702">2702</a>
+<a href="#2703" id="2703">2703</a>
+<a href="#2704" id="2704">2704</a>
+<a href="#2705" id="2705">2705</a>
+<a href="#2706" id="2706">2706</a>
+<a href="#2707" id="2707">2707</a>
+<a href="#2708" id="2708">2708</a>
+<a href="#2709" id="2709">2709</a>
+<a href="#2710" id="2710">2710</a>
+<a href="#2711" id="2711">2711</a>
+<a href="#2712" id="2712">2712</a>
+<a href="#2713" id="2713">2713</a>
+<a href="#2714" id="2714">2714</a>
+<a href="#2715" id="2715">2715</a>
+<a href="#2716" id="2716">2716</a>
+<a href="#2717" id="2717">2717</a>
+<a href="#2718" id="2718">2718</a>
+<a href="#2719" id="2719">2719</a>
+<a href="#2720" id="2720">2720</a>
+<a href="#2721" id="2721">2721</a>
+<a href="#2722" id="2722">2722</a>
+<a href="#2723" id="2723">2723</a>
+<a href="#2724" id="2724">2724</a>
+<a href="#2725" id="2725">2725</a>
+<a href="#2726" id="2726">2726</a>
+<a href="#2727" id="2727">2727</a>
+<a href="#2728" id="2728">2728</a>
+<a href="#2729" id="2729">2729</a>
+<a href="#2730" id="2730">2730</a>
+<a href="#2731" id="2731">2731</a>
+<a href="#2732" id="2732">2732</a>
+<a href="#2733" id="2733">2733</a>
+<a href="#2734" id="2734">2734</a>
+<a href="#2735" id="2735">2735</a>
+<a href="#2736" id="2736">2736</a>
+<a href="#2737" id="2737">2737</a>
+<a href="#2738" id="2738">2738</a>
+<a href="#2739" id="2739">2739</a>
+<a href="#2740" id="2740">2740</a>
+<a href="#2741" id="2741">2741</a>
+<a href="#2742" id="2742">2742</a>
+<a href="#2743" id="2743">2743</a>
+<a href="#2744" id="2744">2744</a>
+<a href="#2745" id="2745">2745</a>
+<a href="#2746" id="2746">2746</a>
+<a href="#2747" id="2747">2747</a>
+<a href="#2748" id="2748">2748</a>
+<a href="#2749" id="2749">2749</a>
+<a href="#2750" id="2750">2750</a>
+<a href="#2751" id="2751">2751</a>
+<a href="#2752" id="2752">2752</a>
+<a href="#2753" id="2753">2753</a>
+<a href="#2754" id="2754">2754</a>
+<a href="#2755" id="2755">2755</a>
+<a href="#2756" id="2756">2756</a>
+<a href="#2757" id="2757">2757</a>
+<a href="#2758" id="2758">2758</a>
+<a href="#2759" id="2759">2759</a>
+<a href="#2760" id="2760">2760</a>
+<a href="#2761" id="2761">2761</a>
+<a href="#2762" id="2762">2762</a>
+<a href="#2763" id="2763">2763</a>
+<a href="#2764" id="2764">2764</a>
+<a href="#2765" id="2765">2765</a>
+<a href="#2766" id="2766">2766</a>
+<a href="#2767" id="2767">2767</a>
+<a href="#2768" id="2768">2768</a>
+<a href="#2769" id="2769">2769</a>
+<a href="#2770" id="2770">2770</a>
+<a href="#2771" id="2771">2771</a>
+<a href="#2772" id="2772">2772</a>
+<a href="#2773" id="2773">2773</a>
+<a href="#2774" id="2774">2774</a>
+<a href="#2775" id="2775">2775</a>
+<a href="#2776" id="2776">2776</a>
+<a href="#2777" id="2777">2777</a>
+<a href="#2778" id="2778">2778</a>
+<a href="#2779" id="2779">2779</a>
+<a href="#2780" id="2780">2780</a>
+<a href="#2781" id="2781">2781</a>
+<a href="#2782" id="2782">2782</a>
+<a href="#2783" id="2783">2783</a>
+<a href="#2784" id="2784">2784</a>
+<a href="#2785" id="2785">2785</a>
+<a href="#2786" id="2786">2786</a>
+<a href="#2787" id="2787">2787</a>
+<a href="#2788" id="2788">2788</a>
+<a href="#2789" id="2789">2789</a>
+<a href="#2790" id="2790">2790</a>
+<a href="#2791" id="2791">2791</a>
+<a href="#2792" id="2792">2792</a>
+<a href="#2793" id="2793">2793</a>
+<a href="#2794" id="2794">2794</a>
+<a href="#2795" id="2795">2795</a>
+<a href="#2796" id="2796">2796</a>
+<a href="#2797" id="2797">2797</a>
+<a href="#2798" id="2798">2798</a>
+<a href="#2799" id="2799">2799</a>
+<a href="#2800" id="2800">2800</a>
+<a href="#2801" id="2801">2801</a>
+<a href="#2802" id="2802">2802</a>
+<a href="#2803" id="2803">2803</a>
+<a href="#2804" id="2804">2804</a>
+<a href="#2805" id="2805">2805</a>
+<a href="#2806" id="2806">2806</a>
+<a href="#2807" id="2807">2807</a>
+<a href="#2808" id="2808">2808</a>
+<a href="#2809" id="2809">2809</a>
+<a href="#2810" id="2810">2810</a>
+<a href="#2811" id="2811">2811</a>
+<a href="#2812" id="2812">2812</a>
+<a href="#2813" id="2813">2813</a>
+<a href="#2814" id="2814">2814</a>
+<a href="#2815" id="2815">2815</a>
+<a href="#2816" id="2816">2816</a>
+<a href="#2817" id="2817">2817</a>
+<a href="#2818" id="2818">2818</a>
+<a href="#2819" id="2819">2819</a>
+<a href="#2820" id="2820">2820</a>
+<a href="#2821" id="2821">2821</a>
+<a href="#2822" id="2822">2822</a>
+<a href="#2823" id="2823">2823</a>
+<a href="#2824" id="2824">2824</a>
+<a href="#2825" id="2825">2825</a>
+<a href="#2826" id="2826">2826</a>
+<a href="#2827" id="2827">2827</a>
+<a href="#2828" id="2828">2828</a>
+<a href="#2829" id="2829">2829</a>
+<a href="#2830" id="2830">2830</a>
+<a href="#2831" id="2831">2831</a>
+<a href="#2832" id="2832">2832</a>
+<a href="#2833" id="2833">2833</a>
+<a href="#2834" id="2834">2834</a>
+<a href="#2835" id="2835">2835</a>
+<a href="#2836" id="2836">2836</a>
+<a href="#2837" id="2837">2837</a>
+<a href="#2838" id="2838">2838</a>
+<a href="#2839" id="2839">2839</a>
+<a href="#2840" id="2840">2840</a>
+<a href="#2841" id="2841">2841</a>
+<a href="#2842" id="2842">2842</a>
+<a href="#2843" id="2843">2843</a>
+<a href="#2844" id="2844">2844</a>
+<a href="#2845" id="2845">2845</a>
+<a href="#2846" id="2846">2846</a>
+<a href="#2847" id="2847">2847</a>
+<a href="#2848" id="2848">2848</a>
+<a href="#2849" id="2849">2849</a>
+<a href="#2850" id="2850">2850</a>
+<a href="#2851" id="2851">2851</a>
+<a href="#2852" id="2852">2852</a>
+<a href="#2853" id="2853">2853</a>
+<a href="#2854" id="2854">2854</a>
+<a href="#2855" id="2855">2855</a>
+<a href="#2856" id="2856">2856</a>
+<a href="#2857" id="2857">2857</a>
+<a href="#2858" id="2858">2858</a>
+<a href="#2859" id="2859">2859</a>
+<a href="#2860" id="2860">2860</a>
+<a href="#2861" id="2861">2861</a>
+<a href="#2862" id="2862">2862</a>
+<a href="#2863" id="2863">2863</a>
+<a href="#2864" id="2864">2864</a>
+<a href="#2865" id="2865">2865</a>
+<a href="#2866" id="2866">2866</a>
+<a href="#2867" id="2867">2867</a>
+<a href="#2868" id="2868">2868</a>
+<a href="#2869" id="2869">2869</a>
+<a href="#2870" id="2870">2870</a>
+<a href="#2871" id="2871">2871</a>
+<a href="#2872" id="2872">2872</a>
+<a href="#2873" id="2873">2873</a>
+<a href="#2874" id="2874">2874</a>
+<a href="#2875" id="2875">2875</a>
+<a href="#2876" id="2876">2876</a>
+<a href="#2877" id="2877">2877</a>
+<a href="#2878" id="2878">2878</a>
+<a href="#2879" id="2879">2879</a>
+<a href="#2880" id="2880">2880</a>
+<a href="#2881" id="2881">2881</a>
+<a href="#2882" id="2882">2882</a>
+<a href="#2883" id="2883">2883</a>
+<a href="#2884" id="2884">2884</a>
+<a href="#2885" id="2885">2885</a>
+<a href="#2886" id="2886">2886</a>
+<a href="#2887" id="2887">2887</a>
+<a href="#2888" id="2888">2888</a>
+<a href="#2889" id="2889">2889</a>
+<a href="#2890" id="2890">2890</a>
+<a href="#2891" id="2891">2891</a>
+<a href="#2892" id="2892">2892</a>
+<a href="#2893" id="2893">2893</a>
+<a href="#2894" id="2894">2894</a>
+<a href="#2895" id="2895">2895</a>
+<a href="#2896" id="2896">2896</a>
+<a href="#2897" id="2897">2897</a>
+<a href="#2898" id="2898">2898</a>
+<a href="#2899" id="2899">2899</a>
+<a href="#2900" id="2900">2900</a>
+<a href="#2901" id="2901">2901</a>
+<a href="#2902" id="2902">2902</a>
+<a href="#2903" id="2903">2903</a>
+<a href="#2904" id="2904">2904</a>
+<a href="#2905" id="2905">2905</a>
+<a href="#2906" id="2906">2906</a>
+<a href="#2907" id="2907">2907</a>
+<a href="#2908" id="2908">2908</a>
+<a href="#2909" id="2909">2909</a>
+<a href="#2910" id="2910">2910</a>
+<a href="#2911" id="2911">2911</a>
+<a href="#2912" id="2912">2912</a>
+<a href="#2913" id="2913">2913</a>
+<a href="#2914" id="2914">2914</a>
+<a href="#2915" id="2915">2915</a>
+<a href="#2916" id="2916">2916</a>
+<a href="#2917" id="2917">2917</a>
+<a href="#2918" id="2918">2918</a>
+<a href="#2919" id="2919">2919</a>
+<a href="#2920" id="2920">2920</a>
+<a href="#2921" id="2921">2921</a>
+<a href="#2922" id="2922">2922</a>
+<a href="#2923" id="2923">2923</a>
+<a href="#2924" id="2924">2924</a>
+<a href="#2925" id="2925">2925</a>
+<a href="#2926" id="2926">2926</a>
+<a href="#2927" id="2927">2927</a>
+<a href="#2928" id="2928">2928</a>
+<a href="#2929" id="2929">2929</a>
+<a href="#2930" id="2930">2930</a>
+<a href="#2931" id="2931">2931</a>
+<a href="#2932" id="2932">2932</a>
+<a href="#2933" id="2933">2933</a>
+<a href="#2934" id="2934">2934</a>
+<a href="#2935" id="2935">2935</a>
+<a href="#2936" id="2936">2936</a>
+<a href="#2937" id="2937">2937</a>
+<a href="#2938" id="2938">2938</a>
+<a href="#2939" id="2939">2939</a>
+<a href="#2940" id="2940">2940</a>
+<a href="#2941" id="2941">2941</a>
+<a href="#2942" id="2942">2942</a>
+<a href="#2943" id="2943">2943</a>
+<a href="#2944" id="2944">2944</a>
+<a href="#2945" id="2945">2945</a>
+<a href="#2946" id="2946">2946</a>
+<a href="#2947" id="2947">2947</a>
+<a href="#2948" id="2948">2948</a>
+<a href="#2949" id="2949">2949</a>
+<a href="#2950" id="2950">2950</a>
+<a href="#2951" id="2951">2951</a>
+<a href="#2952" id="2952">2952</a>
+<a href="#2953" id="2953">2953</a>
+<a href="#2954" id="2954">2954</a>
+<a href="#2955" id="2955">2955</a>
+<a href="#2956" id="2956">2956</a>
+<a href="#2957" id="2957">2957</a>
+<a href="#2958" id="2958">2958</a>
+<a href="#2959" id="2959">2959</a>
+<a href="#2960" id="2960">2960</a>
+<a href="#2961" id="2961">2961</a>
+<a href="#2962" id="2962">2962</a>
+<a href="#2963" id="2963">2963</a>
+<a href="#2964" id="2964">2964</a>
+<a href="#2965" id="2965">2965</a>
+<a href="#2966" id="2966">2966</a>
+<a href="#2967" id="2967">2967</a>
+<a href="#2968" id="2968">2968</a>
+<a href="#2969" id="2969">2969</a>
+<a href="#2970" id="2970">2970</a>
+<a href="#2971" id="2971">2971</a>
+<a href="#2972" id="2972">2972</a>
+<a href="#2973" id="2973">2973</a>
+<a href="#2974" id="2974">2974</a>
+<a href="#2975" id="2975">2975</a>
+<a href="#2976" id="2976">2976</a>
+<a href="#2977" id="2977">2977</a>
+<a href="#2978" id="2978">2978</a>
+<a href="#2979" id="2979">2979</a>
+<a href="#2980" id="2980">2980</a>
+<a href="#2981" id="2981">2981</a>
+<a href="#2982" id="2982">2982</a>
+<a href="#2983" id="2983">2983</a>
+<a href="#2984" id="2984">2984</a>
+<a href="#2985" id="2985">2985</a>
+<a href="#2986" id="2986">2986</a>
+<a href="#2987" id="2987">2987</a>
+<a href="#2988" id="2988">2988</a>
+<a href="#2989" id="2989">2989</a>
+<a href="#2990" id="2990">2990</a>
+<a href="#2991" id="2991">2991</a>
+<a href="#2992" id="2992">2992</a>
+<a href="#2993" id="2993">2993</a>
+<a href="#2994" id="2994">2994</a>
+<a href="#2995" id="2995">2995</a>
+<a href="#2996" id="2996">2996</a>
+<a href="#2997" id="2997">2997</a>
+<a href="#2998" id="2998">2998</a>
+<a href="#2999" id="2999">2999</a>
+<a href="#3000" id="3000">3000</a>
+<a href="#3001" id="3001">3001</a>
+<a href="#3002" id="3002">3002</a>
+<a href="#3003" id="3003">3003</a>
+<a href="#3004" id="3004">3004</a>
+<a href="#3005" id="3005">3005</a>
+<a href="#3006" id="3006">3006</a>
+<a href="#3007" id="3007">3007</a>
+<a href="#3008" id="3008">3008</a>
+<a href="#3009" id="3009">3009</a>
+<a href="#3010" id="3010">3010</a>
+<a href="#3011" id="3011">3011</a>
+<a href="#3012" id="3012">3012</a>
+<a href="#3013" id="3013">3013</a>
+<a href="#3014" id="3014">3014</a>
+<a href="#3015" id="3015">3015</a>
+<a href="#3016" id="3016">3016</a>
+<a href="#3017" id="3017">3017</a>
+<a href="#3018" id="3018">3018</a>
+<a href="#3019" id="3019">3019</a>
+<a href="#3020" id="3020">3020</a>
+<a href="#3021" id="3021">3021</a>
+<a href="#3022" id="3022">3022</a>
+<a href="#3023" id="3023">3023</a>
+<a href="#3024" id="3024">3024</a>
+<a href="#3025" id="3025">3025</a>
+</pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::api::{
+    yaml_free, yaml_malloc, yaml_queue_extend, yaml_stack_extend,
+    yaml_string_extend, yaml_string_join,
 };
 <span class="kw">use </span><span class="kw">crate</span>::externs::{memcpy, memmove, memset, strcmp, strlen};
 <span class="kw">use </span><span class="kw">crate</span>::ops::{ForceAdd <span class="kw">as _</span>, ForceMul <span class="kw">as _</span>};
 <span class="kw">use </span><span class="kw">crate</span>::reader::yaml_parser_update_buffer;
 <span class="kw">use </span><span class="kw">crate</span>::success::{Success, FAIL, OK};
-<span class="kw">use </span><span class="kw">crate</span>::yaml::{ptrdiff_t, size_t, yaml_char_t, YamlStringT, NULL_STRING};
+<span class="kw">use </span><span class="kw">crate</span>::yaml::{
+    ptrdiff_t, size_t, yaml_char_t, YamlStringT, NULL_STRING,
+};
 <span class="kw">use crate</span>::{
-    libc, YamlMarkT, YamlParserT, YamlSimpleKeyT, YamlTokenT, YamlTokenTypeT,
-    PointerExt, YamlAliasToken, YamlAnchorToken, YamlBlockEndToken, YamlBlockEntryToken,
-    YamlBlockMappingStartToken, YamlBlockSequenceStartToken, YamlDocumentEndToken,
-    YamlDocumentStartToken, YamlDoubleQuotedScalarStyle, YamlFlowEntryToken,
-    YamlFlowMappingEndToken, YamlFlowMappingStartToken, YamlFlowSequenceEndToken,
+    libc, PointerExt, YamlAliasToken, YamlAnchorToken,
+    YamlBlockEndToken, YamlBlockEntryToken, YamlBlockMappingStartToken,
+    YamlBlockSequenceStartToken, YamlDocumentEndToken,
+    YamlDocumentStartToken, YamlDoubleQuotedScalarStyle,
+    YamlFlowEntryToken, YamlFlowMappingEndToken,
+    YamlFlowMappingStartToken, YamlFlowSequenceEndToken,
     YamlFlowSequenceStartToken, YamlFoldedScalarStyle, YamlKeyToken,
-    YamlLiteralScalarStyle, YamlMemoryError, YamlNoError, YamlPlainScalarStyle,
-    YamlScalarToken, YamlScannerError, YamlSingleQuotedScalarStyle, YamlStreamEndToken,
-    YamlStreamStartToken, YamlTagDirectiveToken, YamlTagToken, YamlValueToken,
+    YamlLiteralScalarStyle, YamlMarkT, YamlMemoryError, YamlNoError,
+    YamlParserT, YamlPlainScalarStyle, YamlScalarToken,
+    YamlScannerError, YamlSimpleKeyT, YamlSingleQuotedScalarStyle,
+    YamlStreamEndToken, YamlStreamStartToken, YamlTagDirectiveToken,
+    YamlTagToken, YamlTokenT, YamlTokenTypeT, YamlValueToken,
     YamlVersionDirectiveToken,
 };
 <span class="kw">use </span>core::mem::{size_of, MaybeUninit};
@@ -2742,7 +3065,8 @@
     (<span class="kw-2">*</span>parser).mark.index = (<span class="kw-2">*</span>parser).mark.index.force_add(width <span class="kw">as </span>u64);
     (<span class="kw-2">*</span>parser).mark.column = (<span class="kw-2">*</span>parser).mark.column.force_add(<span class="number">1</span>);
     (<span class="kw-2">*</span>parser).unread = (<span class="kw-2">*</span>parser).unread.wrapping_sub(<span class="number">1</span>);
-    (<span class="kw-2">*</span>parser).buffer.pointer = (<span class="kw-2">*</span>parser).buffer.pointer.wrapping_offset(width <span class="kw">as </span>isize);
+    (<span class="kw-2">*</span>parser).buffer.pointer =
+        (<span class="kw-2">*</span>parser).buffer.pointer.wrapping_offset(width <span class="kw">as </span>isize);
 }
 
 <span class="kw">unsafe fn </span>skip_line(parser: <span class="kw-2">*mut </span>YamlParserT) {
@@ -2751,14 +3075,17 @@
         (<span class="kw-2">*</span>parser).mark.column = <span class="number">0</span>;
         (<span class="kw-2">*</span>parser).mark.line = (<span class="kw-2">*</span>parser).mark.line.force_add(<span class="number">1</span>);
         (<span class="kw-2">*</span>parser).unread = (<span class="kw-2">*</span>parser).unread.wrapping_sub(<span class="number">2</span>);
-        (<span class="kw-2">*</span>parser).buffer.pointer = (<span class="kw-2">*</span>parser).buffer.pointer.wrapping_offset(<span class="number">2</span>);
+        (<span class="kw-2">*</span>parser).buffer.pointer =
+            (<span class="kw-2">*</span>parser).buffer.pointer.wrapping_offset(<span class="number">2</span>);
     } <span class="kw">else if </span><span class="macro">IS_BREAK!</span>((<span class="kw-2">*</span>parser).buffer) {
         <span class="kw">let </span>width = <span class="macro">WIDTH!</span>((<span class="kw-2">*</span>parser).buffer);
-        (<span class="kw-2">*</span>parser).mark.index = (<span class="kw-2">*</span>parser).mark.index.force_add(width <span class="kw">as </span>u64);
+        (<span class="kw-2">*</span>parser).mark.index =
+            (<span class="kw-2">*</span>parser).mark.index.force_add(width <span class="kw">as </span>u64);
         (<span class="kw-2">*</span>parser).mark.column = <span class="number">0</span>;
         (<span class="kw-2">*</span>parser).mark.line = (<span class="kw-2">*</span>parser).mark.line.force_add(<span class="number">1</span>);
         (<span class="kw-2">*</span>parser).unread = (<span class="kw-2">*</span>parser).unread.wrapping_sub(<span class="number">1</span>);
-        (<span class="kw-2">*</span>parser).buffer.pointer = (<span class="kw-2">*</span>parser).buffer.pointer.wrapping_offset(width <span class="kw">as </span>isize);
+        (<span class="kw-2">*</span>parser).buffer.pointer =
+            (<span class="kw-2">*</span>parser).buffer.pointer.wrapping_offset(width <span class="kw">as </span>isize);
     };
 }
 
@@ -2771,45 +3098,61 @@
     (<span class="kw-2">*</span>parser).unread = (<span class="kw-2">*</span>parser).unread.wrapping_sub(<span class="number">1</span>);
 }
 
-<span class="kw">unsafe fn </span>read_line(parser: <span class="kw-2">*mut </span>YamlParserT, string: <span class="kw-2">*mut </span>YamlStringT) {
+<span class="kw">unsafe fn </span>read_line(
+    parser: <span class="kw-2">*mut </span>YamlParserT,
+    string: <span class="kw-2">*mut </span>YamlStringT,
+) {
     <span class="macro">STRING_EXTEND!</span>(<span class="kw-2">*</span>string);
-    <span class="kw">if </span><span class="macro">CHECK_AT!</span>((<span class="kw-2">*</span>parser).buffer, <span class="string">b'\r'</span>, <span class="number">0</span>) &amp;&amp; <span class="macro">CHECK_AT!</span>((<span class="kw-2">*</span>parser).buffer, <span class="string">b'\n'</span>, <span class="number">1</span>) {
+    <span class="kw">if </span><span class="macro">CHECK_AT!</span>((<span class="kw-2">*</span>parser).buffer, <span class="string">b'\r'</span>, <span class="number">0</span>)
+        &amp;&amp; <span class="macro">CHECK_AT!</span>((<span class="kw-2">*</span>parser).buffer, <span class="string">b'\n'</span>, <span class="number">1</span>)
+    {
         <span class="kw-2">*</span>(<span class="kw-2">*</span>string).pointer = <span class="string">b'\n'</span>;
         (<span class="kw-2">*</span>string).pointer = (<span class="kw-2">*</span>string).pointer.wrapping_offset(<span class="number">1</span>);
-        (<span class="kw-2">*</span>parser).buffer.pointer = (<span class="kw-2">*</span>parser).buffer.pointer.wrapping_offset(<span class="number">2</span>);
+        (<span class="kw-2">*</span>parser).buffer.pointer =
+            (<span class="kw-2">*</span>parser).buffer.pointer.wrapping_offset(<span class="number">2</span>);
         (<span class="kw-2">*</span>parser).mark.index = (<span class="kw-2">*</span>parser).mark.index.force_add(<span class="number">2</span>);
         (<span class="kw-2">*</span>parser).mark.column = <span class="number">0</span>;
         (<span class="kw-2">*</span>parser).mark.line = (<span class="kw-2">*</span>parser).mark.line.force_add(<span class="number">1</span>);
         (<span class="kw-2">*</span>parser).unread = (<span class="kw-2">*</span>parser).unread.wrapping_sub(<span class="number">2</span>);
-    } <span class="kw">else if </span><span class="macro">CHECK_AT!</span>((<span class="kw-2">*</span>parser).buffer, <span class="string">b'\r'</span>, <span class="number">0</span>) || <span class="macro">CHECK_AT!</span>((<span class="kw-2">*</span>parser).buffer, <span class="string">b'\n'</span>, <span class="number">0</span>) {
+    } <span class="kw">else if </span><span class="macro">CHECK_AT!</span>((<span class="kw-2">*</span>parser).buffer, <span class="string">b'\r'</span>, <span class="number">0</span>)
+        || <span class="macro">CHECK_AT!</span>((<span class="kw-2">*</span>parser).buffer, <span class="string">b'\n'</span>, <span class="number">0</span>)
+    {
         <span class="kw-2">*</span>(<span class="kw-2">*</span>string).pointer = <span class="string">b'\n'</span>;
         (<span class="kw-2">*</span>string).pointer = (<span class="kw-2">*</span>string).pointer.wrapping_offset(<span class="number">1</span>);
-        (<span class="kw-2">*</span>parser).buffer.pointer = (<span class="kw-2">*</span>parser).buffer.pointer.wrapping_offset(<span class="number">1</span>);
+        (<span class="kw-2">*</span>parser).buffer.pointer =
+            (<span class="kw-2">*</span>parser).buffer.pointer.wrapping_offset(<span class="number">1</span>);
         (<span class="kw-2">*</span>parser).mark.index = (<span class="kw-2">*</span>parser).mark.index.force_add(<span class="number">1</span>);
         (<span class="kw-2">*</span>parser).mark.column = <span class="number">0</span>;
         (<span class="kw-2">*</span>parser).mark.line = (<span class="kw-2">*</span>parser).mark.line.force_add(<span class="number">1</span>);
         (<span class="kw-2">*</span>parser).unread = (<span class="kw-2">*</span>parser).unread.wrapping_sub(<span class="number">1</span>);
-    } <span class="kw">else if </span><span class="macro">CHECK_AT!</span>((<span class="kw-2">*</span>parser).buffer, <span class="string">b'\xC2'</span>, <span class="number">0</span>) &amp;&amp; <span class="macro">CHECK_AT!</span>((<span class="kw-2">*</span>parser).buffer, <span class="string">b'\x85'</span>, <span class="number">1</span>) {
+    } <span class="kw">else if </span><span class="macro">CHECK_AT!</span>((<span class="kw-2">*</span>parser).buffer, <span class="string">b'\xC2'</span>, <span class="number">0</span>)
+        &amp;&amp; <span class="macro">CHECK_AT!</span>((<span class="kw-2">*</span>parser).buffer, <span class="string">b'\x85'</span>, <span class="number">1</span>)
+    {
         <span class="kw-2">*</span>(<span class="kw-2">*</span>string).pointer = <span class="string">b'\n'</span>;
         (<span class="kw-2">*</span>string).pointer = (<span class="kw-2">*</span>string).pointer.wrapping_offset(<span class="number">1</span>);
-        (<span class="kw-2">*</span>parser).buffer.pointer = (<span class="kw-2">*</span>parser).buffer.pointer.wrapping_offset(<span class="number">2</span>);
+        (<span class="kw-2">*</span>parser).buffer.pointer =
+            (<span class="kw-2">*</span>parser).buffer.pointer.wrapping_offset(<span class="number">2</span>);
         (<span class="kw-2">*</span>parser).mark.index = (<span class="kw-2">*</span>parser).mark.index.force_add(<span class="number">2</span>);
         (<span class="kw-2">*</span>parser).mark.column = <span class="number">0</span>;
         (<span class="kw-2">*</span>parser).mark.line = (<span class="kw-2">*</span>parser).mark.line.force_add(<span class="number">1</span>);
         (<span class="kw-2">*</span>parser).unread = (<span class="kw-2">*</span>parser).unread.wrapping_sub(<span class="number">1</span>);
     } <span class="kw">else if </span><span class="macro">CHECK_AT!</span>((<span class="kw-2">*</span>parser).buffer, <span class="string">b'\xE2'</span>, <span class="number">0</span>)
         &amp;&amp; <span class="macro">CHECK_AT!</span>((<span class="kw-2">*</span>parser).buffer, <span class="string">b'\x80'</span>, <span class="number">1</span>)
-        &amp;&amp; (<span class="macro">CHECK_AT!</span>((<span class="kw-2">*</span>parser).buffer, <span class="string">b'\xA8'</span>, <span class="number">2</span>) || <span class="macro">CHECK_AT!</span>((<span class="kw-2">*</span>parser).buffer, <span class="string">b'\xA9'</span>, <span class="number">2</span>))
+        &amp;&amp; (<span class="macro">CHECK_AT!</span>((<span class="kw-2">*</span>parser).buffer, <span class="string">b'\xA8'</span>, <span class="number">2</span>)
+            || <span class="macro">CHECK_AT!</span>((<span class="kw-2">*</span>parser).buffer, <span class="string">b'\xA9'</span>, <span class="number">2</span>))
     {
         <span class="kw-2">*</span>(<span class="kw-2">*</span>string).pointer = <span class="kw-2">*</span>(<span class="kw-2">*</span>parser).buffer.pointer;
         (<span class="kw-2">*</span>string).pointer = (<span class="kw-2">*</span>string).pointer.wrapping_offset(<span class="number">1</span>);
-        (<span class="kw-2">*</span>parser).buffer.pointer = (<span class="kw-2">*</span>parser).buffer.pointer.wrapping_offset(<span class="number">1</span>);
+        (<span class="kw-2">*</span>parser).buffer.pointer =
+            (<span class="kw-2">*</span>parser).buffer.pointer.wrapping_offset(<span class="number">1</span>);
         <span class="kw-2">*</span>(<span class="kw-2">*</span>string).pointer = <span class="kw-2">*</span>(<span class="kw-2">*</span>parser).buffer.pointer;
         (<span class="kw-2">*</span>string).pointer = (<span class="kw-2">*</span>string).pointer.wrapping_offset(<span class="number">1</span>);
-        (<span class="kw-2">*</span>parser).buffer.pointer = (<span class="kw-2">*</span>parser).buffer.pointer.wrapping_offset(<span class="number">1</span>);
+        (<span class="kw-2">*</span>parser).buffer.pointer =
+            (<span class="kw-2">*</span>parser).buffer.pointer.wrapping_offset(<span class="number">1</span>);
         <span class="kw-2">*</span>(<span class="kw-2">*</span>string).pointer = <span class="kw-2">*</span>(<span class="kw-2">*</span>parser).buffer.pointer;
         (<span class="kw-2">*</span>string).pointer = (<span class="kw-2">*</span>string).pointer.wrapping_offset(<span class="number">1</span>);
-        (<span class="kw-2">*</span>parser).buffer.pointer = (<span class="kw-2">*</span>parser).buffer.pointer.wrapping_offset(<span class="number">1</span>);
+        (<span class="kw-2">*</span>parser).buffer.pointer =
+            (<span class="kw-2">*</span>parser).buffer.pointer.wrapping_offset(<span class="number">1</span>);
         (<span class="kw-2">*</span>parser).mark.index = (<span class="kw-2">*</span>parser).mark.index.force_add(<span class="number">3</span>);
         (<span class="kw-2">*</span>parser).mark.column = <span class="number">0</span>;
         (<span class="kw-2">*</span>parser).mark.line = (<span class="kw-2">*</span>parser).mark.line.force_add(<span class="number">1</span>);
@@ -2853,7 +3196,10 @@
 /// - The caller is responsible for freeing any buffers associated with the produced
 ///   token using the `yaml_token_delete` function.
 ///
-</span><span class="kw">pub unsafe fn </span>yaml_parser_scan(parser: <span class="kw-2">*mut </span>YamlParserT, token: <span class="kw-2">*mut </span>YamlTokenT) -&gt; Success {
+</span><span class="kw">pub unsafe fn </span>yaml_parser_scan(
+    parser: <span class="kw-2">*mut </span>YamlParserT,
+    token: <span class="kw-2">*mut </span>YamlTokenT,
+) -&gt; Success {
     <span class="macro">__assert!</span>(!parser.is_null());
     <span class="macro">__assert!</span>(!token.is_null());
     memset(
@@ -2864,7 +3210,9 @@
     <span class="kw">if </span>(<span class="kw-2">*</span>parser).stream_end_produced || (<span class="kw-2">*</span>parser).error != YamlNoError {
         <span class="kw">return </span>OK;
     }
-    <span class="kw">if </span>!(<span class="kw-2">*</span>parser).token_available &amp;&amp; yaml_parser_fetch_more_tokens(parser).fail {
+    <span class="kw">if </span>!(<span class="kw-2">*</span>parser).token_available
+        &amp;&amp; yaml_parser_fetch_more_tokens(parser).fail
+    {
         <span class="kw">return </span>FAIL;
     }
     <span class="kw-2">*</span>token = <span class="macro">DEQUEUE!</span>((<span class="kw-2">*</span>parser).tokens);
@@ -2892,7 +3240,9 @@
     (<span class="kw-2">*</span>parser).problem_mark = (<span class="kw-2">*</span>parser).mark;
 }
 
-<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">unsafe fn </span>yaml_parser_fetch_more_tokens(parser: <span class="kw-2">*mut </span>YamlParserT) -&gt; Success {
+<span class="kw">pub</span>(<span class="kw">crate</span>) <span class="kw">unsafe fn </span>yaml_parser_fetch_more_tokens(
+    parser: <span class="kw-2">*mut </span>YamlParserT,
+) -&gt; Success {
     <span class="kw">let </span><span class="kw-2">mut </span>need_more_tokens;
     <span class="kw">loop </span>{
         need_more_tokens = <span class="bool-val">false</span>;
@@ -2908,7 +3258,10 @@
                 .start
                 .add((<span class="kw-2">*</span>parser).not_simple_keys <span class="kw">as </span>usize);
             <span class="kw">while </span>simple_key != (<span class="kw-2">*</span>parser).simple_keys.top {
-                <span class="kw">if </span>(<span class="kw-2">*</span>simple_key).possible &amp;&amp; (<span class="kw-2">*</span>simple_key).token_number == (<span class="kw-2">*</span>parser).tokens_parsed {
+                <span class="kw">if </span>(<span class="kw-2">*</span>simple_key).possible
+                    &amp;&amp; (<span class="kw-2">*</span>simple_key).token_number
+                        == (<span class="kw-2">*</span>parser).tokens_parsed
+                {
                     need_more_tokens = <span class="bool-val">true</span>;
                     <span class="kw">break</span>;
                 } <span class="kw">else </span>{
@@ -2927,7 +3280,9 @@
     OK
 }
 
-<span class="kw">unsafe fn </span>yaml_parser_fetch_next_token(parser: <span class="kw-2">*mut </span>YamlParserT) -&gt; Success {
+<span class="kw">unsafe fn </span>yaml_parser_fetch_next_token(
+    parser: <span class="kw-2">*mut </span>YamlParserT,
+) -&gt; Success {
     <span class="kw">if </span>cache(parser, <span class="number">1_u64</span>).fail {
         <span class="kw">return </span>FAIL;
     }
@@ -2941,14 +3296,18 @@
     <span class="kw">if </span>yaml_parser_stale_simple_keys(parser).fail {
         <span class="kw">return </span>FAIL;
     }
-    yaml_parser_unroll_indent(parser, (<span class="kw-2">*</span>parser).mark.column <span class="kw">as </span>ptrdiff_t);
+    yaml_parser_unroll_indent(
+        parser,
+        (<span class="kw-2">*</span>parser).mark.column <span class="kw">as </span>ptrdiff_t,
+    );
     <span class="kw">if </span>cache(parser, <span class="number">4_u64</span>).fail {
         <span class="kw">return </span>FAIL;
     }
     <span class="kw">if </span><span class="macro">IS_Z!</span>((<span class="kw-2">*</span>parser).buffer) {
         <span class="kw">return </span>yaml_parser_fetch_stream_end(parser);
     }
-    <span class="kw">if </span>(<span class="kw-2">*</span>parser).mark.column == <span class="number">0_u64 </span>&amp;&amp; <span class="macro">CHECK!</span>((<span class="kw-2">*</span>parser).buffer, <span class="string">b'%'</span>) {
+    <span class="kw">if </span>(<span class="kw-2">*</span>parser).mark.column == <span class="number">0_u64 </span>&amp;&amp; <span class="macro">CHECK!</span>((<span class="kw-2">*</span>parser).buffer, <span class="string">b'%'</span>)
+    {
         <span class="kw">return </span>yaml_parser_fetch_directive(parser);
     }
     <span class="kw">if </span>(<span class="kw-2">*</span>parser).mark.column == <span class="number">0_u64
@@ -2957,7 +3316,10 @@
         &amp;&amp; <span class="macro">CHECK_AT!</span>((<span class="kw-2">*</span>parser).buffer, <span class="string">b'-'</span>, <span class="number">2</span>)
         &amp;&amp; <span class="macro">IS_BLANKZ_AT!</span>((<span class="kw-2">*</span>parser).buffer, <span class="number">3</span>)
     {
-        <span class="kw">return </span>yaml_parser_fetch_document_indicator(parser, YamlDocumentStartToken);
+        <span class="kw">return </span>yaml_parser_fetch_document_indicator(
+            parser,
+            YamlDocumentStartToken,
+        );
     }
     <span class="kw">if </span>(<span class="kw-2">*</span>parser).mark.column == <span class="number">0_u64
         </span>&amp;&amp; <span class="macro">CHECK_AT!</span>((<span class="kw-2">*</span>parser).buffer, <span class="string">b'.'</span>, <span class="number">0</span>)
@@ -2965,33 +3327,52 @@
         &amp;&amp; <span class="macro">CHECK_AT!</span>((<span class="kw-2">*</span>parser).buffer, <span class="string">b'.'</span>, <span class="number">2</span>)
         &amp;&amp; <span class="macro">IS_BLANKZ_AT!</span>((<span class="kw-2">*</span>parser).buffer, <span class="number">3</span>)
     {
-        <span class="kw">return </span>yaml_parser_fetch_document_indicator(parser, YamlDocumentEndToken);
+        <span class="kw">return </span>yaml_parser_fetch_document_indicator(
+            parser,
+            YamlDocumentEndToken,
+        );
     }
     <span class="kw">if </span><span class="macro">CHECK!</span>((<span class="kw-2">*</span>parser).buffer, <span class="string">b'['</span>) {
-        <span class="kw">return </span>yaml_parser_fetch_flow_collection_start(parser, YamlFlowSequenceStartToken);
+        <span class="kw">return </span>yaml_parser_fetch_flow_collection_start(
+            parser,
+            YamlFlowSequenceStartToken,
+        );
     }
     <span class="kw">if </span><span class="macro">CHECK!</span>((<span class="kw-2">*</span>parser).buffer, <span class="string">b'{'</span>) {
-        <span class="kw">return </span>yaml_parser_fetch_flow_collection_start(parser, YamlFlowMappingStartToken);
+        <span class="kw">return </span>yaml_parser_fetch_flow_collection_start(
+            parser,
+            YamlFlowMappingStartToken,
+        );
     }
     <span class="kw">if </span><span class="macro">CHECK!</span>((<span class="kw-2">*</span>parser).buffer, <span class="string">b']'</span>) {
-        <span class="kw">return </span>yaml_parser_fetch_flow_collection_end(parser, YamlFlowSequenceEndToken);
+        <span class="kw">return </span>yaml_parser_fetch_flow_collection_end(
+            parser,
+            YamlFlowSequenceEndToken,
+        );
     }
     <span class="kw">if </span><span class="macro">CHECK!</span>((<span class="kw-2">*</span>parser).buffer, <span class="string">b'}'</span>) {
-        <span class="kw">return </span>yaml_parser_fetch_flow_collection_end(parser, YamlFlowMappingEndToken);
+        <span class="kw">return </span>yaml_parser_fetch_flow_collection_end(
+            parser,
+            YamlFlowMappingEndToken,
+        );
     }
     <span class="kw">if </span><span class="macro">CHECK!</span>((<span class="kw-2">*</span>parser).buffer, <span class="string">b','</span>) {
         <span class="kw">return </span>yaml_parser_fetch_flow_entry(parser);
     }
-    <span class="kw">if </span><span class="macro">CHECK!</span>((<span class="kw-2">*</span>parser).buffer, <span class="string">b'-'</span>) &amp;&amp; <span class="macro">IS_BLANKZ_AT!</span>((<span class="kw-2">*</span>parser).buffer, <span class="number">1</span>) {
+    <span class="kw">if </span><span class="macro">CHECK!</span>((<span class="kw-2">*</span>parser).buffer, <span class="string">b'-'</span>)
+        &amp;&amp; <span class="macro">IS_BLANKZ_AT!</span>((<span class="kw-2">*</span>parser).buffer, <span class="number">1</span>)
+    {
         <span class="kw">return </span>yaml_parser_fetch_block_entry(parser);
     }
     <span class="kw">if </span><span class="macro">CHECK!</span>((<span class="kw-2">*</span>parser).buffer, <span class="string">b'?'</span>)
-        &amp;&amp; ((<span class="kw-2">*</span>parser).flow_level != <span class="number">0 </span>|| <span class="macro">IS_BLANKZ_AT!</span>((<span class="kw-2">*</span>parser).buffer, <span class="number">1</span>))
+        &amp;&amp; ((<span class="kw-2">*</span>parser).flow_level != <span class="number">0
+            </span>|| <span class="macro">IS_BLANKZ_AT!</span>((<span class="kw-2">*</span>parser).buffer, <span class="number">1</span>))
     {
         <span class="kw">return </span>yaml_parser_fetch_key(parser);
     }
     <span class="kw">if </span><span class="macro">CHECK!</span>((<span class="kw-2">*</span>parser).buffer, <span class="string">b':'</span>)
-        &amp;&amp; ((<span class="kw-2">*</span>parser).flow_level != <span class="number">0 </span>|| <span class="macro">IS_BLANKZ_AT!</span>((<span class="kw-2">*</span>parser).buffer, <span class="number">1</span>))
+        &amp;&amp; ((<span class="kw-2">*</span>parser).flow_level != <span class="number">0
+            </span>|| <span class="macro">IS_BLANKZ_AT!</span>((<span class="kw-2">*</span>parser).buffer, <span class="number">1</span>))
     {
         <span class="kw">return </span>yaml_parser_fetch_value(parser);
     }
@@ -3036,23 +3417,29 @@
         || <span class="macro">CHECK!</span>((<span class="kw-2">*</span>parser).buffer, <span class="string">b'%'</span>)
         || <span class="macro">CHECK!</span>((<span class="kw-2">*</span>parser).buffer, <span class="string">b'@'</span>)
         || <span class="macro">CHECK!</span>((<span class="kw-2">*</span>parser).buffer, <span class="string">b'`'</span>))
-        || <span class="macro">CHECK!</span>((<span class="kw-2">*</span>parser).buffer, <span class="string">b'-'</span>) &amp;&amp; !<span class="macro">IS_BLANK_AT!</span>((<span class="kw-2">*</span>parser).buffer, <span class="number">1</span>)
+        || <span class="macro">CHECK!</span>((<span class="kw-2">*</span>parser).buffer, <span class="string">b'-'</span>)
+            &amp;&amp; !<span class="macro">IS_BLANK_AT!</span>((<span class="kw-2">*</span>parser).buffer, <span class="number">1</span>)
         || (<span class="kw-2">*</span>parser).flow_level == <span class="number">0
-            </span>&amp;&amp; (<span class="macro">CHECK!</span>((<span class="kw-2">*</span>parser).buffer, <span class="string">b'?'</span>) || <span class="macro">CHECK!</span>((<span class="kw-2">*</span>parser).buffer, <span class="string">b':'</span>))
+            </span>&amp;&amp; (<span class="macro">CHECK!</span>((<span class="kw-2">*</span>parser).buffer, <span class="string">b'?'</span>)
+                || <span class="macro">CHECK!</span>((<span class="kw-2">*</span>parser).buffer, <span class="string">b':'</span>))
             &amp;&amp; !<span class="macro">IS_BLANKZ_AT!</span>((<span class="kw-2">*</span>parser).buffer, <span class="number">1</span>)
     {
         <span class="kw">return </span>yaml_parser_fetch_plain_scalar(parser);
     }
     yaml_parser_set_scanner_error(
         parser,
-        <span class="string">b"while scanning for the next token\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8 <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
+        <span class="string">b"while scanning for the next token\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8
+            <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
         (<span class="kw-2">*</span>parser).mark,
-        <span class="string">b"found character that cannot start any token\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8 <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
+        <span class="string">b"found character that cannot start any token\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8
+            <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
     );
     FAIL
 }
 
-<span class="kw">unsafe fn </span>yaml_parser_stale_simple_keys(parser: <span class="kw-2">*mut </span>YamlParserT) -&gt; Success {
+<span class="kw">unsafe fn </span>yaml_parser_stale_simple_keys(
+    parser: <span class="kw-2">*mut </span>YamlParserT,
+) -&gt; Success {
     <span class="kw">let </span><span class="kw-2">mut </span>simple_key: <span class="kw-2">*mut </span>YamlSimpleKeyT;
     simple_key = (<span class="kw-2">*</span>parser)
         .simple_keys
@@ -3061,14 +3448,17 @@
     <span class="kw">while </span>simple_key != (<span class="kw-2">*</span>parser).simple_keys.top {
         <span class="kw">if </span>(<span class="kw-2">*</span>simple_key).possible
             &amp;&amp; ((<span class="kw-2">*</span>simple_key).mark.line &lt; (<span class="kw-2">*</span>parser).mark.line
-                || (<span class="kw-2">*</span>simple_key).mark.index.force_add(<span class="number">1024_u64</span>) &lt; (<span class="kw-2">*</span>parser).mark.index)
+                || (<span class="kw-2">*</span>simple_key).mark.index.force_add(<span class="number">1024_u64</span>)
+                    &lt; (<span class="kw-2">*</span>parser).mark.index)
         {
             <span class="kw">if </span>(<span class="kw-2">*</span>simple_key).required {
                 yaml_parser_set_scanner_error(
                     parser,
-                    <span class="string">b"while scanning a simple key\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8 <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
+                    <span class="string">b"while scanning a simple key\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8
+                        <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
                     (<span class="kw-2">*</span>simple_key).mark,
-                    <span class="string">b"could not find expected ':'\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8 <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
+                    <span class="string">b"could not find expected ':'\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8
+                        <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
                 );
                 <span class="kw">return </span>FAIL;
             }
@@ -3087,22 +3477,30 @@
     OK
 }
 
-<span class="kw">unsafe fn </span>yaml_parser_save_simple_key(parser: <span class="kw-2">*mut </span>YamlParserT) -&gt; Success {
+<span class="kw">unsafe fn </span>yaml_parser_save_simple_key(
+    parser: <span class="kw-2">*mut </span>YamlParserT,
+) -&gt; Success {
     <span class="kw">let </span>required = (<span class="kw-2">*</span>parser).flow_level == <span class="number">0
-        </span>&amp;&amp; (<span class="kw-2">*</span>parser).indent <span class="kw">as </span>libc::c_long == (<span class="kw-2">*</span>parser).mark.column <span class="kw">as </span>ptrdiff_t;
+        </span>&amp;&amp; (<span class="kw-2">*</span>parser).indent <span class="kw">as </span>libc::c_long
+            == (<span class="kw-2">*</span>parser).mark.column <span class="kw">as </span>ptrdiff_t;
     <span class="kw">if </span>(<span class="kw-2">*</span>parser).simple_key_allowed {
         <span class="kw">let </span>simple_key = YamlSimpleKeyT {
             possible: <span class="bool-val">true</span>,
             required,
             token_number: (<span class="kw-2">*</span>parser).tokens_parsed.force_add(
-                (<span class="kw-2">*</span>parser).tokens.tail.c_offset_from((<span class="kw-2">*</span>parser).tokens.head) <span class="kw">as </span>libc::c_ulong,
+                (<span class="kw-2">*</span>parser)
+                    .tokens
+                    .tail
+                    .c_offset_from((<span class="kw-2">*</span>parser).tokens.head)
+                    <span class="kw">as </span>libc::c_ulong,
             ),
             mark: (<span class="kw-2">*</span>parser).mark,
         };
         <span class="kw">if </span>yaml_parser_remove_simple_key(parser).fail {
             <span class="kw">return </span>FAIL;
         }
-        <span class="kw-2">*</span>(<span class="kw-2">*</span>parser).simple_keys.top.wrapping_offset(-<span class="number">1_isize</span>) = simple_key;
+        <span class="kw-2">*</span>(<span class="kw-2">*</span>parser).simple_keys.top.wrapping_offset(-<span class="number">1_isize</span>) =
+            simple_key;
         <span class="kw">if </span>(<span class="kw-2">*</span>parser)
             .simple_keys
             .start
@@ -3115,14 +3513,19 @@
     OK
 }
 
-<span class="kw">unsafe fn </span>yaml_parser_remove_simple_key(parser: <span class="kw-2">*mut </span>YamlParserT) -&gt; Success {
-    <span class="kw">let </span>simple_key: <span class="kw-2">*mut </span>YamlSimpleKeyT = (<span class="kw-2">*</span>parser).simple_keys.top.wrapping_offset(-<span class="number">1_isize</span>);
+<span class="kw">unsafe fn </span>yaml_parser_remove_simple_key(
+    parser: <span class="kw-2">*mut </span>YamlParserT,
+) -&gt; Success {
+    <span class="kw">let </span>simple_key: <span class="kw-2">*mut </span>YamlSimpleKeyT =
+        (<span class="kw-2">*</span>parser).simple_keys.top.wrapping_offset(-<span class="number">1_isize</span>);
     <span class="kw">if </span>(<span class="kw-2">*</span>simple_key).possible &amp;&amp; (<span class="kw-2">*</span>simple_key).required {
         yaml_parser_set_scanner_error(
             parser,
-            <span class="string">b"while scanning a simple key\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8 <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
+            <span class="string">b"while scanning a simple key\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8
+                <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
             (<span class="kw-2">*</span>simple_key).mark,
-            <span class="string">b"could not find expected ':'\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8 <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
+            <span class="string">b"could not find expected ':'\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8
+                <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
         );
         <span class="kw">return </span>FAIL;
     }
@@ -3130,7 +3533,9 @@
     OK
 }
 
-<span class="kw">unsafe fn </span>yaml_parser_increase_flow_level(parser: <span class="kw-2">*mut </span>YamlParserT) -&gt; Success {
+<span class="kw">unsafe fn </span>yaml_parser_increase_flow_level(
+    parser: <span class="kw-2">*mut </span>YamlParserT,
+) -&gt; Success {
     <span class="kw">let </span>empty_simple_key = YamlSimpleKeyT {
         possible: <span class="bool-val">false</span>,
         required: <span class="bool-val">false</span>,
@@ -3199,7 +3604,8 @@
         } <span class="kw">else </span>{
             <span class="macro">QUEUE_INSERT!</span>(
                 (<span class="kw-2">*</span>parser).tokens,
-                (number <span class="kw">as </span>libc::c_ulong).wrapping_sub((<span class="kw-2">*</span>parser).tokens_parsed),
+                (number <span class="kw">as </span>libc::c_ulong)
+                    .wrapping_sub((<span class="kw-2">*</span>parser).tokens_parsed),
                 <span class="kw-2">*</span>token
             );
         }
@@ -3207,7 +3613,10 @@
     OK
 }
 
-<span class="kw">unsafe fn </span>yaml_parser_unroll_indent(parser: <span class="kw-2">*mut </span>YamlParserT, column: ptrdiff_t) {
+<span class="kw">unsafe fn </span>yaml_parser_unroll_indent(
+    parser: <span class="kw-2">*mut </span>YamlParserT,
+    column: ptrdiff_t,
+) {
     <span class="kw">let </span><span class="kw-2">mut </span>token = MaybeUninit::&lt;YamlTokenT&gt;::uninit();
     <span class="kw">let </span>token = token.as_mut_ptr();
     <span class="kw">if </span>(<span class="kw-2">*</span>parser).flow_level != <span class="number">0 </span>{
@@ -3257,7 +3666,9 @@
     <span class="macro">ENQUEUE!</span>((<span class="kw-2">*</span>parser).tokens, <span class="kw-2">*</span>token);
 }
 
-<span class="kw">unsafe fn </span>yaml_parser_fetch_stream_end(parser: <span class="kw-2">*mut </span>YamlParserT) -&gt; Success {
+<span class="kw">unsafe fn </span>yaml_parser_fetch_stream_end(
+    parser: <span class="kw-2">*mut </span>YamlParserT,
+) -&gt; Success {
     <span class="kw">let </span><span class="kw-2">mut </span>token = MaybeUninit::&lt;YamlTokenT&gt;::uninit();
     <span class="kw">let </span>token = token.as_mut_ptr();
     <span class="kw">if </span>(<span class="kw-2">*</span>parser).mark.column != <span class="number">0_u64 </span>{
@@ -3282,7 +3693,9 @@
     OK
 }
 
-<span class="kw">unsafe fn </span>yaml_parser_fetch_directive(parser: <span class="kw-2">*mut </span>YamlParserT) -&gt; Success {
+<span class="kw">unsafe fn </span>yaml_parser_fetch_directive(
+    parser: <span class="kw-2">*mut </span>YamlParserT,
+) -&gt; Success {
     <span class="kw">let </span><span class="kw-2">mut </span>token = MaybeUninit::&lt;YamlTokenT&gt;::uninit();
     <span class="kw">let </span>token = token.as_mut_ptr();
     yaml_parser_unroll_indent(parser, -<span class="number">1_i64</span>);
@@ -3379,7 +3792,9 @@
     OK
 }
 
-<span class="kw">unsafe fn </span>yaml_parser_fetch_flow_entry(parser: <span class="kw-2">*mut </span>YamlParserT) -&gt; Success {
+<span class="kw">unsafe fn </span>yaml_parser_fetch_flow_entry(
+    parser: <span class="kw-2">*mut </span>YamlParserT,
+) -&gt; Success {
     <span class="kw">let </span><span class="kw-2">mut </span>token = MaybeUninit::&lt;YamlTokenT&gt;::uninit();
     <span class="kw">let </span>token = token.as_mut_ptr();
     <span class="kw">if </span>yaml_parser_remove_simple_key(parser).fail {
@@ -3401,7 +3816,9 @@
     OK
 }
 
-<span class="kw">unsafe fn </span>yaml_parser_fetch_block_entry(parser: <span class="kw-2">*mut </span>YamlParserT) -&gt; Success {
+<span class="kw">unsafe fn </span>yaml_parser_fetch_block_entry(
+    parser: <span class="kw-2">*mut </span>YamlParserT,
+) -&gt; Success {
     <span class="kw">let </span><span class="kw-2">mut </span>token = MaybeUninit::&lt;YamlTokenT&gt;::uninit();
     <span class="kw">let </span>token = token.as_mut_ptr();
     <span class="kw">if </span>(<span class="kw-2">*</span>parser).flow_level == <span class="number">0 </span>{
@@ -3455,8 +3872,8 @@
                 parser,
                 ptr::null::&lt;libc::c_char&gt;(),
                 (<span class="kw-2">*</span>parser).mark,
-                <span class="string">b"mapping keys are not allowed in this context\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8
-                    <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
+                <span class="string">b"mapping keys are not allowed in this context\0"
+                    </span><span class="kw">as </span><span class="kw-2">*const </span>u8 <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
             );
             <span class="kw">return </span>FAIL;
         }
@@ -3494,7 +3911,8 @@
 <span class="kw">unsafe fn </span>yaml_parser_fetch_value(parser: <span class="kw-2">*mut </span>YamlParserT) -&gt; Success {
     <span class="kw">let </span><span class="kw-2">mut </span>token = MaybeUninit::&lt;YamlTokenT&gt;::uninit();
     <span class="kw">let </span>token = token.as_mut_ptr();
-    <span class="kw">let </span>simple_key: <span class="kw-2">*mut </span>YamlSimpleKeyT = (<span class="kw-2">*</span>parser).simple_keys.top.wrapping_offset(-<span class="number">1_isize</span>);
+    <span class="kw">let </span>simple_key: <span class="kw-2">*mut </span>YamlSimpleKeyT =
+        (<span class="kw-2">*</span>parser).simple_keys.top.wrapping_offset(-<span class="number">1_isize</span>);
     <span class="kw">if </span>(<span class="kw-2">*</span>simple_key).possible {
         memset(
             token <span class="kw">as </span><span class="kw-2">*mut </span>libc::c_void,
@@ -3506,7 +3924,8 @@
         (<span class="kw-2">*</span>token).end_mark = (<span class="kw-2">*</span>simple_key).mark;
         <span class="macro">QUEUE_INSERT!</span>(
             (<span class="kw-2">*</span>parser).tokens,
-            ((<span class="kw-2">*</span>simple_key).token_number).wrapping_sub((<span class="kw-2">*</span>parser).tokens_parsed),
+            ((<span class="kw-2">*</span>simple_key).token_number)
+                .wrapping_sub((<span class="kw-2">*</span>parser).tokens_parsed),
             <span class="kw-2">*</span>token
         );
         <span class="kw">if </span>yaml_parser_roll_indent(
@@ -3529,7 +3948,8 @@
                     parser,
                     ptr::null::&lt;libc::c_char&gt;(),
                     (<span class="kw-2">*</span>parser).mark,
-                    <span class="string">b"mapping values are not allowed in this context\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8
+                    <span class="string">b"mapping values are not allowed in this context\0"
+                        </span><span class="kw">as </span><span class="kw-2">*const </span>u8
                         <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
                 );
                 <span class="kw">return </span>FAIL;
@@ -3594,7 +4014,10 @@
     OK
 }
 
-<span class="kw">unsafe fn </span>yaml_parser_fetch_block_scalar(parser: <span class="kw-2">*mut </span>YamlParserT, literal: bool) -&gt; Success {
+<span class="kw">unsafe fn </span>yaml_parser_fetch_block_scalar(
+    parser: <span class="kw-2">*mut </span>YamlParserT,
+    literal: bool,
+) -&gt; Success {
     <span class="kw">let </span><span class="kw-2">mut </span>token = MaybeUninit::&lt;YamlTokenT&gt;::uninit();
     <span class="kw">let </span>token = token.as_mut_ptr();
     <span class="kw">if </span>yaml_parser_remove_simple_key(parser).fail {
@@ -3608,7 +4031,10 @@
     OK
 }
 
-<span class="kw">unsafe fn </span>yaml_parser_fetch_flow_scalar(parser: <span class="kw-2">*mut </span>YamlParserT, single: bool) -&gt; Success {
+<span class="kw">unsafe fn </span>yaml_parser_fetch_flow_scalar(
+    parser: <span class="kw-2">*mut </span>YamlParserT,
+    single: bool,
+) -&gt; Success {
     <span class="kw">let </span><span class="kw-2">mut </span>token = MaybeUninit::&lt;YamlTokenT&gt;::uninit();
     <span class="kw">let </span>token = token.as_mut_ptr();
     <span class="kw">if </span>yaml_parser_save_simple_key(parser).fail {
@@ -3622,7 +4048,9 @@
     OK
 }
 
-<span class="kw">unsafe fn </span>yaml_parser_fetch_plain_scalar(parser: <span class="kw-2">*mut </span>YamlParserT) -&gt; Success {
+<span class="kw">unsafe fn </span>yaml_parser_fetch_plain_scalar(
+    parser: <span class="kw-2">*mut </span>YamlParserT,
+) -&gt; Success {
     <span class="kw">let </span><span class="kw-2">mut </span>token = MaybeUninit::&lt;YamlTokenT&gt;::uninit();
     <span class="kw">let </span>token = token.as_mut_ptr();
     <span class="kw">if </span>yaml_parser_save_simple_key(parser).fail {
@@ -3636,7 +4064,9 @@
     OK
 }
 
-<span class="kw">unsafe fn </span>yaml_parser_scan_to_next_token(parser: <span class="kw-2">*mut </span>YamlParserT) -&gt; Success {
+<span class="kw">unsafe fn </span>yaml_parser_scan_to_next_token(
+    parser: <span class="kw-2">*mut </span>YamlParserT,
+) -&gt; Success {
     <span class="kw">loop </span>{
         <span class="kw">if </span>cache(parser, <span class="number">1_u64</span>).fail {
             <span class="kw">return </span>FAIL;
@@ -3650,7 +4080,8 @@
         <span class="kw">let </span><span class="kw-2">mut </span>should_continue = <span class="bool-val">true</span>;
         <span class="kw">while </span>should_continue {
             <span class="kw">if </span><span class="macro">CHECK!</span>((<span class="kw-2">*</span>parser).buffer, <span class="string">b' '</span>)
-                || ((<span class="kw-2">*</span>parser).flow_level != <span class="number">0 </span>|| !(<span class="kw-2">*</span>parser).simple_key_allowed)
+                || ((<span class="kw-2">*</span>parser).flow_level != <span class="number">0
+                    </span>|| !(<span class="kw-2">*</span>parser).simple_key_allowed)
                     &amp;&amp; <span class="macro">CHECK!</span>((<span class="kw-2">*</span>parser).buffer, <span class="string">b'\t'</span>)
             {
                 skip(parser);
@@ -3696,7 +4127,13 @@
     <span class="kw">let </span><span class="kw-2">mut </span>prefix: <span class="kw-2">*mut </span>yaml_char_t = ptr::null_mut::&lt;yaml_char_t&gt;();
     <span class="kw">let </span>start_mark: YamlMarkT = (<span class="kw-2">*</span>parser).mark;
     skip(parser);
-    <span class="kw">if </span>yaml_parser_scan_directive_name(parser, start_mark, <span class="macro">addr_of_mut!</span>(name)).ok {
+    <span class="kw">if </span>yaml_parser_scan_directive_name(
+        parser,
+        start_mark,
+        <span class="macro">addr_of_mut!</span>(name),
+    )
+    .ok
+    {
         <span class="kw">if </span>strcmp(
             name <span class="kw">as </span><span class="kw-2">*mut </span>libc::c_char,
             <span class="string">b"YAML\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8 <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
@@ -3749,22 +4186,28 @@
                 (<span class="kw-2">*</span>token).type_ = YamlTagDirectiveToken;
                 (<span class="kw-2">*</span>token).start_mark = start_mark;
                 (<span class="kw-2">*</span>token).end_mark = end_mark;
-                <span class="kw">let </span>fresh112 = <span class="macro">addr_of_mut!</span>((<span class="kw-2">*</span>token).data.tag_directive.handle);
+                <span class="kw">let </span>fresh112 =
+                    <span class="macro">addr_of_mut!</span>((<span class="kw-2">*</span>token).data.tag_directive.handle);
                 <span class="kw-2">*</span>fresh112 = handle;
-                <span class="kw">let </span>fresh113 = <span class="macro">addr_of_mut!</span>((<span class="kw-2">*</span>token).data.tag_directive.prefix);
+                <span class="kw">let </span>fresh113 =
+                    <span class="macro">addr_of_mut!</span>((<span class="kw-2">*</span>token).data.tag_directive.prefix);
                 <span class="kw-2">*</span>fresh113 = prefix;
                 current_block = <span class="number">17407779659766490442</span>;
             }
         } <span class="kw">else </span>{
             yaml_parser_set_scanner_error(
                 parser,
-                <span class="string">b"while scanning a directive\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8 <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
+                <span class="string">b"while scanning a directive\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8
+                    <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
                 start_mark,
-                <span class="string">b"found unknown directive name\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8 <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
+                <span class="string">b"found unknown directive name\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8
+                    <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
             );
             current_block = <span class="number">11397968426844348457</span>;
         }
-        <span class="kw">if </span>current_block != <span class="number">11397968426844348457 </span>&amp;&amp; cache(parser, <span class="number">1_u64</span>).ok {
+        <span class="kw">if </span>current_block != <span class="number">11397968426844348457
+            </span>&amp;&amp; cache(parser, <span class="number">1_u64</span>).ok
+        {
             <span class="kw">loop </span>{
                 <span class="kw">if </span>!<span class="macro">IS_BLANK!</span>((<span class="kw-2">*</span>parser).buffer) {
                     current_block = <span class="number">11584701595673473500</span>;
@@ -3851,16 +4294,21 @@
             <span class="kw">if </span>string.start == string.pointer {
                 yaml_parser_set_scanner_error(
                     parser,
-                    <span class="string">b"while scanning a directive\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8 <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
+                    <span class="string">b"while scanning a directive\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8
+                        <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
                     start_mark,
-                    <span class="string">b"could not find expected directive name\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8 <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
+                    <span class="string">b"could not find expected directive name\0"
+                        </span><span class="kw">as </span><span class="kw-2">*const </span>u8
+                        <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
                 );
             } <span class="kw">else if </span>!<span class="macro">IS_BLANKZ!</span>((<span class="kw-2">*</span>parser).buffer) {
                 yaml_parser_set_scanner_error(
                     parser,
-                    <span class="string">b"while scanning a directive\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8 <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
+                    <span class="string">b"while scanning a directive\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8
+                        <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
                     start_mark,
-                    <span class="string">b"found unexpected non-alphabetical character\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8
+                    <span class="string">b"found unexpected non-alphabetical character\0"
+                        </span><span class="kw">as </span><span class="kw-2">*const </span>u8
                         <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
                 );
             } <span class="kw">else </span>{
@@ -3888,15 +4336,21 @@
             <span class="kw">return </span>FAIL;
         }
     }
-    <span class="kw">if </span>yaml_parser_scan_version_directive_number(parser, start_mark, major).fail {
+    <span class="kw">if </span>yaml_parser_scan_version_directive_number(
+        parser, start_mark, major,
+    )
+    .fail
+    {
         <span class="kw">return </span>FAIL;
     }
     <span class="kw">if </span>!<span class="macro">CHECK!</span>((<span class="kw-2">*</span>parser).buffer, <span class="string">b'.'</span>) {
         yaml_parser_set_scanner_error(
             parser,
-            <span class="string">b"while scanning a %YAML directive\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8 <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
+            <span class="string">b"while scanning a %YAML directive\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8
+                <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
             start_mark,
-            <span class="string">b"did not find expected digit or '.' character\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8 <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
+            <span class="string">b"did not find expected digit or '.' character\0"
+                </span><span class="kw">as </span><span class="kw-2">*const </span>u8 <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
         );
         <span class="kw">return </span>FAIL;
     }
@@ -3921,13 +4375,16 @@
         <span class="kw">if </span>length &gt; MAX_NUMBER_LENGTH {
             yaml_parser_set_scanner_error(
                 parser,
-                <span class="string">b"while scanning a %YAML directive\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8 <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
+                <span class="string">b"while scanning a %YAML directive\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8
+                    <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
                 start_mark,
-                <span class="string">b"found extremely long version number\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8 <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
+                <span class="string">b"found extremely long version number\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8
+                    <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
             );
             <span class="kw">return </span>FAIL;
         }
-        value = value.force_mul(<span class="number">10</span>).force_add(<span class="macro">AS_DIGIT!</span>((<span class="kw-2">*</span>parser).buffer));
+        value =
+            value.force_mul(<span class="number">10</span>).force_add(<span class="macro">AS_DIGIT!</span>((<span class="kw-2">*</span>parser).buffer));
         (<span class="kw-2">*</span>parser).buffer.next();
         <span class="kw">if </span>cache(parser, <span class="number">1_u64</span>).fail {
             <span class="kw">return </span>FAIL;
@@ -3936,9 +4393,11 @@
     <span class="kw">if </span>length == <span class="number">0 </span>{
         yaml_parser_set_scanner_error(
             parser,
-            <span class="string">b"while scanning a %YAML directive\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8 <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
+            <span class="string">b"while scanning a %YAML directive\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8
+                <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
             start_mark,
-            <span class="string">b"did not find expected version number\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8 <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
+            <span class="string">b"did not find expected version number\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8
+                <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
         );
         <span class="kw">return </span>FAIL;
     }
@@ -3953,8 +4412,10 @@
     prefix: <span class="kw-2">*mut *mut </span>yaml_char_t,
 ) -&gt; Success {
     <span class="kw">let </span><span class="kw-2">mut </span>current_block: u64;
-    <span class="kw">let </span><span class="kw-2">mut </span>handle_value: <span class="kw-2">*mut </span>yaml_char_t = ptr::null_mut::&lt;yaml_char_t&gt;();
-    <span class="kw">let </span><span class="kw-2">mut </span>prefix_value: <span class="kw-2">*mut </span>yaml_char_t = ptr::null_mut::&lt;yaml_char_t&gt;();
+    <span class="kw">let </span><span class="kw-2">mut </span>handle_value: <span class="kw-2">*mut </span>yaml_char_t =
+        ptr::null_mut::&lt;yaml_char_t&gt;();
+    <span class="kw">let </span><span class="kw-2">mut </span>prefix_value: <span class="kw-2">*mut </span>yaml_char_t =
+        ptr::null_mut::&lt;yaml_char_t&gt;();
     <span class="kw">if </span>cache(parser, <span class="number">1_u64</span>).fail {
         current_block = <span class="number">5231181710497607163</span>;
     } <span class="kw">else </span>{
@@ -3994,10 +4455,12 @@
                     <span class="kw">if </span>!<span class="macro">IS_BLANK!</span>((<span class="kw-2">*</span>parser).buffer) {
                         yaml_parser_set_scanner_error(
                             parser,
-                            <span class="string">b"while scanning a %TAG directive\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8
+                            <span class="string">b"while scanning a %TAG directive\0"
+                                </span><span class="kw">as </span><span class="kw-2">*const </span>u8
                                 <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
                             start_mark,
-                            <span class="string">b"did not find expected whitespace\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8
+                            <span class="string">b"did not find expected whitespace\0"
+                                </span><span class="kw">as </span><span class="kw-2">*const </span>u8
                                 <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
                         );
                         current_block = <span class="number">5231181710497607163</span>;
@@ -4107,7 +4570,8 @@
                     (<span class="kw-2">*</span>token).type_ = YamlAnchorToken;
                     (<span class="kw-2">*</span>token).start_mark = start_mark;
                     (<span class="kw-2">*</span>token).end_mark = end_mark;
-                    <span class="kw">let </span>fresh220 = <span class="macro">addr_of_mut!</span>((<span class="kw-2">*</span>token).data.anchor.value);
+                    <span class="kw">let </span>fresh220 =
+                        <span class="macro">addr_of_mut!</span>((<span class="kw-2">*</span>token).data.anchor.value);
                     <span class="kw-2">*</span>fresh220 = string.start;
                 } <span class="kw">else </span>{
                     memset(
@@ -4118,7 +4582,8 @@
                     (<span class="kw-2">*</span>token).type_ = YamlAliasToken;
                     (<span class="kw-2">*</span>token).start_mark = start_mark;
                     (<span class="kw-2">*</span>token).end_mark = end_mark;
-                    <span class="kw">let </span>fresh221 = <span class="macro">addr_of_mut!</span>((<span class="kw-2">*</span>token).data.alias.value);
+                    <span class="kw">let </span>fresh221 =
+                        <span class="macro">addr_of_mut!</span>((<span class="kw-2">*</span>token).data.alias.value);
                     <span class="kw-2">*</span>fresh221 = string.start;
                 }
                 <span class="kw">return </span>OK;
@@ -4129,7 +4594,10 @@
     FAIL
 }
 
-<span class="kw">unsafe fn </span>yaml_parser_scan_tag(parser: <span class="kw-2">*mut </span>YamlParserT, token: <span class="kw-2">*mut </span>YamlTokenT) -&gt; Success {
+<span class="kw">unsafe fn </span>yaml_parser_scan_tag(
+    parser: <span class="kw-2">*mut </span>YamlParserT,
+    token: <span class="kw-2">*mut </span>YamlTokenT,
+) -&gt; Success {
     <span class="kw">let </span><span class="kw-2">mut </span>current_block: u64;
     <span class="kw">let </span><span class="kw-2">mut </span>handle: <span class="kw-2">*mut </span>yaml_char_t = ptr::null_mut::&lt;yaml_char_t&gt;();
     <span class="kw">let </span><span class="kw-2">mut </span>suffix: <span class="kw-2">*mut </span>yaml_char_t = ptr::null_mut::&lt;yaml_char_t&gt;();
@@ -4155,23 +4623,32 @@
             } <span class="kw">else if </span>!<span class="macro">CHECK!</span>((<span class="kw-2">*</span>parser).buffer, <span class="string">b'&gt;'</span>) {
                 yaml_parser_set_scanner_error(
                     parser,
-                    <span class="string">b"while scanning a tag\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8 <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
+                    <span class="string">b"while scanning a tag\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8
+                        <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
                     start_mark,
-                    <span class="string">b"did not find the expected '&gt;'\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8 <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
+                    <span class="string">b"did not find the expected '&gt;'\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8
+                        <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
                 );
                 current_block = <span class="number">17708497480799081542</span>;
             } <span class="kw">else </span>{
                 skip(parser);
                 current_block = <span class="number">4488286894823169796</span>;
             }
-        } <span class="kw">else if </span>yaml_parser_scan_tag_handle(parser, <span class="bool-val">false</span>, start_mark, <span class="macro">addr_of_mut!</span>(handle)).fail
+        } <span class="kw">else if </span>yaml_parser_scan_tag_handle(
+            parser,
+            <span class="bool-val">false</span>,
+            start_mark,
+            <span class="macro">addr_of_mut!</span>(handle),
+        )
+        .fail
         {
             current_block = <span class="number">17708497480799081542</span>;
         } <span class="kw">else if </span><span class="kw-2">*</span>handle == <span class="string">b'!'
             </span>&amp;&amp; <span class="kw-2">*</span>handle.wrapping_offset(<span class="number">1_isize</span>) != <span class="string">b'\0'
-            </span>&amp;&amp; <span class="kw-2">*</span>handle
-                .wrapping_offset(strlen(handle <span class="kw">as </span><span class="kw-2">*mut </span>libc::c_char).wrapping_sub(<span class="number">1_u64</span>) <span class="kw">as </span>isize)
-                == <span class="string">b'!'
+            </span>&amp;&amp; <span class="kw-2">*</span>handle.wrapping_offset(
+                strlen(handle <span class="kw">as </span><span class="kw-2">*mut </span>libc::c_char).wrapping_sub(<span class="number">1_u64</span>)
+                    <span class="kw">as </span>isize,
+            ) == <span class="string">b'!'
         </span>{
             <span class="kw">if </span>yaml_parser_scan_tag_uri(
                 parser,
@@ -4210,9 +4687,13 @@
 
             current_block = <span class="number">4488286894823169796</span>;
         }
-        <span class="kw">if </span>current_block != <span class="number">17708497480799081542 </span>&amp;&amp; cache(parser, <span class="number">1_u64</span>).ok {
+        <span class="kw">if </span>current_block != <span class="number">17708497480799081542
+            </span>&amp;&amp; cache(parser, <span class="number">1_u64</span>).ok
+        {
             <span class="kw">if </span>!<span class="macro">IS_BLANKZ!</span>((<span class="kw-2">*</span>parser).buffer) {
-                <span class="kw">if </span>(<span class="kw-2">*</span>parser).flow_level == <span class="number">0 </span>|| !<span class="macro">CHECK!</span>((<span class="kw-2">*</span>parser).buffer, <span class="string">b','</span>) {
+                <span class="kw">if </span>(<span class="kw-2">*</span>parser).flow_level == <span class="number">0
+                    </span>|| !<span class="macro">CHECK!</span>((<span class="kw-2">*</span>parser).buffer, <span class="string">b','</span>)
+                {
                     yaml_parser_set_scanner_error(
                         parser,
                         <span class="string">b"while scanning a tag\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8 <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
@@ -4264,12 +4745,15 @@
             yaml_parser_set_scanner_error(
                 parser,
                 <span class="kw">if </span>directive {
-                    <span class="string">b"while scanning a tag directive\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8 <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char
+                    <span class="string">b"while scanning a tag directive\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8
+                        <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char
                 } <span class="kw">else </span>{
-                    <span class="string">b"while scanning a tag\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8 <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char
+                    <span class="string">b"while scanning a tag\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8
+                        <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char
                 },
                 start_mark,
-                <span class="string">b"did not find expected '!'\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8 <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
+                <span class="string">b"did not find expected '!'\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8
+                    <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
             );
         } <span class="kw">else </span>{
             <span class="macro">read!</span>(parser, string);
@@ -4291,13 +4775,17 @@
                         current_block = <span class="number">5689001924483802034</span>;
                     } <span class="kw">else if </span>directive
                         &amp;&amp; !(<span class="kw-2">*</span>string.start == <span class="string">b'!'
-                            </span>&amp;&amp; <span class="kw-2">*</span>string.start.wrapping_offset(<span class="number">1_isize</span>) == <span class="string">b'\0'</span>)
+                            </span>&amp;&amp; <span class="kw-2">*</span>string.start.wrapping_offset(<span class="number">1_isize</span>)
+                                == <span class="string">b'\0'</span>)
                     {
                         yaml_parser_set_scanner_error(
                             parser,
-                            <span class="string">b"while parsing a tag directive\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8 <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
+                            <span class="string">b"while parsing a tag directive\0"
+                                </span><span class="kw">as </span><span class="kw-2">*const </span>u8
+                                <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
                             start_mark,
-                            <span class="string">b"did not find expected '!'\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8 <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
+                            <span class="string">b"did not find expected '!'\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8
+                                <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
                         );
                         current_block = <span class="number">1771849829115608806</span>;
                     } <span class="kw">else </span>{
@@ -4339,7 +4827,9 @@
                 <span class="kw">return </span>FAIL;
             }
             <span class="kw">_ </span>=&gt; {
-                <span class="kw">if </span>string.end.c_offset_from(string.start) <span class="kw">as </span>size_t &lt;= length {
+                <span class="kw">if </span>string.end.c_offset_from(string.start) <span class="kw">as </span>size_t
+                    &lt;= length
+                {
                     yaml_string_extend(
                         <span class="macro">addr_of_mut!</span>(string.start),
                         <span class="macro">addr_of_mut!</span>(string.pointer),
@@ -4351,12 +4841,14 @@
                     <span class="kw">if </span>length &gt; <span class="number">1_u64 </span>{
                         memcpy(
                             string.start <span class="kw">as </span><span class="kw-2">*mut </span>libc::c_void,
-                            head.wrapping_offset(<span class="number">1_isize</span>) <span class="kw">as </span><span class="kw-2">*const </span>libc::c_void,
+                            head.wrapping_offset(<span class="number">1_isize</span>)
+                                <span class="kw">as </span><span class="kw-2">*const </span>libc::c_void,
                             length.wrapping_sub(<span class="number">1_u64</span>),
                         );
-                        string.pointer = string
-                            .pointer
-                            .wrapping_offset(length.wrapping_sub(<span class="number">1_u64</span>) <span class="kw">as </span>isize);
+                        string.pointer =
+                            string.pointer.wrapping_offset(
+                                length.wrapping_sub(<span class="number">1_u64</span>) <span class="kw">as </span>isize,
+                            );
                     }
                     <span class="kw">if </span>cache(parser, <span class="number">1_u64</span>).fail {
                         current_block = <span class="number">15265153392498847348</span>;
@@ -4382,9 +4874,9 @@
                             || <span class="macro">CHECK!</span>((<span class="kw-2">*</span>parser).buffer, <span class="string">b'('</span>)
                             || <span class="macro">CHECK!</span>((<span class="kw-2">*</span>parser).buffer, <span class="string">b')'</span>)
                             || uri_char
-                            &amp;&amp; (<span class="macro">CHECK!</span>((<span class="kw-2">*</span>parser).buffer, <span class="string">b','</span>)
-                                || <span class="macro">CHECK!</span>((<span class="kw-2">*</span>parser).buffer, <span class="string">b'['</span>)
-                                || <span class="macro">CHECK!</span>((<span class="kw-2">*</span>parser).buffer, <span class="string">b']'</span>)))
+                                &amp;&amp; (<span class="macro">CHECK!</span>((<span class="kw-2">*</span>parser).buffer, <span class="string">b','</span>)
+                                    || <span class="macro">CHECK!</span>((<span class="kw-2">*</span>parser).buffer, <span class="string">b'['</span>)
+                                    || <span class="macro">CHECK!</span>((<span class="kw-2">*</span>parser).buffer, <span class="string">b']'</span>)))
                     {
                         <span class="kw">if </span><span class="macro">CHECK!</span>((<span class="kw-2">*</span>parser).buffer, <span class="string">b'%'</span>) {
                             <span class="macro">STRING_EXTEND!</span>(string);
@@ -4413,13 +4905,17 @@
                         yaml_parser_set_scanner_error(
                             parser,
                             <span class="kw">if </span>directive {
-                                <span class="string">b"while parsing a %TAG directive\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8
+                                <span class="string">b"while parsing a %TAG directive\0"
+                                    </span><span class="kw">as </span><span class="kw-2">*const </span>u8
                                     <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char
                             } <span class="kw">else </span>{
-                                <span class="string">b"while parsing a tag\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8 <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char
+                                <span class="string">b"while parsing a tag\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8
+                                    <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char
                             },
                             start_mark,
-                            <span class="string">b"did not find expected tag URI\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8 <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
+                            <span class="string">b"did not find expected tag URI\0"
+                                </span><span class="kw">as </span><span class="kw-2">*const </span>u8
+                                <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
                         );
                         current_block = <span class="number">15265153392498847348</span>;
                     } <span class="kw">else </span>{
@@ -4450,17 +4946,22 @@
             yaml_parser_set_scanner_error(
                 parser,
                 <span class="kw">if </span>directive {
-                    <span class="string">b"while parsing a %TAG directive\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8 <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char
+                    <span class="string">b"while parsing a %TAG directive\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8
+                        <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char
                 } <span class="kw">else </span>{
-                    <span class="string">b"while parsing a tag\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8 <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char
+                    <span class="string">b"while parsing a tag\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8
+                        <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char
                 },
                 start_mark,
-                <span class="string">b"did not find URI escaped octet\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8 <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
+                <span class="string">b"did not find URI escaped octet\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8
+                    <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
             );
             <span class="kw">return </span>FAIL;
         }
-        <span class="kw">let </span>octet: libc::c_uchar = ((<span class="macro">AS_HEX_AT!</span>((<span class="kw-2">*</span>parser).buffer, <span class="number">1</span>) &lt;&lt; <span class="number">4</span>)
-            + <span class="macro">AS_HEX_AT!</span>((<span class="kw-2">*</span>parser).buffer, <span class="number">2</span>)) <span class="kw">as </span>libc::c_uchar;
+        <span class="kw">let </span>octet: libc::c_uchar = ((<span class="macro">AS_HEX_AT!</span>((<span class="kw-2">*</span>parser).buffer, <span class="number">1</span>)
+            &lt;&lt; <span class="number">4</span>)
+            + <span class="macro">AS_HEX_AT!</span>((<span class="kw-2">*</span>parser).buffer, <span class="number">2</span>))
+            <span class="kw">as </span>libc::c_uchar;
         <span class="kw">if </span>width == <span class="number">0 </span>{
             width = <span class="kw">if </span>octet &amp; <span class="number">0x80 </span>== <span class="number">0 </span>{
                 <span class="number">1
@@ -4477,12 +4978,16 @@
                 yaml_parser_set_scanner_error(
                     parser,
                     <span class="kw">if </span>directive {
-                        <span class="string">b"while parsing a %TAG directive\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8 <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char
+                        <span class="string">b"while parsing a %TAG directive\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8
+                            <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char
                     } <span class="kw">else </span>{
-                        <span class="string">b"while parsing a tag\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8 <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char
+                        <span class="string">b"while parsing a tag\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8
+                            <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char
                     },
                     start_mark,
-                    <span class="string">b"found an incorrect leading UTF-8 octet\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8 <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
+                    <span class="string">b"found an incorrect leading UTF-8 octet\0"
+                        </span><span class="kw">as </span><span class="kw-2">*const </span>u8
+                        <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
                 );
                 <span class="kw">return </span>FAIL;
             }
@@ -4490,12 +4995,15 @@
             yaml_parser_set_scanner_error(
                 parser,
                 <span class="kw">if </span>directive {
-                    <span class="string">b"while parsing a %TAG directive\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8 <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char
+                    <span class="string">b"while parsing a %TAG directive\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8
+                        <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char
                 } <span class="kw">else </span>{
-                    <span class="string">b"while parsing a tag\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8 <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char
+                    <span class="string">b"while parsing a tag\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8
+                        <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char
                 },
                 start_mark,
-                <span class="string">b"found an incorrect trailing UTF-8 octet\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8 <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
+                <span class="string">b"found an incorrect trailing UTF-8 octet\0"
+                    </span><span class="kw">as </span><span class="kw-2">*const </span>u8 <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
             );
             <span class="kw">return </span>FAIL;
         }
@@ -4535,7 +5043,9 @@
     <span class="kw">let </span>start_mark: YamlMarkT = (<span class="kw-2">*</span>parser).mark;
     skip(parser);
     <span class="kw">if </span>cache(parser, <span class="number">1_u64</span>).ok {
-        <span class="kw">if </span><span class="macro">CHECK!</span>((<span class="kw-2">*</span>parser).buffer, <span class="string">b'+'</span>) || <span class="macro">CHECK!</span>((<span class="kw-2">*</span>parser).buffer, <span class="string">b'-'</span>) {
+        <span class="kw">if </span><span class="macro">CHECK!</span>((<span class="kw-2">*</span>parser).buffer, <span class="string">b'+'</span>)
+            || <span class="macro">CHECK!</span>((<span class="kw-2">*</span>parser).buffer, <span class="string">b'-'</span>)
+        {
             chomping = <span class="kw">if </span><span class="macro">CHECK!</span>((<span class="kw-2">*</span>parser).buffer, <span class="string">b'+'</span>) {
                 <span class="number">1
             </span>} <span class="kw">else </span>{
@@ -4548,9 +5058,11 @@
                 <span class="kw">if </span><span class="macro">CHECK!</span>((<span class="kw-2">*</span>parser).buffer, <span class="string">b'0'</span>) {
                     yaml_parser_set_scanner_error(
                         parser,
-                        <span class="string">b"while scanning a block scalar\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8 <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
+                        <span class="string">b"while scanning a block scalar\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8
+                            <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
                         start_mark,
-                        <span class="string">b"found an indentation indicator equal to 0\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8
+                        <span class="string">b"found an indentation indicator equal to 0\0"
+                            </span><span class="kw">as </span><span class="kw-2">*const </span>u8
                             <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
                     );
                     current_block = <span class="number">14984465786483313892</span>;
@@ -4566,9 +5078,11 @@
             <span class="kw">if </span><span class="macro">CHECK!</span>((<span class="kw-2">*</span>parser).buffer, <span class="string">b'0'</span>) {
                 yaml_parser_set_scanner_error(
                     parser,
-                    <span class="string">b"while scanning a block scalar\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8 <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
+                    <span class="string">b"while scanning a block scalar\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8
+                        <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
                     start_mark,
-                    <span class="string">b"found an indentation indicator equal to 0\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8
+                    <span class="string">b"found an indentation indicator equal to 0\0"
+                        </span><span class="kw">as </span><span class="kw-2">*const </span>u8
                         <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
                 );
                 current_block = <span class="number">14984465786483313892</span>;
@@ -4578,7 +5092,9 @@
                 <span class="kw">if </span>cache(parser, <span class="number">1_u64</span>).fail {
                     current_block = <span class="number">14984465786483313892</span>;
                 } <span class="kw">else </span>{
-                    <span class="kw">if </span><span class="macro">CHECK!</span>((<span class="kw-2">*</span>parser).buffer, <span class="string">b'+'</span>) || <span class="macro">CHECK!</span>((<span class="kw-2">*</span>parser).buffer, <span class="string">b'-'</span>) {
+                    <span class="kw">if </span><span class="macro">CHECK!</span>((<span class="kw-2">*</span>parser).buffer, <span class="string">b'+'</span>)
+                        || <span class="macro">CHECK!</span>((<span class="kw-2">*</span>parser).buffer, <span class="string">b'-'</span>)
+                    {
                         chomping = <span class="kw">if </span><span class="macro">CHECK!</span>((<span class="kw-2">*</span>parser).buffer, <span class="string">b'+'</span>) {
                             <span class="number">1
                         </span>} <span class="kw">else </span>{
@@ -4592,7 +5108,9 @@
         } <span class="kw">else </span>{
             current_block = <span class="number">11913429853522160501</span>;
         }
-        <span class="kw">if </span>current_block != <span class="number">14984465786483313892 </span>&amp;&amp; cache(parser, <span class="number">1_u64</span>).ok {
+        <span class="kw">if </span>current_block != <span class="number">14984465786483313892
+            </span>&amp;&amp; cache(parser, <span class="number">1_u64</span>).ok
+        {
             <span class="kw">loop </span>{
                 <span class="kw">if </span>!<span class="macro">IS_BLANK!</span>((<span class="kw-2">*</span>parser).buffer) {
                     current_block = <span class="number">4090602189656566074</span>;
@@ -4657,25 +5175,35 @@
                                 start_mark,
                                 <span class="macro">addr_of_mut!</span>(end_mark),
                             )
-                            .ok &amp;&amp; cache(parser, <span class="number">1_u64</span>).ok {
+                            .ok &amp;&amp; cache(parser, <span class="number">1_u64</span>).ok
+                            {
                                 <span class="lifetime">'s_281</span>: <span class="kw">loop </span>{
-                                    <span class="kw">if </span>(<span class="kw-2">*</span>parser).mark.column <span class="kw">as </span>libc::c_int != indent || <span class="macro">IS_Z!</span>((<span class="kw-2">*</span>parser).buffer)
+                                    <span class="kw">if </span>(<span class="kw-2">*</span>parser).mark.column
+                                        <span class="kw">as </span>libc::c_int
+                                        != indent
+                                        || <span class="macro">IS_Z!</span>((<span class="kw-2">*</span>parser).buffer)
                                     {
-                                        current_block = <span class="number">5793491756164225964</span>;
+                                        current_block =
+                                            <span class="number">5793491756164225964</span>;
                                         <span class="kw">break</span>;
                                     }
                                     trailing_blank =
-                                        <span class="macro">IS_BLANK!</span>((<span class="kw-2">*</span>parser).buffer) <span class="kw">as </span>libc::c_int;
+                                        <span class="macro">IS_BLANK!</span>((<span class="kw-2">*</span>parser).buffer)
+                                            <span class="kw">as </span>libc::c_int;
                                     <span class="kw">if </span>!literal
                                         &amp;&amp; <span class="kw-2">*</span>leading_break.start == <span class="string">b'\n'
                                         </span>&amp;&amp; leading_blank == <span class="number">0
                                         </span>&amp;&amp; trailing_blank == <span class="number">0
                                     </span>{
-                                        <span class="kw">if </span><span class="kw-2">*</span>trailing_breaks.start == <span class="string">b'\0' </span>{
+                                        <span class="kw">if </span><span class="kw-2">*</span>trailing_breaks.start
+                                            == <span class="string">b'\0'
+                                        </span>{
                                             <span class="macro">STRING_EXTEND!</span>(string);
-                                            <span class="kw">let </span>fresh418 = string.pointer;
-                                            string.pointer =
-                                                string.pointer.wrapping_offset(<span class="number">1</span>);
+                                            <span class="kw">let </span>fresh418 =
+                                                string.pointer;
+                                            string.pointer = string
+                                                .pointer
+                                                .wrapping_offset(<span class="number">1</span>);
                                             <span class="kw-2">*</span>fresh418 = <span class="string">b' '</span>;
                                         }
                                         <span class="macro">CLEAR!</span>(leading_break);
@@ -4686,16 +5214,20 @@
                                     <span class="macro">JOIN!</span>(string, trailing_breaks);
                                     <span class="macro">CLEAR!</span>(trailing_breaks);
                                     leading_blank =
-                                        <span class="macro">IS_BLANK!</span>((<span class="kw-2">*</span>parser).buffer) <span class="kw">as </span>libc::c_int;
-                                    <span class="kw">while </span>!<span class="macro">IS_BREAKZ!</span>((<span class="kw-2">*</span>parser).buffer) {
+                                        <span class="macro">IS_BLANK!</span>((<span class="kw-2">*</span>parser).buffer)
+                                            <span class="kw">as </span>libc::c_int;
+                                    <span class="kw">while </span>!<span class="macro">IS_BREAKZ!</span>((<span class="kw-2">*</span>parser).buffer)
+                                    {
                                         <span class="macro">read!</span>(parser, string);
                                         <span class="kw">if </span>cache(parser, <span class="number">1_u64</span>).fail {
-                                            current_block = <span class="number">14984465786483313892</span>;
+                                            current_block =
+                                                <span class="number">14984465786483313892</span>;
                                             <span class="kw">break </span><span class="lifetime">'s_281</span>;
                                         }
                                     }
                                     <span class="kw">if </span>cache(parser, <span class="number">2_u64</span>).fail {
-                                        current_block = <span class="number">14984465786483313892</span>;
+                                        current_block =
+                                            <span class="number">14984465786483313892</span>;
                                         <span class="kw">break</span>;
                                     }
                                     <span class="macro">read_line!</span>(parser, leading_break);
@@ -4712,36 +5244,53 @@
                                         <span class="kw">break</span>;
                                     }
                                 }
-                                <span class="kw">if </span>current_block != <span class="number">14984465786483313892 </span>{
+                                <span class="kw">if </span>current_block != <span class="number">14984465786483313892
+                                </span>{
                                     <span class="kw">if </span>chomping != -<span class="number">1 </span>{
                                         <span class="macro">JOIN!</span>(string, leading_break);
-                                        current_block = <span class="number">17787701279558130514</span>;
+                                        current_block =
+                                            <span class="number">17787701279558130514</span>;
                                     } <span class="kw">else </span>{
-                                        current_block = <span class="number">17787701279558130514</span>;
+                                        current_block =
+                                            <span class="number">17787701279558130514</span>;
                                     }
-                                    <span class="kw">if </span>current_block != <span class="number">14984465786483313892 </span>{
+                                    <span class="kw">if </span>current_block
+                                        != <span class="number">14984465786483313892
+                                    </span>{
                                         <span class="kw">if </span>chomping == <span class="number">1 </span>{
-                                            <span class="macro">JOIN!</span>(string, trailing_breaks);
+                                            <span class="macro">JOIN!</span>(
+                                                string,
+                                                trailing_breaks
+                                            );
                                         }
                                         memset(
                                             token <span class="kw">as </span><span class="kw-2">*mut </span>libc::c_void,
                                             <span class="number">0</span>,
-                                            size_of::&lt;YamlTokenT&gt;() <span class="kw">as </span>libc::c_ulong,
+                                            size_of::&lt;YamlTokenT&gt;()
+                                                <span class="kw">as </span>libc::c_ulong,
                                         );
-                                        (<span class="kw-2">*</span>token).type_ = YamlScalarToken;
-                                        (<span class="kw-2">*</span>token).start_mark = start_mark;
+                                        (<span class="kw-2">*</span>token).type_ =
+                                            YamlScalarToken;
+                                        (<span class="kw-2">*</span>token).start_mark =
+                                            start_mark;
                                         (<span class="kw-2">*</span>token).end_mark = end_mark;
-                                        <span class="kw">let </span>fresh479 =
-                                            <span class="macro">addr_of_mut!</span>((<span class="kw-2">*</span>token).data.scalar.value);
+                                        <span class="kw">let </span>fresh479 = <span class="macro">addr_of_mut!</span>(
+                                            (<span class="kw-2">*</span>token).data.scalar.value
+                                        );
                                         <span class="kw-2">*</span>fresh479 = string.start;
                                         (<span class="kw-2">*</span>token).data.scalar.length =
-                                            string.pointer.c_offset_from(string.start)
+                                            string
+                                                .pointer
+                                                .c_offset_from(
+                                                    string.start,
+                                                )
                                                 <span class="kw">as </span>size_t;
-                                        (<span class="kw-2">*</span>token).data.scalar.style = <span class="kw">if </span>literal {
-                                            YamlLiteralScalarStyle
-                                        } <span class="kw">else </span>{
-                                            YamlFoldedScalarStyle
-                                        };
+                                        (<span class="kw-2">*</span>token).data.scalar.style =
+                                            <span class="kw">if </span>literal {
+                                                YamlLiteralScalarStyle
+                                            } <span class="kw">else </span>{
+                                                YamlFoldedScalarStyle
+                                            };
                                         <span class="macro">STRING_DEL!</span>(leading_break);
                                         <span class="macro">STRING_DEL!</span>(trailing_breaks);
                                         <span class="kw">return </span>OK;
@@ -4773,7 +5322,8 @@
         <span class="kw">if </span>cache(parser, <span class="number">1_u64</span>).fail {
             <span class="kw">return </span>FAIL;
         }
-        <span class="kw">while </span>(<span class="kw-2">*</span>indent == <span class="number">0 </span>|| ((<span class="kw-2">*</span>parser).mark.column <span class="kw">as </span>libc::c_int) &lt; <span class="kw-2">*</span>indent)
+        <span class="kw">while </span>(<span class="kw-2">*</span>indent == <span class="number">0
+            </span>|| ((<span class="kw-2">*</span>parser).mark.column <span class="kw">as </span>libc::c_int) &lt; <span class="kw-2">*</span>indent)
             &amp;&amp; <span class="macro">IS_SPACE!</span>((<span class="kw-2">*</span>parser).buffer)
         {
             skip(parser);
@@ -4784,7 +5334,8 @@
         <span class="kw">if </span>(<span class="kw-2">*</span>parser).mark.column <span class="kw">as </span>libc::c_int &gt; max_indent {
             max_indent = (<span class="kw-2">*</span>parser).mark.column <span class="kw">as </span>libc::c_int;
         }
-        <span class="kw">if </span>(<span class="kw-2">*</span>indent == <span class="number">0 </span>|| ((<span class="kw-2">*</span>parser).mark.column <span class="kw">as </span>libc::c_int) &lt; <span class="kw-2">*</span>indent)
+        <span class="kw">if </span>(<span class="kw-2">*</span>indent == <span class="number">0
+            </span>|| ((<span class="kw-2">*</span>parser).mark.column <span class="kw">as </span>libc::c_int) &lt; <span class="kw-2">*</span>indent)
             &amp;&amp; <span class="macro">IS_TAB!</span>((<span class="kw-2">*</span>parser).buffer)
         {
             yaml_parser_set_scanner_error(
@@ -4851,18 +5402,22 @@
         {
             yaml_parser_set_scanner_error(
                 parser,
-                <span class="string">b"while scanning a quoted scalar\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8 <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
+                <span class="string">b"while scanning a quoted scalar\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8
+                    <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
                 start_mark,
-                <span class="string">b"found unexpected document indicator\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8 <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
+                <span class="string">b"found unexpected document indicator\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8
+                    <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
             );
             current_block = <span class="number">8114179180390253173</span>;
             <span class="kw">break</span>;
         } <span class="kw">else if </span><span class="macro">IS_Z!</span>((<span class="kw-2">*</span>parser).buffer) {
             yaml_parser_set_scanner_error(
                 parser,
-                <span class="string">b"while scanning a quoted scalar\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8 <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
+                <span class="string">b"while scanning a quoted scalar\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8
+                    <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
                 start_mark,
-                <span class="string">b"found unexpected end of stream\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8 <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
+                <span class="string">b"found unexpected end of stream\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8
+                    <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
             );
             current_block = <span class="number">8114179180390253173</span>;
             <span class="kw">break</span>;
@@ -4884,7 +5439,10 @@
                     skip(parser);
                     skip(parser);
                 } <span class="kw">else </span>{
-                    <span class="kw">if </span><span class="macro">CHECK!</span>((<span class="kw-2">*</span>parser).buffer, <span class="kw">if </span>single { <span class="string">b'\'' </span>} <span class="kw">else </span>{ <span class="string">b'"' </span>}) {
+                    <span class="kw">if </span><span class="macro">CHECK!</span>(
+                        (<span class="kw-2">*</span>parser).buffer,
+                        <span class="kw">if </span>single { <span class="string">b'\'' </span>} <span class="kw">else </span>{ <span class="string">b'"' </span>}
+                    ) {
                         <span class="kw">break</span>;
                     }
                     <span class="kw">if </span>!single
@@ -4899,115 +5457,143 @@
                         skip_line(parser);
                         leading_blanks = <span class="bool-val">true</span>;
                         <span class="kw">break</span>;
-                    } <span class="kw">else if </span>!single &amp;&amp; <span class="macro">CHECK!</span>((<span class="kw-2">*</span>parser).buffer, <span class="string">b'\\'</span>) {
+                    } <span class="kw">else if </span>!single &amp;&amp; <span class="macro">CHECK!</span>((<span class="kw-2">*</span>parser).buffer, <span class="string">b'\\'</span>)
+                    {
                         <span class="kw">let </span><span class="kw-2">mut </span>code_length: size_t = <span class="number">0_u64</span>;
                         <span class="macro">STRING_EXTEND!</span>(string);
-                        <span class="kw">match </span><span class="kw-2">*</span>(<span class="kw-2">*</span>parser).buffer.pointer.wrapping_offset(<span class="number">1_isize</span>) {
+                        <span class="kw">match </span><span class="kw-2">*</span>(<span class="kw-2">*</span>parser)
+                            .buffer
+                            .pointer
+                            .wrapping_offset(<span class="number">1_isize</span>)
+                        {
                             <span class="string">b'0' </span>=&gt; {
                                 <span class="kw">let </span>fresh542 = string.pointer;
-                                string.pointer = string.pointer.wrapping_offset(<span class="number">1</span>);
+                                string.pointer =
+                                    string.pointer.wrapping_offset(<span class="number">1</span>);
                                 <span class="kw-2">*</span>fresh542 = <span class="string">b'\0'</span>;
                             }
                             <span class="string">b'a' </span>=&gt; {
                                 <span class="kw">let </span>fresh543 = string.pointer;
-                                string.pointer = string.pointer.wrapping_offset(<span class="number">1</span>);
+                                string.pointer =
+                                    string.pointer.wrapping_offset(<span class="number">1</span>);
                                 <span class="kw-2">*</span>fresh543 = <span class="string">b'\x07'</span>;
                             }
                             <span class="string">b'b' </span>=&gt; {
                                 <span class="kw">let </span>fresh544 = string.pointer;
-                                string.pointer = string.pointer.wrapping_offset(<span class="number">1</span>);
+                                string.pointer =
+                                    string.pointer.wrapping_offset(<span class="number">1</span>);
                                 <span class="kw-2">*</span>fresh544 = <span class="string">b'\x08'</span>;
                             }
                             <span class="string">b't' </span>| <span class="string">b'\t' </span>=&gt; {
                                 <span class="kw">let </span>fresh545 = string.pointer;
-                                string.pointer = string.pointer.wrapping_offset(<span class="number">1</span>);
+                                string.pointer =
+                                    string.pointer.wrapping_offset(<span class="number">1</span>);
                                 <span class="kw-2">*</span>fresh545 = <span class="string">b'\t'</span>;
                             }
                             <span class="string">b'n' </span>=&gt; {
                                 <span class="kw">let </span>fresh546 = string.pointer;
-                                string.pointer = string.pointer.wrapping_offset(<span class="number">1</span>);
+                                string.pointer =
+                                    string.pointer.wrapping_offset(<span class="number">1</span>);
                                 <span class="kw-2">*</span>fresh546 = <span class="string">b'\n'</span>;
                             }
                             <span class="string">b'v' </span>=&gt; {
                                 <span class="kw">let </span>fresh547 = string.pointer;
-                                string.pointer = string.pointer.wrapping_offset(<span class="number">1</span>);
+                                string.pointer =
+                                    string.pointer.wrapping_offset(<span class="number">1</span>);
                                 <span class="kw-2">*</span>fresh547 = <span class="string">b'\x0B'</span>;
                             }
                             <span class="string">b'f' </span>=&gt; {
                                 <span class="kw">let </span>fresh548 = string.pointer;
-                                string.pointer = string.pointer.wrapping_offset(<span class="number">1</span>);
+                                string.pointer =
+                                    string.pointer.wrapping_offset(<span class="number">1</span>);
                                 <span class="kw-2">*</span>fresh548 = <span class="string">b'\x0C'</span>;
                             }
                             <span class="string">b'r' </span>=&gt; {
                                 <span class="kw">let </span>fresh549 = string.pointer;
-                                string.pointer = string.pointer.wrapping_offset(<span class="number">1</span>);
+                                string.pointer =
+                                    string.pointer.wrapping_offset(<span class="number">1</span>);
                                 <span class="kw-2">*</span>fresh549 = <span class="string">b'\r'</span>;
                             }
                             <span class="string">b'e' </span>=&gt; {
                                 <span class="kw">let </span>fresh550 = string.pointer;
-                                string.pointer = string.pointer.wrapping_offset(<span class="number">1</span>);
+                                string.pointer =
+                                    string.pointer.wrapping_offset(<span class="number">1</span>);
                                 <span class="kw-2">*</span>fresh550 = <span class="string">b'\x1B'</span>;
                             }
                             <span class="string">b' ' </span>=&gt; {
                                 <span class="kw">let </span>fresh551 = string.pointer;
-                                string.pointer = string.pointer.wrapping_offset(<span class="number">1</span>);
+                                string.pointer =
+                                    string.pointer.wrapping_offset(<span class="number">1</span>);
                                 <span class="kw-2">*</span>fresh551 = <span class="string">b' '</span>;
                             }
                             <span class="string">b'"' </span>=&gt; {
                                 <span class="kw">let </span>fresh552 = string.pointer;
-                                string.pointer = string.pointer.wrapping_offset(<span class="number">1</span>);
+                                string.pointer =
+                                    string.pointer.wrapping_offset(<span class="number">1</span>);
                                 <span class="kw-2">*</span>fresh552 = <span class="string">b'"'</span>;
                             }
                             <span class="string">b'/' </span>=&gt; {
                                 <span class="kw">let </span>fresh553 = string.pointer;
-                                string.pointer = string.pointer.wrapping_offset(<span class="number">1</span>);
+                                string.pointer =
+                                    string.pointer.wrapping_offset(<span class="number">1</span>);
                                 <span class="kw-2">*</span>fresh553 = <span class="string">b'/'</span>;
                             }
                             <span class="string">b'\\' </span>=&gt; {
                                 <span class="kw">let </span>fresh554 = string.pointer;
-                                string.pointer = string.pointer.wrapping_offset(<span class="number">1</span>);
+                                string.pointer =
+                                    string.pointer.wrapping_offset(<span class="number">1</span>);
                                 <span class="kw-2">*</span>fresh554 = <span class="string">b'\\'</span>;
                             }
                             <span class="comment">// NEL (#x85)
                             </span><span class="string">b'N' </span>=&gt; {
                                 <span class="kw">let </span>fresh555 = string.pointer;
-                                string.pointer = string.pointer.wrapping_offset(<span class="number">1</span>);
+                                string.pointer =
+                                    string.pointer.wrapping_offset(<span class="number">1</span>);
                                 <span class="kw-2">*</span>fresh555 = <span class="string">b'\xC2'</span>;
                                 <span class="kw">let </span>fresh556 = string.pointer;
-                                string.pointer = string.pointer.wrapping_offset(<span class="number">1</span>);
+                                string.pointer =
+                                    string.pointer.wrapping_offset(<span class="number">1</span>);
                                 <span class="kw-2">*</span>fresh556 = <span class="string">b'\x85'</span>;
                             }
                             <span class="comment">// #xA0
                             </span><span class="string">b'_' </span>=&gt; {
                                 <span class="kw">let </span>fresh557 = string.pointer;
-                                string.pointer = string.pointer.wrapping_offset(<span class="number">1</span>);
+                                string.pointer =
+                                    string.pointer.wrapping_offset(<span class="number">1</span>);
                                 <span class="kw-2">*</span>fresh557 = <span class="string">b'\xC2'</span>;
                                 <span class="kw">let </span>fresh558 = string.pointer;
-                                string.pointer = string.pointer.wrapping_offset(<span class="number">1</span>);
+                                string.pointer =
+                                    string.pointer.wrapping_offset(<span class="number">1</span>);
                                 <span class="kw-2">*</span>fresh558 = <span class="string">b'\xA0'</span>;
                             }
                             <span class="comment">// LS (#x2028)
                             </span><span class="string">b'L' </span>=&gt; {
                                 <span class="kw">let </span>fresh559 = string.pointer;
-                                string.pointer = string.pointer.wrapping_offset(<span class="number">1</span>);
+                                string.pointer =
+                                    string.pointer.wrapping_offset(<span class="number">1</span>);
                                 <span class="kw-2">*</span>fresh559 = <span class="string">b'\xE2'</span>;
                                 <span class="kw">let </span>fresh560 = string.pointer;
-                                string.pointer = string.pointer.wrapping_offset(<span class="number">1</span>);
+                                string.pointer =
+                                    string.pointer.wrapping_offset(<span class="number">1</span>);
                                 <span class="kw-2">*</span>fresh560 = <span class="string">b'\x80'</span>;
                                 <span class="kw">let </span>fresh561 = string.pointer;
-                                string.pointer = string.pointer.wrapping_offset(<span class="number">1</span>);
+                                string.pointer =
+                                    string.pointer.wrapping_offset(<span class="number">1</span>);
                                 <span class="kw-2">*</span>fresh561 = <span class="string">b'\xA8'</span>;
                             }
                             <span class="comment">// PS (#x2029)
                             </span><span class="string">b'P' </span>=&gt; {
                                 <span class="kw">let </span>fresh562 = string.pointer;
-                                string.pointer = string.pointer.wrapping_offset(<span class="number">1</span>);
+                                string.pointer =
+                                    string.pointer.wrapping_offset(<span class="number">1</span>);
                                 <span class="kw-2">*</span>fresh562 = <span class="string">b'\xE2'</span>;
                                 <span class="kw">let </span>fresh563 = string.pointer;
-                                string.pointer = string.pointer.wrapping_offset(<span class="number">1</span>);
+                                string.pointer =
+                                    string.pointer.wrapping_offset(<span class="number">1</span>);
                                 <span class="kw-2">*</span>fresh563 = <span class="string">b'\x80'</span>;
                                 <span class="kw">let </span>fresh564 = string.pointer;
-                                string.pointer = string.pointer.wrapping_offset(<span class="number">1</span>);
+                                string.pointer =
+                                    string.pointer.wrapping_offset(<span class="number">1</span>);
                                 <span class="kw-2">*</span>fresh564 = <span class="string">b'\xA9'</span>;
                             }
                             <span class="string">b'x' </span>=&gt; {
@@ -5022,10 +5608,12 @@
                             <span class="kw">_ </span>=&gt; {
                                 yaml_parser_set_scanner_error(
                                     parser,
-                                    <span class="string">b"while parsing a quoted scalar\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8
+                                    <span class="string">b"while parsing a quoted scalar\0"
+                                        </span><span class="kw">as </span><span class="kw-2">*const </span>u8
                                         <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
                                     start_mark,
-                                    <span class="string">b"found unknown escape character\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8
+                                    <span class="string">b"found unknown escape character\0"
+                                        </span><span class="kw">as </span><span class="kw-2">*const </span>u8
                                         <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
                                 );
                                 current_block = <span class="number">8114179180390253173</span>;
@@ -5043,7 +5631,10 @@
                             }
                             k = <span class="number">0_u64</span>;
                             <span class="kw">while </span>k &lt; code_length {
-                                <span class="kw">if </span>!<span class="macro">IS_HEX_AT!</span>((<span class="kw-2">*</span>parser).buffer, k <span class="kw">as </span>isize) {
+                                <span class="kw">if </span>!<span class="macro">IS_HEX_AT!</span>(
+                                    (<span class="kw-2">*</span>parser).buffer,
+                                    k <span class="kw">as </span>isize
+                                ) {
                                     yaml_parser_set_scanner_error(
                                         parser,
                                         <span class="string">b"while parsing a quoted scalar\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8
@@ -5055,15 +5646,19 @@
                                     current_block = <span class="number">8114179180390253173</span>;
                                     <span class="kw">break </span><span class="lifetime">'s_58</span>;
                                 } <span class="kw">else </span>{
-                                    value = (value &lt;&lt; <span class="number">4</span>).force_add(<span class="macro">AS_HEX_AT!</span>(
-                                        (<span class="kw-2">*</span>parser).buffer,
-                                        k <span class="kw">as </span>isize
-                                    )
-                                        <span class="kw">as </span>libc::c_uint);
+                                    value = (value &lt;&lt; <span class="number">4</span>).force_add(
+                                        <span class="macro">AS_HEX_AT!</span>(
+                                            (<span class="kw-2">*</span>parser).buffer,
+                                            k <span class="kw">as </span>isize
+                                        )
+                                            <span class="kw">as </span>libc::c_uint,
+                                    );
                                     k = k.force_add(<span class="number">1</span>);
                                 }
                             }
-                            <span class="kw">if </span>(<span class="number">0xD800</span>..=<span class="number">0xDFFF</span>).contains(<span class="kw-2">&amp;</span>value) || value &gt; <span class="number">0x10FFFF </span>{
+                            <span class="kw">if </span>(<span class="number">0xD800</span>..=<span class="number">0xDFFF</span>).contains(<span class="kw-2">&amp;</span>value)
+                                || value &gt; <span class="number">0x10FFFF
+                            </span>{
                                 yaml_parser_set_scanner_error(
                                     parser,
                                     <span class="string">b"while parsing a quoted scalar\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8
@@ -5077,41 +5672,76 @@
                             } <span class="kw">else </span>{
                                 <span class="kw">if </span>value &lt;= <span class="number">0x7F </span>{
                                     <span class="kw">let </span>fresh573 = string.pointer;
-                                    string.pointer = string.pointer.wrapping_offset(<span class="number">1</span>);
+                                    string.pointer = string
+                                        .pointer
+                                        .wrapping_offset(<span class="number">1</span>);
                                     <span class="kw-2">*</span>fresh573 = value <span class="kw">as </span>yaml_char_t;
                                 } <span class="kw">else if </span>value &lt;= <span class="number">0x7FF </span>{
                                     <span class="kw">let </span>fresh574 = string.pointer;
-                                    string.pointer = string.pointer.wrapping_offset(<span class="number">1</span>);
-                                    <span class="kw-2">*</span>fresh574 = <span class="number">0xC0_u32</span>.force_add(value &gt;&gt; <span class="number">6</span>) <span class="kw">as </span>yaml_char_t;
+                                    string.pointer = string
+                                        .pointer
+                                        .wrapping_offset(<span class="number">1</span>);
+                                    <span class="kw-2">*</span>fresh574 = <span class="number">0xC0_u32
+                                        </span>.force_add(value &gt;&gt; <span class="number">6</span>)
+                                        <span class="kw">as </span>yaml_char_t;
                                     <span class="kw">let </span>fresh575 = string.pointer;
-                                    string.pointer = string.pointer.wrapping_offset(<span class="number">1</span>);
-                                    <span class="kw-2">*</span>fresh575 = <span class="number">0x80_u32</span>.force_add(value &amp; <span class="number">0x3F</span>) <span class="kw">as </span>yaml_char_t;
+                                    string.pointer = string
+                                        .pointer
+                                        .wrapping_offset(<span class="number">1</span>);
+                                    <span class="kw-2">*</span>fresh575 = <span class="number">0x80_u32
+                                        </span>.force_add(value &amp; <span class="number">0x3F</span>)
+                                        <span class="kw">as </span>yaml_char_t;
                                 } <span class="kw">else if </span>value &lt;= <span class="number">0xFFFF </span>{
                                     <span class="kw">let </span>fresh576 = string.pointer;
-                                    string.pointer = string.pointer.wrapping_offset(<span class="number">1</span>);
-                                    <span class="kw-2">*</span>fresh576 = <span class="number">0xE0_u32</span>.force_add(value &gt;&gt; <span class="number">12</span>) <span class="kw">as </span>yaml_char_t;
+                                    string.pointer = string
+                                        .pointer
+                                        .wrapping_offset(<span class="number">1</span>);
+                                    <span class="kw-2">*</span>fresh576 = <span class="number">0xE0_u32
+                                        </span>.force_add(value &gt;&gt; <span class="number">12</span>)
+                                        <span class="kw">as </span>yaml_char_t;
                                     <span class="kw">let </span>fresh577 = string.pointer;
-                                    string.pointer = string.pointer.wrapping_offset(<span class="number">1</span>);
-                                    <span class="kw-2">*</span>fresh577 =
-                                        <span class="number">0x80_u32</span>.force_add(value &gt;&gt; <span class="number">6 </span>&amp; <span class="number">0x3F</span>) <span class="kw">as </span>yaml_char_t;
+                                    string.pointer = string
+                                        .pointer
+                                        .wrapping_offset(<span class="number">1</span>);
+                                    <span class="kw-2">*</span>fresh577 = <span class="number">0x80_u32
+                                        </span>.force_add(value &gt;&gt; <span class="number">6 </span>&amp; <span class="number">0x3F</span>)
+                                        <span class="kw">as </span>yaml_char_t;
                                     <span class="kw">let </span>fresh578 = string.pointer;
-                                    string.pointer = string.pointer.wrapping_offset(<span class="number">1</span>);
-                                    <span class="kw-2">*</span>fresh578 = <span class="number">0x80_u32</span>.force_add(value &amp; <span class="number">0x3F</span>) <span class="kw">as </span>yaml_char_t;
+                                    string.pointer = string
+                                        .pointer
+                                        .wrapping_offset(<span class="number">1</span>);
+                                    <span class="kw-2">*</span>fresh578 = <span class="number">0x80_u32
+                                        </span>.force_add(value &amp; <span class="number">0x3F</span>)
+                                        <span class="kw">as </span>yaml_char_t;
                                 } <span class="kw">else </span>{
                                     <span class="kw">let </span>fresh579 = string.pointer;
-                                    string.pointer = string.pointer.wrapping_offset(<span class="number">1</span>);
-                                    <span class="kw-2">*</span>fresh579 = <span class="number">0xF0_u32</span>.force_add(value &gt;&gt; <span class="number">18</span>) <span class="kw">as </span>yaml_char_t;
+                                    string.pointer = string
+                                        .pointer
+                                        .wrapping_offset(<span class="number">1</span>);
+                                    <span class="kw-2">*</span>fresh579 = <span class="number">0xF0_u32
+                                        </span>.force_add(value &gt;&gt; <span class="number">18</span>)
+                                        <span class="kw">as </span>yaml_char_t;
                                     <span class="kw">let </span>fresh580 = string.pointer;
-                                    string.pointer = string.pointer.wrapping_offset(<span class="number">1</span>);
-                                    <span class="kw-2">*</span>fresh580 =
-                                        <span class="number">0x80_u32</span>.force_add(value &gt;&gt; <span class="number">12 </span>&amp; <span class="number">0x3F</span>) <span class="kw">as </span>yaml_char_t;
+                                    string.pointer = string
+                                        .pointer
+                                        .wrapping_offset(<span class="number">1</span>);
+                                    <span class="kw-2">*</span>fresh580 = <span class="number">0x80_u32
+                                        </span>.force_add(value &gt;&gt; <span class="number">12 </span>&amp; <span class="number">0x3F</span>)
+                                        <span class="kw">as </span>yaml_char_t;
                                     <span class="kw">let </span>fresh581 = string.pointer;
-                                    string.pointer = string.pointer.wrapping_offset(<span class="number">1</span>);
-                                    <span class="kw-2">*</span>fresh581 =
-                                        <span class="number">0x80_u32</span>.force_add(value &gt;&gt; <span class="number">6 </span>&amp; <span class="number">0x3F</span>) <span class="kw">as </span>yaml_char_t;
+                                    string.pointer = string
+                                        .pointer
+                                        .wrapping_offset(<span class="number">1</span>);
+                                    <span class="kw-2">*</span>fresh581 = <span class="number">0x80_u32
+                                        </span>.force_add(value &gt;&gt; <span class="number">6 </span>&amp; <span class="number">0x3F</span>)
+                                        <span class="kw">as </span>yaml_char_t;
                                     <span class="kw">let </span>fresh582 = string.pointer;
-                                    string.pointer = string.pointer.wrapping_offset(<span class="number">1</span>);
-                                    <span class="kw-2">*</span>fresh582 = <span class="number">0x80_u32</span>.force_add(value &amp; <span class="number">0x3F</span>) <span class="kw">as </span>yaml_char_t;
+                                    string.pointer = string
+                                        .pointer
+                                        .wrapping_offset(<span class="number">1</span>);
+                                    <span class="kw-2">*</span>fresh582 = <span class="number">0x80_u32
+                                        </span>.force_add(value &amp; <span class="number">0x3F</span>)
+                                        <span class="kw">as </span>yaml_char_t;
                                 }
                                 k = <span class="number">0_u64</span>;
                                 <span class="kw">while </span>k &lt; code_length {
@@ -5133,7 +5763,10 @@
                 current_block = <span class="number">8114179180390253173</span>;
                 <span class="kw">break</span>;
             }
-            <span class="kw">if </span><span class="macro">CHECK!</span>((<span class="kw-2">*</span>parser).buffer, <span class="kw">if </span>single { <span class="string">b'\'' </span>} <span class="kw">else </span>{ <span class="string">b'"' </span>}) {
+            <span class="kw">if </span><span class="macro">CHECK!</span>(
+                (<span class="kw-2">*</span>parser).buffer,
+                <span class="kw">if </span>single { <span class="string">b'\'' </span>} <span class="kw">else </span>{ <span class="string">b'"' </span>}
+            ) {
                 current_block = <span class="number">7468767852762055642</span>;
                 <span class="kw">break</span>;
             }
@@ -5141,7 +5774,9 @@
                 current_block = <span class="number">8114179180390253173</span>;
                 <span class="kw">break</span>;
             }
-            <span class="kw">while </span><span class="macro">IS_BLANK!</span>((<span class="kw-2">*</span>parser).buffer) || <span class="macro">IS_BREAK!</span>((<span class="kw-2">*</span>parser).buffer) {
+            <span class="kw">while </span><span class="macro">IS_BLANK!</span>((<span class="kw-2">*</span>parser).buffer)
+                || <span class="macro">IS_BREAK!</span>((<span class="kw-2">*</span>parser).buffer)
+            {
                 <span class="kw">if </span><span class="macro">IS_BLANK!</span>((<span class="kw-2">*</span>parser).buffer) {
                     <span class="kw">if </span>!leading_blanks {
                         <span class="macro">read!</span>(parser, whitespaces);
@@ -5171,7 +5806,8 @@
                     <span class="kw">if </span><span class="kw-2">*</span>trailing_breaks.start == <span class="string">b'\0' </span>{
                         <span class="macro">STRING_EXTEND!</span>(string);
                         <span class="kw">let </span>fresh711 = string.pointer;
-                        string.pointer = string.pointer.wrapping_offset(<span class="number">1</span>);
+                        string.pointer =
+                            string.pointer.wrapping_offset(<span class="number">1</span>);
                         <span class="kw-2">*</span>fresh711 = <span class="string">b' '</span>;
                     } <span class="kw">else </span>{
                         <span class="macro">JOIN!</span>(string, trailing_breaks);
@@ -5203,7 +5839,8 @@
         (<span class="kw-2">*</span>token).end_mark = end_mark;
         <span class="kw">let </span>fresh716 = <span class="macro">addr_of_mut!</span>((<span class="kw-2">*</span>token).data.scalar.value);
         <span class="kw-2">*</span>fresh716 = string.start;
-        (<span class="kw-2">*</span>token).data.scalar.length = string.pointer.c_offset_from(string.start) <span class="kw">as </span>size_t;
+        (<span class="kw-2">*</span>token).data.scalar.length =
+            string.pointer.c_offset_from(string.start) <span class="kw">as </span>size_t;
         (<span class="kw-2">*</span>token).data.scalar.style = <span class="kw">if </span>single {
             YamlSingleQuotedScalarStyle
         } <span class="kw">else </span>{
@@ -5272,14 +5909,17 @@
             {
                 yaml_parser_set_scanner_error(
                     parser,
-                    <span class="string">b"while scanning a plain scalar\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8 <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
+                    <span class="string">b"while scanning a plain scalar\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8
+                        <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
                     start_mark,
-                    <span class="string">b"found unexpected ':'\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8 <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
+                    <span class="string">b"found unexpected ':'\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8
+                        <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
                 );
                 current_block = <span class="number">16642808987012640029</span>;
                 <span class="kw">break </span><span class="lifetime">'s_57</span>;
             } <span class="kw">else </span>{
-                <span class="kw">if </span><span class="macro">CHECK!</span>((<span class="kw-2">*</span>parser).buffer, <span class="string">b':'</span>) &amp;&amp; <span class="macro">IS_BLANKZ_AT!</span>((<span class="kw-2">*</span>parser).buffer, <span class="number">1</span>)
+                <span class="kw">if </span><span class="macro">CHECK!</span>((<span class="kw-2">*</span>parser).buffer, <span class="string">b':'</span>)
+                    &amp;&amp; <span class="macro">IS_BLANKZ_AT!</span>((<span class="kw-2">*</span>parser).buffer, <span class="number">1</span>)
                     || (<span class="kw-2">*</span>parser).flow_level != <span class="number">0
                         </span>&amp;&amp; (<span class="macro">CHECK!</span>((<span class="kw-2">*</span>parser).buffer, <span class="string">b','</span>)
                             || <span class="macro">CHECK!</span>((<span class="kw-2">*</span>parser).buffer, <span class="string">b'['</span>)
@@ -5289,13 +5929,16 @@
                 {
                     <span class="kw">break</span>;
                 }
-                <span class="kw">if </span>leading_blanks || whitespaces.start != whitespaces.pointer {
+                <span class="kw">if </span>leading_blanks
+                    || whitespaces.start != whitespaces.pointer
+                {
                     <span class="kw">if </span>leading_blanks {
                         <span class="kw">if </span><span class="kw-2">*</span>leading_break.start == <span class="string">b'\n' </span>{
                             <span class="kw">if </span><span class="kw-2">*</span>trailing_breaks.start == <span class="string">b'\0' </span>{
                                 <span class="macro">STRING_EXTEND!</span>(string);
                                 <span class="kw">let </span>fresh717 = string.pointer;
-                                string.pointer = string.pointer.wrapping_offset(<span class="number">1</span>);
+                                string.pointer =
+                                    string.pointer.wrapping_offset(<span class="number">1</span>);
                                 <span class="kw-2">*</span>fresh717 = <span class="string">b' '</span>;
                             } <span class="kw">else </span>{
                                 <span class="macro">JOIN!</span>(string, trailing_breaks);
@@ -5322,7 +5965,8 @@
                 }
             }
         }
-        <span class="kw">if </span>!(<span class="macro">IS_BLANK!</span>((<span class="kw-2">*</span>parser).buffer) || <span class="macro">IS_BREAK!</span>((<span class="kw-2">*</span>parser).buffer)) {
+        <span class="kw">if </span>!(<span class="macro">IS_BLANK!</span>((<span class="kw-2">*</span>parser).buffer) || <span class="macro">IS_BREAK!</span>((<span class="kw-2">*</span>parser).buffer))
+        {
             current_block = <span class="number">6281126495347172768</span>;
             <span class="kw">break</span>;
         }
@@ -5330,7 +5974,8 @@
             current_block = <span class="number">16642808987012640029</span>;
             <span class="kw">break</span>;
         }
-        <span class="kw">while </span><span class="macro">IS_BLANK!</span>((<span class="kw-2">*</span>parser).buffer) || <span class="macro">IS_BREAK!</span>((<span class="kw-2">*</span>parser).buffer) {
+        <span class="kw">while </span><span class="macro">IS_BLANK!</span>((<span class="kw-2">*</span>parser).buffer) || <span class="macro">IS_BREAK!</span>((<span class="kw-2">*</span>parser).buffer)
+        {
             <span class="kw">if </span><span class="macro">IS_BLANK!</span>((<span class="kw-2">*</span>parser).buffer) {
                 <span class="kw">if </span>leading_blanks
                     &amp;&amp; ((<span class="kw-2">*</span>parser).mark.column <span class="kw">as </span>libc::c_int) &lt; indent
@@ -5368,7 +6013,9 @@
                 <span class="kw">break </span><span class="lifetime">'s_57</span>;
             }
         }
-        <span class="kw">if </span>(<span class="kw-2">*</span>parser).flow_level == <span class="number">0 </span>&amp;&amp; ((<span class="kw-2">*</span>parser).mark.column <span class="kw">as </span>libc::c_int) &lt; indent {
+        <span class="kw">if </span>(<span class="kw-2">*</span>parser).flow_level == <span class="number">0
+            </span>&amp;&amp; ((<span class="kw-2">*</span>parser).mark.column <span class="kw">as </span>libc::c_int) &lt; indent
+        {
             current_block = <span class="number">6281126495347172768</span>;
             <span class="kw">break</span>;
         }
@@ -5384,7 +6031,8 @@
         (<span class="kw-2">*</span>token).end_mark = end_mark;
         <span class="kw">let </span>fresh842 = <span class="macro">addr_of_mut!</span>((<span class="kw-2">*</span>token).data.scalar.value);
         <span class="kw-2">*</span>fresh842 = string.start;
-        (<span class="kw-2">*</span>token).data.scalar.length = string.pointer.c_offset_from(string.start) <span class="kw">as </span>size_t;
+        (<span class="kw-2">*</span>token).data.scalar.length =
+            string.pointer.c_offset_from(string.start) <span class="kw">as </span>size_t;
         (<span class="kw-2">*</span>token).data.scalar.style = YamlPlainScalarStyle;
         <span class="kw">if </span>leading_blanks {
             (<span class="kw-2">*</span>parser).simple_key_allowed = <span class="bool-val">true</span>;

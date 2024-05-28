@@ -1364,49 +1364,231 @@
 <a href="#1364" id="1364">1364</a>
 <a href="#1365" id="1365">1365</a>
 <a href="#1366" id="1366">1366</a>
-</pre></div><pre class="rust"><code><span class="comment">// Copyright notice and licensing information.
-// These lines indicate the copyright of the software and its licensing terms.
-// SPDX-License-Identifier: Apache-2.0 OR MIT indicates dual licensing under Apache 2.0 or MIT licenses.
-// Copyright © 2024 LibYML. All rights reserved.
-
-</span><span class="kw">use </span><span class="kw">crate</span>::api::{yaml_free, yaml_malloc, yaml_stack_extend, yaml_strdup};
+<a href="#1367" id="1367">1367</a>
+<a href="#1368" id="1368">1368</a>
+<a href="#1369" id="1369">1369</a>
+<a href="#1370" id="1370">1370</a>
+<a href="#1371" id="1371">1371</a>
+<a href="#1372" id="1372">1372</a>
+<a href="#1373" id="1373">1373</a>
+<a href="#1374" id="1374">1374</a>
+<a href="#1375" id="1375">1375</a>
+<a href="#1376" id="1376">1376</a>
+<a href="#1377" id="1377">1377</a>
+<a href="#1378" id="1378">1378</a>
+<a href="#1379" id="1379">1379</a>
+<a href="#1380" id="1380">1380</a>
+<a href="#1381" id="1381">1381</a>
+<a href="#1382" id="1382">1382</a>
+<a href="#1383" id="1383">1383</a>
+<a href="#1384" id="1384">1384</a>
+<a href="#1385" id="1385">1385</a>
+<a href="#1386" id="1386">1386</a>
+<a href="#1387" id="1387">1387</a>
+<a href="#1388" id="1388">1388</a>
+<a href="#1389" id="1389">1389</a>
+<a href="#1390" id="1390">1390</a>
+<a href="#1391" id="1391">1391</a>
+<a href="#1392" id="1392">1392</a>
+<a href="#1393" id="1393">1393</a>
+<a href="#1394" id="1394">1394</a>
+<a href="#1395" id="1395">1395</a>
+<a href="#1396" id="1396">1396</a>
+<a href="#1397" id="1397">1397</a>
+<a href="#1398" id="1398">1398</a>
+<a href="#1399" id="1399">1399</a>
+<a href="#1400" id="1400">1400</a>
+<a href="#1401" id="1401">1401</a>
+<a href="#1402" id="1402">1402</a>
+<a href="#1403" id="1403">1403</a>
+<a href="#1404" id="1404">1404</a>
+<a href="#1405" id="1405">1405</a>
+<a href="#1406" id="1406">1406</a>
+<a href="#1407" id="1407">1407</a>
+<a href="#1408" id="1408">1408</a>
+<a href="#1409" id="1409">1409</a>
+<a href="#1410" id="1410">1410</a>
+<a href="#1411" id="1411">1411</a>
+<a href="#1412" id="1412">1412</a>
+<a href="#1413" id="1413">1413</a>
+<a href="#1414" id="1414">1414</a>
+<a href="#1415" id="1415">1415</a>
+<a href="#1416" id="1416">1416</a>
+<a href="#1417" id="1417">1417</a>
+<a href="#1418" id="1418">1418</a>
+<a href="#1419" id="1419">1419</a>
+<a href="#1420" id="1420">1420</a>
+<a href="#1421" id="1421">1421</a>
+<a href="#1422" id="1422">1422</a>
+<a href="#1423" id="1423">1423</a>
+<a href="#1424" id="1424">1424</a>
+<a href="#1425" id="1425">1425</a>
+<a href="#1426" id="1426">1426</a>
+<a href="#1427" id="1427">1427</a>
+<a href="#1428" id="1428">1428</a>
+<a href="#1429" id="1429">1429</a>
+<a href="#1430" id="1430">1430</a>
+<a href="#1431" id="1431">1431</a>
+<a href="#1432" id="1432">1432</a>
+<a href="#1433" id="1433">1433</a>
+<a href="#1434" id="1434">1434</a>
+<a href="#1435" id="1435">1435</a>
+<a href="#1436" id="1436">1436</a>
+<a href="#1437" id="1437">1437</a>
+<a href="#1438" id="1438">1438</a>
+<a href="#1439" id="1439">1439</a>
+<a href="#1440" id="1440">1440</a>
+<a href="#1441" id="1441">1441</a>
+<a href="#1442" id="1442">1442</a>
+<a href="#1443" id="1443">1443</a>
+<a href="#1444" id="1444">1444</a>
+<a href="#1445" id="1445">1445</a>
+<a href="#1446" id="1446">1446</a>
+<a href="#1447" id="1447">1447</a>
+<a href="#1448" id="1448">1448</a>
+<a href="#1449" id="1449">1449</a>
+<a href="#1450" id="1450">1450</a>
+<a href="#1451" id="1451">1451</a>
+<a href="#1452" id="1452">1452</a>
+<a href="#1453" id="1453">1453</a>
+<a href="#1454" id="1454">1454</a>
+<a href="#1455" id="1455">1455</a>
+<a href="#1456" id="1456">1456</a>
+<a href="#1457" id="1457">1457</a>
+<a href="#1458" id="1458">1458</a>
+<a href="#1459" id="1459">1459</a>
+<a href="#1460" id="1460">1460</a>
+<a href="#1461" id="1461">1461</a>
+<a href="#1462" id="1462">1462</a>
+<a href="#1463" id="1463">1463</a>
+<a href="#1464" id="1464">1464</a>
+<a href="#1465" id="1465">1465</a>
+<a href="#1466" id="1466">1466</a>
+<a href="#1467" id="1467">1467</a>
+<a href="#1468" id="1468">1468</a>
+<a href="#1469" id="1469">1469</a>
+<a href="#1470" id="1470">1470</a>
+<a href="#1471" id="1471">1471</a>
+<a href="#1472" id="1472">1472</a>
+<a href="#1473" id="1473">1473</a>
+<a href="#1474" id="1474">1474</a>
+<a href="#1475" id="1475">1475</a>
+<a href="#1476" id="1476">1476</a>
+<a href="#1477" id="1477">1477</a>
+<a href="#1478" id="1478">1478</a>
+<a href="#1479" id="1479">1479</a>
+<a href="#1480" id="1480">1480</a>
+<a href="#1481" id="1481">1481</a>
+<a href="#1482" id="1482">1482</a>
+<a href="#1483" id="1483">1483</a>
+<a href="#1484" id="1484">1484</a>
+<a href="#1485" id="1485">1485</a>
+<a href="#1486" id="1486">1486</a>
+<a href="#1487" id="1487">1487</a>
+<a href="#1488" id="1488">1488</a>
+<a href="#1489" id="1489">1489</a>
+<a href="#1490" id="1490">1490</a>
+<a href="#1491" id="1491">1491</a>
+<a href="#1492" id="1492">1492</a>
+<a href="#1493" id="1493">1493</a>
+<a href="#1494" id="1494">1494</a>
+<a href="#1495" id="1495">1495</a>
+<a href="#1496" id="1496">1496</a>
+<a href="#1497" id="1497">1497</a>
+<a href="#1498" id="1498">1498</a>
+<a href="#1499" id="1499">1499</a>
+<a href="#1500" id="1500">1500</a>
+<a href="#1501" id="1501">1501</a>
+<a href="#1502" id="1502">1502</a>
+<a href="#1503" id="1503">1503</a>
+<a href="#1504" id="1504">1504</a>
+<a href="#1505" id="1505">1505</a>
+<a href="#1506" id="1506">1506</a>
+<a href="#1507" id="1507">1507</a>
+<a href="#1508" id="1508">1508</a>
+<a href="#1509" id="1509">1509</a>
+<a href="#1510" id="1510">1510</a>
+<a href="#1511" id="1511">1511</a>
+<a href="#1512" id="1512">1512</a>
+<a href="#1513" id="1513">1513</a>
+<a href="#1514" id="1514">1514</a>
+<a href="#1515" id="1515">1515</a>
+<a href="#1516" id="1516">1516</a>
+<a href="#1517" id="1517">1517</a>
+<a href="#1518" id="1518">1518</a>
+<a href="#1519" id="1519">1519</a>
+<a href="#1520" id="1520">1520</a>
+<a href="#1521" id="1521">1521</a>
+<a href="#1522" id="1522">1522</a>
+<a href="#1523" id="1523">1523</a>
+<a href="#1524" id="1524">1524</a>
+<a href="#1525" id="1525">1525</a>
+<a href="#1526" id="1526">1526</a>
+<a href="#1527" id="1527">1527</a>
+<a href="#1528" id="1528">1528</a>
+<a href="#1529" id="1529">1529</a>
+<a href="#1530" id="1530">1530</a>
+<a href="#1531" id="1531">1531</a>
+<a href="#1532" id="1532">1532</a>
+<a href="#1533" id="1533">1533</a>
+<a href="#1534" id="1534">1534</a>
+<a href="#1535" id="1535">1535</a>
+<a href="#1536" id="1536">1536</a>
+<a href="#1537" id="1537">1537</a>
+<a href="#1538" id="1538">1538</a>
+<a href="#1539" id="1539">1539</a>
+<a href="#1540" id="1540">1540</a>
+<a href="#1541" id="1541">1541</a>
+</pre></div><pre class="rust"><code><span class="kw">use </span><span class="kw">crate</span>::api::{
+    yaml_free, yaml_malloc, yaml_stack_extend, yaml_strdup,
+};
 <span class="kw">use </span><span class="kw">crate</span>::externs::{memcpy, memset, strcmp, strlen};
 <span class="kw">use </span><span class="kw">crate</span>::ops::ForceAdd <span class="kw">as _</span>;
 <span class="kw">use </span><span class="kw">crate</span>::scanner::yaml_parser_fetch_more_tokens;
 <span class="kw">use </span><span class="kw">crate</span>::success::{Success, FAIL, OK};
 <span class="kw">use </span><span class="kw">crate</span>::yaml::{size_t, yaml_char_t};
 <span class="kw">use crate</span>::{
-    libc, YamlEventT, YamlMarkT, YamlParserT, YamlTagDirectiveT, YamlTokenT,
-    YamlVersionDirectiveT, YamlAliasEvent, YamlAliasToken, YamlAnchorToken,
+    libc, YamlAliasEvent, YamlAliasToken, YamlAnchorToken,
     YamlBlockEndToken, YamlBlockEntryToken, YamlBlockMappingStartToken,
-    YamlBlockMappingStyle, YamlBlockSequenceStartToken, YamlBlockSequenceStyle,
-    YamlDocumentEndEvent, YamlDocumentEndToken, YamlDocumentStartEvent,
-    YamlDocumentStartToken, YamlFlowEntryToken, YamlFlowMappingEndToken,
-    YamlFlowMappingStartToken, YamlFlowMappingStyle, YamlFlowSequenceEndToken,
-    YamlFlowSequenceStartToken, YamlFlowSequenceStyle, YamlKeyToken,
-    YamlMappingEndEvent, YamlMappingStartEvent, YamlNoError, YamlParserError,
+    YamlBlockMappingStyle, YamlBlockSequenceStartToken,
+    YamlBlockSequenceStyle, YamlDocumentEndEvent, YamlDocumentEndToken,
+    YamlDocumentStartEvent, YamlDocumentStartToken, YamlEventT,
+    YamlFlowEntryToken, YamlFlowMappingEndToken,
+    YamlFlowMappingStartToken, YamlFlowMappingStyle,
+    YamlFlowSequenceEndToken, YamlFlowSequenceStartToken,
+    YamlFlowSequenceStyle, YamlKeyToken, YamlMappingEndEvent,
+    YamlMappingStartEvent, YamlMarkT, YamlNoError,
     YamlParseBlockMappingFirstKeyState, YamlParseBlockMappingKeyState,
-    YamlParseBlockMappingValueState, YamlParseBlockNodeOrIndentlessSequenceState,
+    YamlParseBlockMappingValueState,
+    YamlParseBlockNodeOrIndentlessSequenceState,
     YamlParseBlockNodeState, YamlParseBlockSequenceEntryState,
-    YamlParseBlockSequenceFirstEntryState, YamlParseDocumentContentState,
-    YamlParseDocumentEndState, YamlParseDocumentStartState, YamlParseEndState,
-    YamlParseFlowMappingEmptyValueState, YamlParseFlowMappingFirstKeyState,
-    YamlParseFlowMappingKeyState, YamlParseFlowMappingValueState,
-    YamlParseFlowNodeState, YamlParseFlowSequenceEntryMappingEndState,
+    YamlParseBlockSequenceFirstEntryState,
+    YamlParseDocumentContentState, YamlParseDocumentEndState,
+    YamlParseDocumentStartState, YamlParseEndState,
+    YamlParseFlowMappingEmptyValueState,
+    YamlParseFlowMappingFirstKeyState, YamlParseFlowMappingKeyState,
+    YamlParseFlowMappingValueState, YamlParseFlowNodeState,
+    YamlParseFlowSequenceEntryMappingEndState,
     YamlParseFlowSequenceEntryMappingKeyState,
-    YamlParseFlowSequenceEntryMappingValueState, YamlParseFlowSequenceEntryState,
-    YamlParseFlowSequenceFirstEntryState, YamlParseImplicitDocumentStartState,
+    YamlParseFlowSequenceEntryMappingValueState,
+    YamlParseFlowSequenceEntryState,
+    YamlParseFlowSequenceFirstEntryState,
+    YamlParseImplicitDocumentStartState,
     YamlParseIndentlessSequenceEntryState, YamlParseStreamStartState,
-    YamlPlainScalarStyle, YamlScalarEvent, YamlScalarToken, YamlSequenceEndEvent,
+    YamlParserError, YamlParserT, YamlPlainScalarStyle,
+    YamlScalarEvent, YamlScalarToken, YamlSequenceEndEvent,
     YamlSequenceStartEvent, YamlStreamEndEvent, YamlStreamEndToken,
-    YamlStreamStartEvent, YamlStreamStartToken, YamlTagDirectiveToken, YamlTagToken,
-    YamlValueToken, YamlVersionDirectiveToken,
+    YamlStreamStartEvent, YamlStreamStartToken, YamlTagDirectiveT,
+    YamlTagDirectiveToken, YamlTagToken, YamlTokenT, YamlValueToken,
+    YamlVersionDirectiveT, YamlVersionDirectiveToken,
 };
 <span class="kw">use </span>core::mem::size_of;
 <span class="kw">use </span>core::ptr::{<span class="self">self</span>, addr_of_mut};
 
 <span class="kw">unsafe fn </span>peek_token(parser: <span class="kw-2">*mut </span>YamlParserT) -&gt; <span class="kw-2">*mut </span>YamlTokenT {
-    <span class="kw">if </span>(<span class="kw-2">*</span>parser).token_available || yaml_parser_fetch_more_tokens(parser).ok {
+    <span class="kw">if </span>(<span class="kw-2">*</span>parser).token_available
+        || yaml_parser_fetch_more_tokens(parser).ok
+    {
         (<span class="kw-2">*</span>parser).tokens.head
     } <span class="kw">else </span>{
         ptr::null_mut::&lt;YamlTokenT&gt;()
@@ -1417,7 +1599,8 @@
     (<span class="kw-2">*</span>parser).token_available = <span class="bool-val">false</span>;
     <span class="kw">let </span>fresh3 = <span class="macro">addr_of_mut!</span>((<span class="kw-2">*</span>parser).tokens_parsed);
     <span class="kw-2">*</span>fresh3 = (<span class="kw-2">*</span>fresh3).wrapping_add(<span class="number">1</span>);
-    (<span class="kw-2">*</span>parser).stream_end_produced = (<span class="kw-2">*</span>(<span class="kw-2">*</span>parser).tokens.head).type_ == YamlStreamEndToken;
+    (<span class="kw-2">*</span>parser).stream_end_produced =
+        (<span class="kw-2">*</span>(<span class="kw-2">*</span>parser).tokens.head).type_ == YamlStreamEndToken;
     <span class="kw">let </span>fresh4 = <span class="macro">addr_of_mut!</span>((<span class="kw-2">*</span>parser).tokens.head);
     <span class="kw-2">*</span>fresh4 = (<span class="kw-2">*</span>fresh4).wrapping_offset(<span class="number">1</span>);
 }
@@ -1443,7 +1626,10 @@
 /// - The caller must call `yaml_event_delete` to free any buffers associated with the produced event object.
 /// - The caller must not alternate calls to `yaml_parser_parse` with calls to `yaml_parser_scan` or `yaml_parser_load` on the same `YamlParserT` instance.
 ///
-</span><span class="kw">pub unsafe fn </span>yaml_parser_parse(parser: <span class="kw-2">*mut </span>YamlParserT, event: <span class="kw-2">*mut </span>YamlEventT) -&gt; Success {
+</span><span class="kw">pub unsafe fn </span>yaml_parser_parse(
+    parser: <span class="kw-2">*mut </span>YamlParserT,
+    event: <span class="kw-2">*mut </span>YamlEventT,
+) -&gt; Success {
     <span class="macro">__assert!</span>(!parser.is_null());
     <span class="macro">__assert!</span>(!event.is_null());
     memset(
@@ -1492,18 +1678,30 @@
     event: <span class="kw-2">*mut </span>YamlEventT,
 ) -&gt; Success {
     <span class="kw">match </span>(<span class="kw-2">*</span>parser).state {
-        YamlParseStreamStartState =&gt; yaml_parser_parse_stream_start(parser, event),
+        YamlParseStreamStartState =&gt; {
+            yaml_parser_parse_stream_start(parser, event)
+        }
         YamlParseImplicitDocumentStartState =&gt; {
             yaml_parser_parse_document_start(parser, event, <span class="bool-val">true</span>)
         }
-        YamlParseDocumentStartState =&gt; yaml_parser_parse_document_start(parser, event, <span class="bool-val">false</span>),
-        YamlParseDocumentContentState =&gt; yaml_parser_parse_document_content(parser, event),
-        YamlParseDocumentEndState =&gt; yaml_parser_parse_document_end(parser, event),
-        YamlParseBlockNodeState =&gt; yaml_parser_parse_node(parser, event, <span class="bool-val">true</span>, <span class="bool-val">false</span>),
+        YamlParseDocumentStartState =&gt; {
+            yaml_parser_parse_document_start(parser, event, <span class="bool-val">false</span>)
+        }
+        YamlParseDocumentContentState =&gt; {
+            yaml_parser_parse_document_content(parser, event)
+        }
+        YamlParseDocumentEndState =&gt; {
+            yaml_parser_parse_document_end(parser, event)
+        }
+        YamlParseBlockNodeState =&gt; {
+            yaml_parser_parse_node(parser, event, <span class="bool-val">true</span>, <span class="bool-val">false</span>)
+        }
         YamlParseBlockNodeOrIndentlessSequenceState =&gt; {
             yaml_parser_parse_node(parser, event, <span class="bool-val">true</span>, <span class="bool-val">true</span>)
         }
-        YamlParseFlowNodeState =&gt; yaml_parser_parse_node(parser, event, <span class="bool-val">false</span>, <span class="bool-val">false</span>),
+        YamlParseFlowNodeState =&gt; {
+            yaml_parser_parse_node(parser, event, <span class="bool-val">false</span>, <span class="bool-val">false</span>)
+        }
         YamlParseBlockSequenceFirstEntryState =&gt; {
             yaml_parser_parse_block_sequence_entry(parser, event, <span class="bool-val">true</span>)
         }
@@ -1529,13 +1727,19 @@
             yaml_parser_parse_flow_sequence_entry(parser, event, <span class="bool-val">false</span>)
         }
         YamlParseFlowSequenceEntryMappingKeyState =&gt; {
-            yaml_parser_parse_flow_sequence_entry_mapping_key(parser, event)
+            yaml_parser_parse_flow_sequence_entry_mapping_key(
+                parser, event,
+            )
         }
         YamlParseFlowSequenceEntryMappingValueState =&gt; {
-            yaml_parser_parse_flow_sequence_entry_mapping_value(parser, event)
+            yaml_parser_parse_flow_sequence_entry_mapping_value(
+                parser, event,
+            )
         }
         YamlParseFlowSequenceEntryMappingEndState =&gt; {
-            yaml_parser_parse_flow_sequence_entry_mapping_end(parser, event)
+            yaml_parser_parse_flow_sequence_entry_mapping_end(
+                parser, event,
+            )
         }
         YamlParseFlowMappingFirstKeyState =&gt; {
             yaml_parser_parse_flow_mapping_key(parser, event, <span class="bool-val">true</span>)
@@ -1564,7 +1768,8 @@
     <span class="kw">if </span>(<span class="kw-2">*</span>token).type_ != YamlStreamStartToken {
         yaml_parser_set_parser_error(
             parser,
-            <span class="string">b"did not find expected &lt;stream-start&gt;\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8 <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
+            <span class="string">b"did not find expected &lt;stream-start&gt;\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8
+                <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
             (<span class="kw-2">*</span>token).start_mark,
         );
         <span class="kw">return </span>FAIL;
@@ -1578,7 +1783,8 @@
     (<span class="kw-2">*</span>event).type_ = YamlStreamStartEvent;
     (<span class="kw-2">*</span>event).start_mark = (<span class="kw-2">*</span>token).start_mark;
     (<span class="kw-2">*</span>event).end_mark = (<span class="kw-2">*</span>token).start_mark;
-    (<span class="kw-2">*</span>event).data.stream_start.encoding = (<span class="kw-2">*</span>token).data.stream_start.encoding;
+    (<span class="kw-2">*</span>event).data.stream_start.encoding =
+        (<span class="kw-2">*</span>token).data.stream_start.encoding;
     skip_token(parser);
     OK
 }
@@ -1638,11 +1844,17 @@
         (<span class="kw-2">*</span>event).type_ = YamlDocumentStartEvent;
         (<span class="kw-2">*</span>event).start_mark = (<span class="kw-2">*</span>token).start_mark;
         (<span class="kw-2">*</span>event).end_mark = (<span class="kw-2">*</span>token).start_mark;
-        <span class="kw">let </span>fresh9 = <span class="macro">addr_of_mut!</span>((<span class="kw-2">*</span>event).data.document_start.version_directive);
+        <span class="kw">let </span>fresh9 = <span class="macro">addr_of_mut!</span>(
+            (<span class="kw-2">*</span>event).data.document_start.version_directive
+        );
         <span class="kw-2">*</span>fresh9 = ptr::null_mut::&lt;YamlVersionDirectiveT&gt;();
-        <span class="kw">let </span>fresh10 = <span class="macro">addr_of_mut!</span>((<span class="kw-2">*</span>event).data.document_start.tag_directives.start);
+        <span class="kw">let </span>fresh10 = <span class="macro">addr_of_mut!</span>(
+            (<span class="kw-2">*</span>event).data.document_start.tag_directives.start
+        );
         <span class="kw-2">*</span>fresh10 = ptr::null_mut::&lt;YamlTagDirectiveT&gt;();
-        <span class="kw">let </span>fresh11 = <span class="macro">addr_of_mut!</span>((<span class="kw-2">*</span>event).data.document_start.tag_directives.end);
+        <span class="kw">let </span>fresh11 = <span class="macro">addr_of_mut!</span>(
+            (<span class="kw-2">*</span>event).data.document_start.tag_directives.end
+        );
         <span class="kw-2">*</span>fresh11 = ptr::null_mut::&lt;YamlTagDirectiveT&gt;();
         (<span class="kw-2">*</span>event).data.document_start.implicit = <span class="bool-val">true</span>;
         OK
@@ -1664,7 +1876,9 @@
             <span class="kw">if </span>(<span class="kw-2">*</span>token).type_ != YamlDocumentStartToken {
                 yaml_parser_set_parser_error(
                     parser,
-                    <span class="string">b"did not find expected &lt;document start&gt;\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8 <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
+                    <span class="string">b"did not find expected &lt;document start&gt;\0"
+                        </span><span class="kw">as </span><span class="kw-2">*const </span>u8
+                        <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
                     (<span class="kw-2">*</span>token).start_mark,
                 );
             } <span class="kw">else </span>{
@@ -1679,23 +1893,36 @@
                 (<span class="kw-2">*</span>event).type_ = YamlDocumentStartEvent;
                 (<span class="kw-2">*</span>event).start_mark = start_mark;
                 (<span class="kw-2">*</span>event).end_mark = end_mark;
-                <span class="kw">let </span>fresh14 = <span class="macro">addr_of_mut!</span>((<span class="kw-2">*</span>event).data.document_start.version_directive);
+                <span class="kw">let </span>fresh14 = <span class="macro">addr_of_mut!</span>(
+                    (<span class="kw-2">*</span>event).data.document_start.version_directive
+                );
                 <span class="kw-2">*</span>fresh14 = version_directive;
-                <span class="kw">let </span>fresh15 = <span class="macro">addr_of_mut!</span>((<span class="kw-2">*</span>event).data.document_start.tag_directives.start);
+                <span class="kw">let </span>fresh15 = <span class="macro">addr_of_mut!</span>(
+                    (<span class="kw-2">*</span>event).data.document_start.tag_directives.start
+                );
                 <span class="kw-2">*</span>fresh15 = tag_directives.start;
-                <span class="kw">let </span>fresh16 = <span class="macro">addr_of_mut!</span>((<span class="kw-2">*</span>event).data.document_start.tag_directives.end);
+                <span class="kw">let </span>fresh16 = <span class="macro">addr_of_mut!</span>(
+                    (<span class="kw-2">*</span>event).data.document_start.tag_directives.end
+                );
                 <span class="kw-2">*</span>fresh16 = tag_directives.end;
                 (<span class="kw-2">*</span>event).data.document_start.implicit = <span class="bool-val">false</span>;
                 skip_token(parser);
-                tag_directives.end = ptr::null_mut::&lt;YamlTagDirectiveT&gt;();
+                tag_directives.end =
+                    ptr::null_mut::&lt;YamlTagDirectiveT&gt;();
                 tag_directives.start = tag_directives.end;
                 <span class="kw">return </span>OK;
             }
         }
         yaml_free(version_directive <span class="kw">as </span><span class="kw-2">*mut </span>libc::c_void);
         <span class="kw">while </span>tag_directives.start != tag_directives.end {
-            yaml_free((<span class="kw-2">*</span>tag_directives.end.wrapping_offset(-<span class="number">1_isize</span>)).handle <span class="kw">as </span><span class="kw-2">*mut </span>libc::c_void);
-            yaml_free((<span class="kw-2">*</span>tag_directives.end.wrapping_offset(-<span class="number">1_isize</span>)).prefix <span class="kw">as </span><span class="kw-2">*mut </span>libc::c_void);
+            yaml_free(
+                (<span class="kw-2">*</span>tag_directives.end.wrapping_offset(-<span class="number">1_isize</span>)).handle
+                    <span class="kw">as </span><span class="kw-2">*mut </span>libc::c_void,
+            );
+            yaml_free(
+                (<span class="kw-2">*</span>tag_directives.end.wrapping_offset(-<span class="number">1_isize</span>)).prefix
+                    <span class="kw">as </span><span class="kw-2">*mut </span>libc::c_void,
+            );
             tag_directives.end = tag_directives.end.wrapping_offset(-<span class="number">1</span>);
         }
         yaml_free(tag_directives.start <span class="kw">as </span><span class="kw-2">*mut </span>libc::c_void);
@@ -1780,8 +2007,10 @@
     <span class="kw">let </span><span class="kw-2">mut </span>current_block: u64;
     <span class="kw">let </span><span class="kw-2">mut </span>token: <span class="kw-2">*mut </span>YamlTokenT;
     <span class="kw">let </span><span class="kw-2">mut </span>anchor: <span class="kw-2">*mut </span>yaml_char_t = ptr::null_mut::&lt;yaml_char_t&gt;();
-    <span class="kw">let </span><span class="kw-2">mut </span>tag_handle: <span class="kw-2">*mut </span>yaml_char_t = ptr::null_mut::&lt;yaml_char_t&gt;();
-    <span class="kw">let </span><span class="kw-2">mut </span>tag_suffix: <span class="kw-2">*mut </span>yaml_char_t = ptr::null_mut::&lt;yaml_char_t&gt;();
+    <span class="kw">let </span><span class="kw-2">mut </span>tag_handle: <span class="kw-2">*mut </span>yaml_char_t =
+        ptr::null_mut::&lt;yaml_char_t&gt;();
+    <span class="kw">let </span><span class="kw-2">mut </span>tag_suffix: <span class="kw-2">*mut </span>yaml_char_t =
+        ptr::null_mut::&lt;yaml_char_t&gt;();
     <span class="kw">let </span><span class="kw-2">mut </span>tag: <span class="kw-2">*mut </span>yaml_char_t = ptr::null_mut::&lt;yaml_char_t&gt;();
     <span class="kw">let </span><span class="kw-2">mut </span>start_mark: YamlMarkT;
     <span class="kw">let </span><span class="kw-2">mut </span>end_mark: YamlMarkT;
@@ -1873,31 +2102,45 @@
                     <span class="kw">let </span><span class="kw-2">mut </span>tag_directive: <span class="kw-2">*mut </span>YamlTagDirectiveT;
                     tag_directive = (<span class="kw-2">*</span>parser).tag_directives.start;
                     <span class="kw">loop </span>{
-                        <span class="kw">if </span>tag_directive == (<span class="kw-2">*</span>parser).tag_directives.top {
+                        <span class="kw">if </span>tag_directive == (<span class="kw-2">*</span>parser).tag_directives.top
+                        {
                             current_block = <span class="number">17728966195399430138</span>;
                             <span class="kw">break</span>;
                         }
                         <span class="kw">if </span>strcmp(
-                            (<span class="kw-2">*</span>tag_directive).handle <span class="kw">as </span><span class="kw-2">*mut </span>libc::c_char,
+                            (<span class="kw-2">*</span>tag_directive).handle
+                                <span class="kw">as </span><span class="kw-2">*mut </span>libc::c_char,
                             tag_handle <span class="kw">as </span><span class="kw-2">*mut </span>libc::c_char,
                         ) == <span class="number">0
                         </span>{
-                            <span class="kw">let </span>prefix_len: size_t =
-                                strlen((<span class="kw-2">*</span>tag_directive).prefix <span class="kw">as </span><span class="kw-2">*mut </span>libc::c_char);
-                            <span class="kw">let </span>suffix_len: size_t = strlen(tag_suffix <span class="kw">as </span><span class="kw-2">*mut </span>libc::c_char);
-                            tag = yaml_malloc(prefix_len.force_add(suffix_len).force_add(<span class="number">1_u64</span>))
+                            <span class="kw">let </span>prefix_len: size_t = strlen(
+                                (<span class="kw-2">*</span>tag_directive).prefix
+                                    <span class="kw">as </span><span class="kw-2">*mut </span>libc::c_char,
+                            );
+                            <span class="kw">let </span>suffix_len: size_t =
+                                strlen(tag_suffix <span class="kw">as </span><span class="kw-2">*mut </span>libc::c_char);
+                            tag = yaml_malloc(
+                                prefix_len
+                                    .force_add(suffix_len)
+                                    .force_add(<span class="number">1_u64</span>),
+                            )
                                 <span class="kw">as </span><span class="kw-2">*mut </span>yaml_char_t;
                             memcpy(
                                 tag <span class="kw">as </span><span class="kw-2">*mut </span>libc::c_void,
-                                (<span class="kw-2">*</span>tag_directive).prefix <span class="kw">as </span><span class="kw-2">*const </span>libc::c_void,
+                                (<span class="kw-2">*</span>tag_directive).prefix
+                                    <span class="kw">as </span><span class="kw-2">*const </span>libc::c_void,
                                 prefix_len,
                             );
                             memcpy(
-                                tag.wrapping_offset(prefix_len <span class="kw">as </span>isize) <span class="kw">as </span><span class="kw-2">*mut </span>libc::c_void,
+                                tag.wrapping_offset(prefix_len <span class="kw">as </span>isize)
+                                    <span class="kw">as </span><span class="kw-2">*mut </span>libc::c_void,
                                 tag_suffix <span class="kw">as </span><span class="kw-2">*const </span>libc::c_void,
                                 suffix_len,
                             );
-                            <span class="kw-2">*</span>tag.wrapping_offset(prefix_len.force_add(suffix_len) <span class="kw">as </span>isize) = <span class="string">b'\0'</span>;
+                            <span class="kw-2">*</span>tag.wrapping_offset(
+                                prefix_len.force_add(suffix_len)
+                                    <span class="kw">as </span>isize,
+                            ) = <span class="string">b'\0'</span>;
                             yaml_free(tag_handle <span class="kw">as </span><span class="kw-2">*mut </span>libc::c_void);
                             yaml_free(tag_suffix <span class="kw">as </span><span class="kw-2">*mut </span>libc::c_void);
                             tag_suffix = ptr::null_mut::&lt;yaml_char_t&gt;();
@@ -1905,16 +2148,20 @@
                             current_block = <span class="number">17728966195399430138</span>;
                             <span class="kw">break</span>;
                         } <span class="kw">else </span>{
-                            tag_directive = tag_directive.wrapping_offset(<span class="number">1</span>);
+                            tag_directive =
+                                tag_directive.wrapping_offset(<span class="number">1</span>);
                         }
                     }
                     <span class="kw">if </span>current_block != <span class="number">17786380918591080555 </span>{
                         <span class="kw">if </span>tag.is_null() {
                             yaml_parser_set_parser_error_context(
                                 parser,
-                                <span class="string">b"while parsing a node\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8 <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
+                                <span class="string">b"while parsing a node\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8
+                                    <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
                                 start_mark,
-                                <span class="string">b"found undefined tag handle\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8 <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
+                                <span class="string">b"found undefined tag handle\0"
+                                    </span><span class="kw">as </span><span class="kw-2">*const </span>u8
+                                    <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
                                 tag_mark,
                             );
                             current_block = <span class="number">17786380918591080555</span>;
@@ -1928,9 +2175,12 @@
             }
             <span class="kw">if </span>current_block != <span class="number">17786380918591080555 </span>{
                 implicit = tag.is_null() || <span class="kw-2">*</span>tag == <span class="number">0</span>;
-                <span class="kw">if </span>indentless_sequence &amp;&amp; (<span class="kw-2">*</span>token).type_ == YamlBlockEntryToken {
+                <span class="kw">if </span>indentless_sequence
+                    &amp;&amp; (<span class="kw-2">*</span>token).type_ == YamlBlockEntryToken
+                {
                     end_mark = (<span class="kw-2">*</span>token).end_mark;
-                    (<span class="kw-2">*</span>parser).state = YamlParseIndentlessSequenceEntryState;
+                    (<span class="kw-2">*</span>parser).state =
+                        YamlParseIndentlessSequenceEntryState;
                     memset(
                         event <span class="kw">as </span><span class="kw-2">*mut </span>libc::c_void,
                         <span class="number">0</span>,
@@ -1939,22 +2189,29 @@
                     (<span class="kw-2">*</span>event).type_ = YamlSequenceStartEvent;
                     (<span class="kw-2">*</span>event).start_mark = start_mark;
                     (<span class="kw-2">*</span>event).end_mark = end_mark;
-                    <span class="kw">let </span>fresh37 = <span class="macro">addr_of_mut!</span>((<span class="kw-2">*</span>event).data.sequence_start.anchor);
+                    <span class="kw">let </span>fresh37 = <span class="macro">addr_of_mut!</span>(
+                        (<span class="kw-2">*</span>event).data.sequence_start.anchor
+                    );
                     <span class="kw-2">*</span>fresh37 = anchor;
-                    <span class="kw">let </span>fresh38 = <span class="macro">addr_of_mut!</span>((<span class="kw-2">*</span>event).data.sequence_start.tag);
+                    <span class="kw">let </span>fresh38 =
+                        <span class="macro">addr_of_mut!</span>((<span class="kw-2">*</span>event).data.sequence_start.tag);
                     <span class="kw-2">*</span>fresh38 = tag;
                     (<span class="kw-2">*</span>event).data.sequence_start.implicit = implicit;
-                    (<span class="kw-2">*</span>event).data.sequence_start.style = YamlBlockSequenceStyle;
+                    (<span class="kw-2">*</span>event).data.sequence_start.style =
+                        YamlBlockSequenceStyle;
                     <span class="kw">return </span>OK;
                 } <span class="kw">else if </span>(<span class="kw-2">*</span>token).type_ == YamlScalarToken {
                     <span class="kw">let </span><span class="kw-2">mut </span>plain_implicit = <span class="bool-val">false</span>;
                     <span class="kw">let </span><span class="kw-2">mut </span>quoted_implicit = <span class="bool-val">false</span>;
                     end_mark = (<span class="kw-2">*</span>token).end_mark;
-                    <span class="kw">if </span>(<span class="kw-2">*</span>token).data.scalar.style == YamlPlainScalarStyle &amp;&amp; tag.is_null()
+                    <span class="kw">if </span>(<span class="kw-2">*</span>token).data.scalar.style
+                        == YamlPlainScalarStyle
+                        &amp;&amp; tag.is_null()
                         || !tag.is_null()
                             &amp;&amp; strcmp(
                                 tag <span class="kw">as </span><span class="kw-2">*mut </span>libc::c_char,
-                                <span class="string">b"!\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8 <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
+                                <span class="string">b"!\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8
+                                    <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
                             ) == <span class="number">0
                     </span>{
                         plain_implicit = <span class="bool-val">true</span>;
@@ -1970,21 +2227,29 @@
                     (<span class="kw-2">*</span>event).type_ = YamlScalarEvent;
                     (<span class="kw-2">*</span>event).start_mark = start_mark;
                     (<span class="kw-2">*</span>event).end_mark = end_mark;
-                    <span class="kw">let </span>fresh40 = <span class="macro">addr_of_mut!</span>((<span class="kw-2">*</span>event).data.scalar.anchor);
+                    <span class="kw">let </span>fresh40 =
+                        <span class="macro">addr_of_mut!</span>((<span class="kw-2">*</span>event).data.scalar.anchor);
                     <span class="kw-2">*</span>fresh40 = anchor;
-                    <span class="kw">let </span>fresh41 = <span class="macro">addr_of_mut!</span>((<span class="kw-2">*</span>event).data.scalar.tag);
+                    <span class="kw">let </span>fresh41 =
+                        <span class="macro">addr_of_mut!</span>((<span class="kw-2">*</span>event).data.scalar.tag);
                     <span class="kw-2">*</span>fresh41 = tag;
-                    <span class="kw">let </span>fresh42 = <span class="macro">addr_of_mut!</span>((<span class="kw-2">*</span>event).data.scalar.value);
+                    <span class="kw">let </span>fresh42 =
+                        <span class="macro">addr_of_mut!</span>((<span class="kw-2">*</span>event).data.scalar.value);
                     <span class="kw-2">*</span>fresh42 = (<span class="kw-2">*</span>token).data.scalar.value;
-                    (<span class="kw-2">*</span>event).data.scalar.length = (<span class="kw-2">*</span>token).data.scalar.length;
-                    (<span class="kw-2">*</span>event).data.scalar.plain_implicit = plain_implicit;
-                    (<span class="kw-2">*</span>event).data.scalar.quoted_implicit = quoted_implicit;
-                    (<span class="kw-2">*</span>event).data.scalar.style = (<span class="kw-2">*</span>token).data.scalar.style;
+                    (<span class="kw-2">*</span>event).data.scalar.length =
+                        (<span class="kw-2">*</span>token).data.scalar.length;
+                    (<span class="kw-2">*</span>event).data.scalar.plain_implicit =
+                        plain_implicit;
+                    (<span class="kw-2">*</span>event).data.scalar.quoted_implicit =
+                        quoted_implicit;
+                    (<span class="kw-2">*</span>event).data.scalar.style =
+                        (<span class="kw-2">*</span>token).data.scalar.style;
                     skip_token(parser);
                     <span class="kw">return </span>OK;
                 } <span class="kw">else if </span>(<span class="kw-2">*</span>token).type_ == YamlFlowSequenceStartToken {
                     end_mark = (<span class="kw-2">*</span>token).end_mark;
-                    (<span class="kw-2">*</span>parser).state = YamlParseFlowSequenceFirstEntryState;
+                    (<span class="kw-2">*</span>parser).state =
+                        YamlParseFlowSequenceFirstEntryState;
                     memset(
                         event <span class="kw">as </span><span class="kw-2">*mut </span>libc::c_void,
                         <span class="number">0</span>,
@@ -1993,12 +2258,16 @@
                     (<span class="kw-2">*</span>event).type_ = YamlSequenceStartEvent;
                     (<span class="kw-2">*</span>event).start_mark = start_mark;
                     (<span class="kw-2">*</span>event).end_mark = end_mark;
-                    <span class="kw">let </span>fresh45 = <span class="macro">addr_of_mut!</span>((<span class="kw-2">*</span>event).data.sequence_start.anchor);
+                    <span class="kw">let </span>fresh45 = <span class="macro">addr_of_mut!</span>(
+                        (<span class="kw-2">*</span>event).data.sequence_start.anchor
+                    );
                     <span class="kw-2">*</span>fresh45 = anchor;
-                    <span class="kw">let </span>fresh46 = <span class="macro">addr_of_mut!</span>((<span class="kw-2">*</span>event).data.sequence_start.tag);
+                    <span class="kw">let </span>fresh46 =
+                        <span class="macro">addr_of_mut!</span>((<span class="kw-2">*</span>event).data.sequence_start.tag);
                     <span class="kw-2">*</span>fresh46 = tag;
                     (<span class="kw-2">*</span>event).data.sequence_start.implicit = implicit;
-                    (<span class="kw-2">*</span>event).data.sequence_start.style = YamlFlowSequenceStyle;
+                    (<span class="kw-2">*</span>event).data.sequence_start.style =
+                        YamlFlowSequenceStyle;
                     <span class="kw">return </span>OK;
                 } <span class="kw">else if </span>(<span class="kw-2">*</span>token).type_ == YamlFlowMappingStartToken {
                     end_mark = (<span class="kw-2">*</span>token).end_mark;
@@ -2011,16 +2280,23 @@
                     (<span class="kw-2">*</span>event).type_ = YamlMappingStartEvent;
                     (<span class="kw-2">*</span>event).start_mark = start_mark;
                     (<span class="kw-2">*</span>event).end_mark = end_mark;
-                    <span class="kw">let </span>fresh47 = <span class="macro">addr_of_mut!</span>((<span class="kw-2">*</span>event).data.mapping_start.anchor);
+                    <span class="kw">let </span>fresh47 = <span class="macro">addr_of_mut!</span>(
+                        (<span class="kw-2">*</span>event).data.mapping_start.anchor
+                    );
                     <span class="kw-2">*</span>fresh47 = anchor;
-                    <span class="kw">let </span>fresh48 = <span class="macro">addr_of_mut!</span>((<span class="kw-2">*</span>event).data.mapping_start.tag);
+                    <span class="kw">let </span>fresh48 =
+                        <span class="macro">addr_of_mut!</span>((<span class="kw-2">*</span>event).data.mapping_start.tag);
                     <span class="kw-2">*</span>fresh48 = tag;
                     (<span class="kw-2">*</span>event).data.mapping_start.implicit = implicit;
-                    (<span class="kw-2">*</span>event).data.mapping_start.style = YamlFlowMappingStyle;
+                    (<span class="kw-2">*</span>event).data.mapping_start.style =
+                        YamlFlowMappingStyle;
                     <span class="kw">return </span>OK;
-                } <span class="kw">else if </span>block &amp;&amp; (<span class="kw-2">*</span>token).type_ == YamlBlockSequenceStartToken {
+                } <span class="kw">else if </span>block
+                    &amp;&amp; (<span class="kw-2">*</span>token).type_ == YamlBlockSequenceStartToken
+                {
                     end_mark = (<span class="kw-2">*</span>token).end_mark;
-                    (<span class="kw-2">*</span>parser).state = YamlParseBlockSequenceFirstEntryState;
+                    (<span class="kw-2">*</span>parser).state =
+                        YamlParseBlockSequenceFirstEntryState;
                     memset(
                         event <span class="kw">as </span><span class="kw-2">*mut </span>libc::c_void,
                         <span class="number">0</span>,
@@ -2029,16 +2305,23 @@
                     (<span class="kw-2">*</span>event).type_ = YamlSequenceStartEvent;
                     (<span class="kw-2">*</span>event).start_mark = start_mark;
                     (<span class="kw-2">*</span>event).end_mark = end_mark;
-                    <span class="kw">let </span>fresh49 = <span class="macro">addr_of_mut!</span>((<span class="kw-2">*</span>event).data.sequence_start.anchor);
+                    <span class="kw">let </span>fresh49 = <span class="macro">addr_of_mut!</span>(
+                        (<span class="kw-2">*</span>event).data.sequence_start.anchor
+                    );
                     <span class="kw-2">*</span>fresh49 = anchor;
-                    <span class="kw">let </span>fresh50 = <span class="macro">addr_of_mut!</span>((<span class="kw-2">*</span>event).data.sequence_start.tag);
+                    <span class="kw">let </span>fresh50 =
+                        <span class="macro">addr_of_mut!</span>((<span class="kw-2">*</span>event).data.sequence_start.tag);
                     <span class="kw-2">*</span>fresh50 = tag;
                     (<span class="kw-2">*</span>event).data.sequence_start.implicit = implicit;
-                    (<span class="kw-2">*</span>event).data.sequence_start.style = YamlBlockSequenceStyle;
+                    (<span class="kw-2">*</span>event).data.sequence_start.style =
+                        YamlBlockSequenceStyle;
                     <span class="kw">return </span>OK;
-                } <span class="kw">else if </span>block &amp;&amp; (<span class="kw-2">*</span>token).type_ == YamlBlockMappingStartToken {
+                } <span class="kw">else if </span>block
+                    &amp;&amp; (<span class="kw-2">*</span>token).type_ == YamlBlockMappingStartToken
+                {
                     end_mark = (<span class="kw-2">*</span>token).end_mark;
-                    (<span class="kw-2">*</span>parser).state = YamlParseBlockMappingFirstKeyState;
+                    (<span class="kw-2">*</span>parser).state =
+                        YamlParseBlockMappingFirstKeyState;
                     memset(
                         event <span class="kw">as </span><span class="kw-2">*mut </span>libc::c_void,
                         <span class="number">0</span>,
@@ -2047,15 +2330,20 @@
                     (<span class="kw-2">*</span>event).type_ = YamlMappingStartEvent;
                     (<span class="kw-2">*</span>event).start_mark = start_mark;
                     (<span class="kw-2">*</span>event).end_mark = end_mark;
-                    <span class="kw">let </span>fresh51 = <span class="macro">addr_of_mut!</span>((<span class="kw-2">*</span>event).data.mapping_start.anchor);
+                    <span class="kw">let </span>fresh51 = <span class="macro">addr_of_mut!</span>(
+                        (<span class="kw-2">*</span>event).data.mapping_start.anchor
+                    );
                     <span class="kw-2">*</span>fresh51 = anchor;
-                    <span class="kw">let </span>fresh52 = <span class="macro">addr_of_mut!</span>((<span class="kw-2">*</span>event).data.mapping_start.tag);
+                    <span class="kw">let </span>fresh52 =
+                        <span class="macro">addr_of_mut!</span>((<span class="kw-2">*</span>event).data.mapping_start.tag);
                     <span class="kw-2">*</span>fresh52 = tag;
                     (<span class="kw-2">*</span>event).data.mapping_start.implicit = implicit;
-                    (<span class="kw-2">*</span>event).data.mapping_start.style = YamlBlockMappingStyle;
+                    (<span class="kw-2">*</span>event).data.mapping_start.style =
+                        YamlBlockMappingStyle;
                     <span class="kw">return </span>OK;
                 } <span class="kw">else if </span>!anchor.is_null() || !tag.is_null() {
-                    <span class="kw">let </span>value: <span class="kw-2">*mut </span>yaml_char_t = yaml_malloc(<span class="number">1_u64</span>) <span class="kw">as </span><span class="kw-2">*mut </span>yaml_char_t;
+                    <span class="kw">let </span>value: <span class="kw-2">*mut </span>yaml_char_t =
+                        yaml_malloc(<span class="number">1_u64</span>) <span class="kw">as </span><span class="kw-2">*mut </span>yaml_char_t;
                     <span class="kw-2">*</span>value = <span class="string">b'\0'</span>;
                     (<span class="kw-2">*</span>parser).state = <span class="macro">POP!</span>((<span class="kw-2">*</span>parser).states);
                     memset(
@@ -2066,11 +2354,14 @@
                     (<span class="kw-2">*</span>event).type_ = YamlScalarEvent;
                     (<span class="kw-2">*</span>event).start_mark = start_mark;
                     (<span class="kw-2">*</span>event).end_mark = end_mark;
-                    <span class="kw">let </span>fresh54 = <span class="macro">addr_of_mut!</span>((<span class="kw-2">*</span>event).data.scalar.anchor);
+                    <span class="kw">let </span>fresh54 =
+                        <span class="macro">addr_of_mut!</span>((<span class="kw-2">*</span>event).data.scalar.anchor);
                     <span class="kw-2">*</span>fresh54 = anchor;
-                    <span class="kw">let </span>fresh55 = <span class="macro">addr_of_mut!</span>((<span class="kw-2">*</span>event).data.scalar.tag);
+                    <span class="kw">let </span>fresh55 =
+                        <span class="macro">addr_of_mut!</span>((<span class="kw-2">*</span>event).data.scalar.tag);
                     <span class="kw-2">*</span>fresh55 = tag;
-                    <span class="kw">let </span>fresh56 = <span class="macro">addr_of_mut!</span>((<span class="kw-2">*</span>event).data.scalar.value);
+                    <span class="kw">let </span>fresh56 =
+                        <span class="macro">addr_of_mut!</span>((<span class="kw-2">*</span>event).data.scalar.value);
                     <span class="kw-2">*</span>fresh56 = value;
                     (<span class="kw-2">*</span>event).data.scalar.length = <span class="number">0_u64</span>;
                     (<span class="kw-2">*</span>event).data.scalar.plain_implicit = implicit;
@@ -2081,12 +2372,16 @@
                     yaml_parser_set_parser_error_context(
                         parser,
                         <span class="kw">if </span>block {
-                            <span class="string">b"while parsing a block node\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8 <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char
+                            <span class="string">b"while parsing a block node\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8
+                                <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char
                         } <span class="kw">else </span>{
-                            <span class="string">b"while parsing a flow node\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8 <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char
+                            <span class="string">b"while parsing a flow node\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8
+                                <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char
                         },
                         start_mark,
-                        <span class="string">b"did not find expected node content\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8 <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
+                        <span class="string">b"did not find expected node content\0"
+                            </span><span class="kw">as </span><span class="kw-2">*const </span>u8
+                            <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
                         (<span class="kw-2">*</span>token).start_mark,
                     );
                 }
@@ -2122,7 +2417,9 @@
         <span class="kw">if </span>token.is_null() {
             <span class="kw">return </span>FAIL;
         }
-        <span class="kw">if </span>(<span class="kw-2">*</span>token).type_ != YamlBlockEntryToken &amp;&amp; (<span class="kw-2">*</span>token).type_ != YamlBlockEndToken {
+        <span class="kw">if </span>(<span class="kw-2">*</span>token).type_ != YamlBlockEntryToken
+            &amp;&amp; (<span class="kw-2">*</span>token).type_ != YamlBlockEndToken
+        {
             <span class="macro">PUSH!</span>((<span class="kw-2">*</span>parser).states, YamlParseBlockSequenceEntryState);
             yaml_parser_parse_node(parser, event, <span class="bool-val">true</span>, <span class="bool-val">false</span>)
         } <span class="kw">else </span>{
@@ -2145,9 +2442,11 @@
     } <span class="kw">else </span>{
         yaml_parser_set_parser_error_context(
             parser,
-            <span class="string">b"while parsing a block collection\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8 <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
+            <span class="string">b"while parsing a block collection\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8
+                <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
             <span class="macro">POP!</span>((<span class="kw-2">*</span>parser).marks),
-            <span class="string">b"did not find expected '-' indicator\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8 <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
+            <span class="string">b"did not find expected '-' indicator\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8
+                <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
             (<span class="kw-2">*</span>token).start_mark,
         );
         FAIL
@@ -2175,7 +2474,10 @@
             &amp;&amp; (<span class="kw-2">*</span>token).type_ != YamlValueToken
             &amp;&amp; (<span class="kw-2">*</span>token).type_ != YamlBlockEndToken
         {
-            <span class="macro">PUSH!</span>((<span class="kw-2">*</span>parser).states, YamlParseIndentlessSequenceEntryState);
+            <span class="macro">PUSH!</span>(
+                (<span class="kw-2">*</span>parser).states,
+                YamlParseIndentlessSequenceEntryState
+            );
             yaml_parser_parse_node(parser, event, <span class="bool-val">true</span>, <span class="bool-val">false</span>)
         } <span class="kw">else </span>{
             (<span class="kw-2">*</span>parser).state = YamlParseIndentlessSequenceEntryState;
@@ -2243,9 +2545,11 @@
     } <span class="kw">else </span>{
         yaml_parser_set_parser_error_context(
             parser,
-            <span class="string">b"while parsing a block mapping\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8 <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
+            <span class="string">b"while parsing a block mapping\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8
+                <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
             <span class="macro">POP!</span>((<span class="kw-2">*</span>parser).marks),
-            <span class="string">b"did not find expected key\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8 <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
+            <span class="string">b"did not find expected key\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8
+                <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
             (<span class="kw-2">*</span>token).start_mark,
         );
         FAIL
@@ -2310,9 +2614,11 @@
             } <span class="kw">else </span>{
                 yaml_parser_set_parser_error_context(
                     parser,
-                    <span class="string">b"while parsing a flow sequence\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8 <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
+                    <span class="string">b"while parsing a flow sequence\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8
+                        <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
                     <span class="macro">POP!</span>((<span class="kw-2">*</span>parser).marks),
-                    <span class="string">b"did not find expected ',' or ']'\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8 <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
+                    <span class="string">b"did not find expected ',' or ']'\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8
+                        <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
                     (<span class="kw-2">*</span>token).start_mark,
                 );
                 <span class="kw">return </span>FAIL;
@@ -2328,9 +2634,11 @@
             (<span class="kw-2">*</span>event).type_ = YamlMappingStartEvent;
             (<span class="kw-2">*</span>event).start_mark = (<span class="kw-2">*</span>token).start_mark;
             (<span class="kw-2">*</span>event).end_mark = (<span class="kw-2">*</span>token).end_mark;
-            <span class="kw">let </span>fresh99 = <span class="macro">addr_of_mut!</span>((<span class="kw-2">*</span>event).data.mapping_start.anchor);
+            <span class="kw">let </span>fresh99 =
+                <span class="macro">addr_of_mut!</span>((<span class="kw-2">*</span>event).data.mapping_start.anchor);
             <span class="kw-2">*</span>fresh99 = ptr::null_mut::&lt;yaml_char_t&gt;();
-            <span class="kw">let </span>fresh100 = <span class="macro">addr_of_mut!</span>((<span class="kw-2">*</span>event).data.mapping_start.tag);
+            <span class="kw">let </span>fresh100 =
+                <span class="macro">addr_of_mut!</span>((<span class="kw-2">*</span>event).data.mapping_start.tag);
             <span class="kw-2">*</span>fresh100 = ptr::null_mut::&lt;yaml_char_t&gt;();
             (<span class="kw-2">*</span>event).data.mapping_start.implicit = <span class="bool-val">true</span>;
             (<span class="kw-2">*</span>event).data.mapping_start.style = YamlFlowMappingStyle;
@@ -2395,7 +2703,8 @@
         <span class="kw">if </span>token.is_null() {
             <span class="kw">return </span>FAIL;
         }
-        <span class="kw">if </span>(<span class="kw-2">*</span>token).type_ != YamlFlowEntryToken &amp;&amp; (<span class="kw-2">*</span>token).type_ != YamlFlowSequenceEndToken
+        <span class="kw">if </span>(<span class="kw-2">*</span>token).type_ != YamlFlowEntryToken
+            &amp;&amp; (<span class="kw-2">*</span>token).type_ != YamlFlowSequenceEndToken
         {
             <span class="macro">PUSH!</span>(
                 (<span class="kw-2">*</span>parser).states,
@@ -2454,9 +2763,11 @@
             } <span class="kw">else </span>{
                 yaml_parser_set_parser_error_context(
                     parser,
-                    <span class="string">b"while parsing a flow mapping\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8 <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
+                    <span class="string">b"while parsing a flow mapping\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8
+                        <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
                     <span class="macro">POP!</span>((<span class="kw-2">*</span>parser).marks),
-                    <span class="string">b"did not find expected ',' or '}'\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8 <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
+                    <span class="string">b"did not find expected ',' or '}'\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8
+                        <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
                     (<span class="kw-2">*</span>token).start_mark,
                 );
                 <span class="kw">return </span>FAIL;
@@ -2473,13 +2784,21 @@
                 &amp;&amp; (<span class="kw-2">*</span>token).type_ != YamlFlowMappingEndToken
             {
                 <span class="macro">PUSH!</span>((<span class="kw-2">*</span>parser).states, YamlParseFlowMappingValueState);
-                <span class="kw">return </span>yaml_parser_parse_node(parser, event, <span class="bool-val">false</span>, <span class="bool-val">false</span>);
+                <span class="kw">return </span>yaml_parser_parse_node(
+                    parser, event, <span class="bool-val">false</span>, <span class="bool-val">false</span>,
+                );
             } <span class="kw">else </span>{
                 (<span class="kw-2">*</span>parser).state = YamlParseFlowMappingValueState;
-                <span class="kw">return </span>yaml_parser_process_empty_scalar(event, (<span class="kw-2">*</span>token).start_mark);
+                <span class="kw">return </span>yaml_parser_process_empty_scalar(
+                    event,
+                    (<span class="kw-2">*</span>token).start_mark,
+                );
             }
         } <span class="kw">else if </span>(<span class="kw-2">*</span>token).type_ != YamlFlowMappingEndToken {
-            <span class="macro">PUSH!</span>((<span class="kw-2">*</span>parser).states, YamlParseFlowMappingEmptyValueState);
+            <span class="macro">PUSH!</span>(
+                (<span class="kw-2">*</span>parser).states,
+                YamlParseFlowMappingEmptyValueState
+            );
             <span class="kw">return </span>yaml_parser_parse_node(parser, event, <span class="bool-val">false</span>, <span class="bool-val">false</span>);
         }
     }
@@ -2509,7 +2828,10 @@
     }
     <span class="kw">if </span>empty {
         (<span class="kw-2">*</span>parser).state = YamlParseFlowMappingKeyState;
-        <span class="kw">return </span>yaml_parser_process_empty_scalar(event, (<span class="kw-2">*</span>token).start_mark);
+        <span class="kw">return </span>yaml_parser_process_empty_scalar(
+            event,
+            (<span class="kw-2">*</span>token).start_mark,
+        );
     }
     <span class="kw">if </span>(<span class="kw-2">*</span>token).type_ == YamlValueToken {
         skip_token(parser);
@@ -2517,7 +2839,8 @@
         <span class="kw">if </span>token.is_null() {
             <span class="kw">return </span>FAIL;
         }
-        <span class="kw">if </span>(<span class="kw-2">*</span>token).type_ != YamlFlowEntryToken &amp;&amp; (<span class="kw-2">*</span>token).type_ != YamlFlowMappingEndToken
+        <span class="kw">if </span>(<span class="kw-2">*</span>token).type_ != YamlFlowEntryToken
+            &amp;&amp; (<span class="kw-2">*</span>token).type_ != YamlFlowMappingEndToken
         {
             <span class="macro">PUSH!</span>((<span class="kw-2">*</span>parser).states, YamlParseFlowMappingKeyState);
             <span class="kw">return </span>yaml_parser_parse_node(parser, event, <span class="bool-val">false</span>, <span class="bool-val">false</span>);
@@ -2527,8 +2850,12 @@
     yaml_parser_process_empty_scalar(event, (<span class="kw-2">*</span>token).start_mark)
 }
 
-<span class="kw">unsafe fn </span>yaml_parser_process_empty_scalar(event: <span class="kw-2">*mut </span>YamlEventT, mark: YamlMarkT) -&gt; Success {
-    <span class="kw">let </span>value: <span class="kw-2">*mut </span>yaml_char_t = yaml_malloc(<span class="number">1_u64</span>) <span class="kw">as </span><span class="kw-2">*mut </span>yaml_char_t;
+<span class="kw">unsafe fn </span>yaml_parser_process_empty_scalar(
+    event: <span class="kw-2">*mut </span>YamlEventT,
+    mark: YamlMarkT,
+) -&gt; Success {
+    <span class="kw">let </span>value: <span class="kw-2">*mut </span>yaml_char_t =
+        yaml_malloc(<span class="number">1_u64</span>) <span class="kw">as </span><span class="kw-2">*mut </span>yaml_char_t;
     <span class="kw-2">*</span>value = <span class="string">b'\0'</span>;
     memset(
         event <span class="kw">as </span><span class="kw-2">*mut </span>libc::c_void,
@@ -2560,12 +2887,17 @@
     <span class="kw">let </span><span class="kw-2">mut </span>current_block: u64;
     <span class="kw">let </span><span class="kw-2">mut </span>default_tag_directives: [YamlTagDirectiveT; <span class="number">3</span>] = [
         YamlTagDirectiveT {
-            handle: <span class="string">b"!\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8 <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char <span class="kw">as </span><span class="kw-2">*mut </span>yaml_char_t,
-            prefix: <span class="string">b"!\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8 <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char <span class="kw">as </span><span class="kw-2">*mut </span>yaml_char_t,
+            handle: <span class="string">b"!\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8 <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char
+                <span class="kw">as </span><span class="kw-2">*mut </span>yaml_char_t,
+            prefix: <span class="string">b"!\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8 <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char
+                <span class="kw">as </span><span class="kw-2">*mut </span>yaml_char_t,
         },
         YamlTagDirectiveT {
-            handle: <span class="string">b"!!\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8 <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char <span class="kw">as </span><span class="kw-2">*mut </span>yaml_char_t,
-            prefix: <span class="string">b"tag:yaml.org,2002:\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8 <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char <span class="kw">as </span><span class="kw-2">*mut </span>yaml_char_t,
+            handle: <span class="string">b"!!\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8 <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char
+                <span class="kw">as </span><span class="kw-2">*mut </span>yaml_char_t,
+            prefix: <span class="string">b"tag:yaml.org,2002:\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8
+                <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char
+                <span class="kw">as </span><span class="kw-2">*mut </span>yaml_char_t,
         },
         YamlTagDirectiveT {
             handle: ptr::null_mut::&lt;yaml_char_t&gt;(),
@@ -2600,7 +2932,9 @@
                 <span class="kw">if </span>!version_directive.is_null() {
                     yaml_parser_set_parser_error(
                         parser,
-                        <span class="string">b"found duplicate %YAML directive\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8 <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
+                        <span class="string">b"found duplicate %YAML directive\0"
+                            </span><span class="kw">as </span><span class="kw-2">*const </span>u8
+                            <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
                         (<span class="kw-2">*</span>token).start_mark,
                     );
                     current_block = <span class="number">17143798186130252483</span>;
@@ -2611,24 +2945,35 @@
                 </span>{
                     yaml_parser_set_parser_error(
                         parser,
-                        <span class="string">b"found incompatible YAML document\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8 <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
+                        <span class="string">b"found incompatible YAML document\0"
+                            </span><span class="kw">as </span><span class="kw-2">*const </span>u8
+                            <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
                         (<span class="kw-2">*</span>token).start_mark,
                     );
                     current_block = <span class="number">17143798186130252483</span>;
                     <span class="kw">break</span>;
                 } <span class="kw">else </span>{
                     version_directive =
-                        yaml_malloc(size_of::&lt;YamlVersionDirectiveT&gt;() <span class="kw">as </span>libc::c_ulong)
+                        yaml_malloc(size_of::&lt;YamlVersionDirectiveT&gt;()
+                            <span class="kw">as </span>libc::c_ulong)
                             <span class="kw">as </span><span class="kw-2">*mut </span>YamlVersionDirectiveT;
-                    (<span class="kw-2">*</span>version_directive).major = (<span class="kw-2">*</span>token).data.version_directive.major;
-                    (<span class="kw-2">*</span>version_directive).minor = (<span class="kw-2">*</span>token).data.version_directive.minor;
+                    (<span class="kw-2">*</span>version_directive).major =
+                        (<span class="kw-2">*</span>token).data.version_directive.major;
+                    (<span class="kw-2">*</span>version_directive).minor =
+                        (<span class="kw-2">*</span>token).data.version_directive.minor;
                 }
             } <span class="kw">else if </span>(<span class="kw-2">*</span>token).type_ == YamlTagDirectiveToken {
                 <span class="kw">let </span>value = YamlTagDirectiveT {
                     handle: (<span class="kw-2">*</span>token).data.tag_directive.handle,
                     prefix: (<span class="kw-2">*</span>token).data.tag_directive.prefix,
                 };
-                <span class="kw">if </span>yaml_parser_append_tag_directive(parser, value, <span class="bool-val">false</span>, (<span class="kw-2">*</span>token).start_mark).fail
+                <span class="kw">if </span>yaml_parser_append_tag_directive(
+                    parser,
+                    value,
+                    <span class="bool-val">false</span>,
+                    (<span class="kw-2">*</span>token).start_mark,
+                )
+                .fail
                 {
                     current_block = <span class="number">17143798186130252483</span>;
                     <span class="kw">break</span>;
@@ -2660,7 +3005,8 @@
                     current_block = <span class="number">17143798186130252483</span>;
                     <span class="kw">break</span>;
                 }
-                default_tag_directive = default_tag_directive.wrapping_offset(<span class="number">1</span>);
+                default_tag_directive =
+                    default_tag_directive.wrapping_offset(<span class="number">1</span>);
             }
             <span class="kw">if </span>current_block != <span class="number">17143798186130252483 </span>{
                 <span class="kw">if </span>!version_directive_ref.is_null() {
@@ -2668,11 +3014,14 @@
                 }
                 <span class="kw">if </span>!tag_directives_start_ref.is_null() {
                     <span class="kw">if </span><span class="macro">STACK_EMPTY!</span>(tag_directives) {
-                        <span class="kw-2">*</span>tag_directives_end_ref = ptr::null_mut::&lt;YamlTagDirectiveT&gt;();
-                        <span class="kw-2">*</span>tag_directives_start_ref = <span class="kw-2">*</span>tag_directives_end_ref;
+                        <span class="kw-2">*</span>tag_directives_end_ref =
+                            ptr::null_mut::&lt;YamlTagDirectiveT&gt;();
+                        <span class="kw-2">*</span>tag_directives_start_ref =
+                            <span class="kw-2">*</span>tag_directives_end_ref;
                         <span class="macro">STACK_DEL!</span>(tag_directives);
                     } <span class="kw">else </span>{
-                        <span class="kw-2">*</span>tag_directives_start_ref = tag_directives.start;
+                        <span class="kw-2">*</span>tag_directives_start_ref =
+                            tag_directives.start;
                         <span class="kw-2">*</span>tag_directives_end_ref = tag_directives.top;
                     }
                 } <span class="kw">else </span>{
@@ -2718,7 +3067,8 @@
             }
             yaml_parser_set_parser_error(
                 parser,
-                <span class="string">b"found duplicate %TAG directive\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8 <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
+                <span class="string">b"found duplicate %TAG directive\0" </span><span class="kw">as </span><span class="kw-2">*const </span>u8
+                    <span class="kw">as </span><span class="kw-2">*const </span>libc::c_char,
                 mark,
             );
             <span class="kw">return </span>FAIL;
