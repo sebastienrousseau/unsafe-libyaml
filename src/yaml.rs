@@ -1,15 +1,20 @@
+// Copyright notice and licensing information.
+// These lines indicate the copyright of the software and its licensing terms.
+// SPDX-License-Identifier: Apache-2.0 OR MIT indicates dual licensing under Apache 2.0 or MIT licenses.
+// Copyright © 2024 LibYML. All rights reserved.
+
 use crate::libc;
 use core::ops::Deref;
 use core::ptr::{self, addr_of};
 
-pub use self::{yaml_encoding_t::*, yaml_event_type_t::*, yaml_node_type_t::*};
-pub use core::primitive::{i64 as ptrdiff_t, u64 as size_t, u8 as yaml_char_t};
+pub(crate) use self::{YamlEncodingT::*, YamlEventTypeT::*, YamlNodeTypeT::*};
+pub(crate) use core::primitive::{i64 as ptrdiff_t, u64 as size_t, u8 as yaml_char_t};
 
 /// The version directive data.
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 #[repr(C)]
 #[non_exhaustive]
-pub struct yaml_version_directive_t {
+pub struct YamlVersionDirectiveT {
     /// The major version number.
     pub major: libc::c_int,
     /// The minor version number.
@@ -17,10 +22,10 @@ pub struct yaml_version_directive_t {
 }
 
 /// The tag directive data.
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 #[repr(C)]
 #[non_exhaustive]
-pub struct yaml_tag_directive_t {
+pub struct YamlTagDirectiveT {
     /// The tag handle.
     pub handle: *mut yaml_char_t,
     /// The tag prefix.
@@ -31,60 +36,60 @@ pub struct yaml_tag_directive_t {
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)]
 #[repr(u32)]
 #[non_exhaustive]
-pub enum yaml_encoding_t {
+pub enum YamlEncodingT {
     /// Let the parser choose the encoding.
-    YAML_ANY_ENCODING = 0,
+    YamlAnyEncoding = 0,
     /// The default UTF-8 encoding.
-    YAML_UTF8_ENCODING = 1,
+    YamlUtf8Encoding = 1,
     /// The UTF-16-LE encoding with BOM.
-    YAML_UTF16LE_ENCODING = 2,
+    YamlUtf16leEncoding = 2,
     /// The UTF-16-BE encoding with BOM.
-    YAML_UTF16BE_ENCODING = 3,
+    YamlUtf16beEncoding = 3,
 }
 
 /// Line break type.
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)]
 #[repr(u32)]
 #[non_exhaustive]
-pub enum yaml_break_t {
+pub enum YamlBreakT {
     /// Let the parser choose the break type.
-    YAML_ANY_BREAK = 0,
+    YamlAnyBreak = 0,
     /// Use CR for line breaks (Mac style).
-    YAML_CR_BREAK = 1,
+    YamlCrBreak = 1,
     /// Use LN for line breaks (Unix style).
-    YAML_LN_BREAK = 2,
+    YamlLnBreak = 2,
     /// Use CR LN for line breaks (DOS style).
-    YAML_CRLN_BREAK = 3,
+    YamlCrlnBreak = 3,
 }
 
 /// Many bad things could happen with the parser and emitter.
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)]
 #[repr(u32)]
 #[non_exhaustive]
-pub enum yaml_error_type_t {
+pub enum YamlErrorTypeT {
     /// No error is produced.
-    YAML_NO_ERROR = 0,
+    YamlNoError = 0,
     /// Cannot allocate or reallocate a block of memory.
-    YAML_MEMORY_ERROR = 1,
+    YamlMemoryError = 1,
     /// Cannot read or decode the input stream.
-    YAML_READER_ERROR = 2,
+    YamlReaderError = 2,
     /// Cannot scan the input stream.
-    YAML_SCANNER_ERROR = 3,
+    YamlScannerError = 3,
     /// Cannot parse the input stream.
-    YAML_PARSER_ERROR = 4,
+    YamlParserError = 4,
     /// Cannot compose a YAML document.
-    YAML_COMPOSER_ERROR = 5,
+    YamlComposerError = 5,
     /// Cannot write to the output stream.
-    YAML_WRITER_ERROR = 6,
+    YamlWriterError = 6,
     /// Cannot emit a YAML stream.
-    YAML_EMITTER_ERROR = 7,
+    YamlEmitterError = 7,
 }
 
 /// The pointer position.
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 #[repr(C)]
 #[non_exhaustive]
-pub struct yaml_mark_t {
+pub struct YamlMarkT {
     /// The position index.
     pub index: size_t,
     /// The position line.
@@ -97,149 +102,149 @@ pub struct yaml_mark_t {
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)]
 #[repr(u32)]
 #[non_exhaustive]
-pub enum yaml_scalar_style_t {
+pub enum YamlScalarStyleT {
     /// Let the emitter choose the style.
-    YAML_ANY_SCALAR_STYLE = 0,
+    YamlAnyScalarStyle = 0,
     /// The plain scalar style.
-    YAML_PLAIN_SCALAR_STYLE = 1,
+    YamlPlainScalarStyle = 1,
     /// The single-quoted scalar style.
-    YAML_SINGLE_QUOTED_SCALAR_STYLE = 2,
+    YamlSingleQuotedScalarStyle = 2,
     /// The double-quoted scalar style.
-    YAML_DOUBLE_QUOTED_SCALAR_STYLE = 3,
+    YamlDoubleQuotedScalarStyle = 3,
     /// The literal scalar style.
-    YAML_LITERAL_SCALAR_STYLE = 4,
+    YamlLiteralScalarStyle = 4,
     /// The folded scalar style.
-    YAML_FOLDED_SCALAR_STYLE = 5,
+    YamlFoldedScalarStyle = 5,
 }
 
 /// Sequence styles.
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)]
 #[repr(u32)]
 #[non_exhaustive]
-pub enum yaml_sequence_style_t {
+pub enum YamlSequenceStyleT {
     /// Let the emitter choose the style.
-    YAML_ANY_SEQUENCE_STYLE = 0,
+    YamlAnySequenceStyle = 0,
     /// The block sequence style.
-    YAML_BLOCK_SEQUENCE_STYLE = 1,
+    YamlBlockSequenceStyle = 1,
     /// The flow sequence style.
-    YAML_FLOW_SEQUENCE_STYLE = 2,
+    YamlFlowSequenceStyle = 2,
 }
 
 /// Mapping styles.
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)]
 #[repr(u32)]
 #[non_exhaustive]
-pub enum yaml_mapping_style_t {
+pub enum YamlMappingStyleT {
     /// Let the emitter choose the style.
-    YAML_ANY_MAPPING_STYLE = 0,
+    YamlAnyMappingStyle = 0,
     /// The block mapping style.
-    YAML_BLOCK_MAPPING_STYLE = 1,
+    YamlBlockMappingStyle = 1,
     /// The flow mapping style.
-    YAML_FLOW_MAPPING_STYLE = 2,
+    YamlFlowMappingStyle = 2,
 }
 
 /// Token types.
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)]
 #[repr(u32)]
 #[non_exhaustive]
-pub enum yaml_token_type_t {
+pub enum YamlTokenTypeT {
     /// An empty token.
-    YAML_NO_TOKEN = 0,
-    /// A STREAM-START token.
-    YAML_STREAM_START_TOKEN = 1,
-    /// A STREAM-END token.
-    YAML_STREAM_END_TOKEN = 2,
-    /// A VERSION-DIRECTIVE token.
-    YAML_VERSION_DIRECTIVE_TOKEN = 3,
-    /// A TAG-DIRECTIVE token.
-    YAML_TAG_DIRECTIVE_TOKEN = 4,
-    /// A DOCUMENT-START token.
-    YAML_DOCUMENT_START_TOKEN = 5,
-    /// A DOCUMENT-END token.
-    YAML_DOCUMENT_END_TOKEN = 6,
-    /// A BLOCK-SEQUENCE-START token.
-    YAML_BLOCK_SEQUENCE_START_TOKEN = 7,
-    /// A BLOCK-MAPPING-START token.
-    YAML_BLOCK_MAPPING_START_TOKEN = 8,
-    /// A BLOCK-END token.
-    YAML_BLOCK_END_TOKEN = 9,
-    /// A FLOW-SEQUENCE-START token.
-    YAML_FLOW_SEQUENCE_START_TOKEN = 10,
-    /// A FLOW-SEQUENCE-END token.
-    YAML_FLOW_SEQUENCE_END_TOKEN = 11,
-    /// A FLOW-MAPPING-START token.
-    YAML_FLOW_MAPPING_START_TOKEN = 12,
-    /// A FLOW-MAPPING-END token.
-    YAML_FLOW_MAPPING_END_TOKEN = 13,
-    /// A BLOCK-ENTRY token.
-    YAML_BLOCK_ENTRY_TOKEN = 14,
-    /// A FLOW-ENTRY token.
-    YAML_FLOW_ENTRY_TOKEN = 15,
-    /// A KEY token.
-    YAML_KEY_TOKEN = 16,
-    /// A VALUE token.
-    YAML_VALUE_TOKEN = 17,
-    /// An ALIAS token.
-    YAML_ALIAS_TOKEN = 18,
-    /// An ANCHOR token.
-    YAML_ANCHOR_TOKEN = 19,
-    /// A TAG token.
-    YAML_TAG_TOKEN = 20,
-    /// A SCALAR token.
-    YAML_SCALAR_TOKEN = 21,
+    YamlNoToken = 0,
+    /// A stream-start token.
+    YamlStreamStartToken = 1,
+    /// A stream-end token.
+    YamlStreamEndToken = 2,
+    /// A version-directive token.
+    YamlVersionDirectiveToken = 3,
+    /// A tag-directive token.
+    YamlTagDirectiveToken = 4,
+    /// A document-start token.
+    YamlDocumentStartToken = 5,
+    /// A document-end token.
+    YamlDocumentEndToken = 6,
+    /// A block-sequence-start token.
+    YamlBlockSequenceStartToken = 7,
+    /// A block-mapping-start token.
+    YamlBlockMappingStartToken = 8,
+    /// A block-end token.
+    YamlBlockEndToken = 9,
+    /// A flow-sequence-start token.
+    YamlFlowSequenceStartToken = 10,
+    /// A flow-sequence-end token.
+    YamlFlowSequenceEndToken = 11,
+    /// A flow-mapping-start token.
+    YamlFlowMappingStartToken = 12,
+    /// A flow-mapping-end token.
+    YamlFlowMappingEndToken = 13,
+    /// A block-entry token.
+    YamlBlockEntryToken = 14,
+    /// A flow-entry token.
+    YamlFlowEntryToken = 15,
+    /// A key token.
+    YamlKeyToken = 16,
+    /// A value token.
+    YamlValueToken = 17,
+    /// An alias token.
+    YamlAliasToken = 18,
+    /// An anchor token.
+    YamlAnchorToken = 19,
+    /// A tag token.
+    YamlTagToken = 20,
+    /// A scalar token.
+    YamlScalarToken = 21,
 }
 
 /// The token structure.
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 #[repr(C)]
 #[non_exhaustive]
-pub struct yaml_token_t {
+pub struct YamlTokenT {
     /// The token type.
-    pub type_: yaml_token_type_t,
+    pub type_: YamlTokenTypeT,
     /// The token data.
     ///
     /// ```
     /// # const _: &str = stringify! {
     /// union {
-    ///     /// The stream start (for YAML_STREAM_START_TOKEN).
+    ///     /// The stream start (for YamlStreamStartToken).
     ///     stream_start: struct {
     ///         /// The stream encoding.
-    ///         encoding: yaml_encoding_t,
+    ///         encoding: YamlEncodingT,
     ///     },
-    ///     /// The alias (for YAML_ALIAS_TOKEN).
+    ///     /// The alias (for YamlAliasToken).
     ///     alias: struct {
     ///         /// The alias value.
     ///         value: *mut u8,
     ///     },
-    ///     /// The anchor (for YAML_ANCHOR_TOKEN).
+    ///     /// The anchor (for YamlAnchorToken).
     ///     anchor: struct {
     ///         /// The anchor value.
     ///         value: *mut u8,
     ///     },
-    ///     /// The tag (for YAML_TAG_TOKEN).
+    ///     /// The tag (for YamlTagToken).
     ///     tag: struct {
     ///         /// The tag handle.
     ///         handle: *mut u8,
     ///         /// The tag suffix.
     ///         suffix: *mut u8,
     ///     },
-    ///     /// The scalar value (for YAML_SCALAR_TOKEN).
+    ///     /// The scalar value (for YamlScalarToken).
     ///     scalar: struct {
     ///         /// The scalar value.
     ///         value: *mut u8,
     ///         /// The length of the scalar value.
     ///         length: u64,
     ///         /// The scalar style.
-    ///         style: yaml_scalar_style_t,
+    ///         style: YamlScalarStyleT,
     ///     },
-    ///     /// The version directive (for YAML_VERSION_DIRECTIVE_TOKEN).
+    ///     /// The version directive (for YamlVersionDirectiveToken).
     ///     version_directive: struct {
     ///         /// The major version number.
     ///         major: i32,
     ///         /// The minor version number.
     ///         minor: i32,
     ///     },
-    ///     /// The tag directive (for YAML_TAG_DIRECTIVE_TOKEN).
+    ///     /// The tag directive (for YamlTagDirectiveToken).
     ///     tag_directive: struct {
     ///         /// The tag handle.
     ///         handle: *mut u8,
@@ -249,92 +254,92 @@ pub struct yaml_token_t {
     /// }
     /// # };
     /// ```
-    pub data: unnamed_yaml_token_t_data,
+    pub data: UnnamedYamlTokenTData,
     /// The beginning of the token.
-    pub start_mark: yaml_mark_t,
+    pub start_mark: YamlMarkT,
     /// The end of the token.
-    pub end_mark: yaml_mark_t,
+    pub end_mark: YamlMarkT,
 }
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 #[repr(C)]
-pub union unnamed_yaml_token_t_data {
-    /// The stream start (for YAML_STREAM_START_TOKEN).
-    pub stream_start: unnamed_yaml_token_t_data_stream_start,
-    /// The alias (for YAML_ALIAS_TOKEN).
-    pub alias: unnamed_yaml_token_t_data_alias,
-    /// The anchor (for YAML_ANCHOR_TOKEN).
-    pub anchor: unnamed_yaml_token_t_data_anchor,
-    /// The tag (for YAML_TAG_TOKEN).
-    pub tag: unnamed_yaml_token_t_data_tag,
-    /// The scalar value (for YAML_SCALAR_TOKEN).
-    pub scalar: unnamed_yaml_token_t_data_scalar,
-    /// The version directive (for YAML_VERSION_DIRECTIVE_TOKEN).
-    pub version_directive: unnamed_yaml_token_t_data_version_directive,
-    /// The tag directive (for YAML_TAG_DIRECTIVE_TOKEN).
-    pub tag_directive: unnamed_yaml_token_t_data_tag_directive,
+pub struct UnnamedYamlTokenTData {
+    /// The stream start (for YamlStreamStartToken).
+    pub stream_start: UnnamedYamlTokenTdataStreamStart,
+    /// The alias (for YamlAliasToken).
+    pub alias: UnnamedYamlTokenTdataAlias,
+    /// The anchor (for YamlAnchorToken).
+    pub anchor: UnnamedYamlTokenTdataAnchor,
+    /// The tag (for YamlTagToken).
+    pub tag: UnnamedYamlTokenTdataTag,
+    /// The scalar value (for YamlScalarToken).
+    pub scalar: UnnamedYamlTokenTdataScalar,
+    /// The version directive (for YamlVersionDirectiveToken).
+    pub version_directive: UnnamedYamlTokenTdataVersionDirective,
+    /// The tag directive (for YamlTagDirectiveToken).
+    pub tag_directive: UnnamedYamlTokenTdataTagDirective,
 }
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 #[repr(C)]
 #[non_exhaustive]
-pub struct unnamed_yaml_token_t_data_stream_start {
+pub struct UnnamedYamlTokenTdataStreamStart {
     /// The stream encoding.
-    pub encoding: yaml_encoding_t,
+    pub encoding: YamlEncodingT,
 }
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 #[repr(C)]
 #[non_exhaustive]
-pub struct unnamed_yaml_token_t_data_alias {
+pub struct UnnamedYamlTokenTdataAlias {
     /// The alias value.
     pub value: *mut yaml_char_t,
 }
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 #[repr(C)]
 #[non_exhaustive]
-pub struct unnamed_yaml_token_t_data_anchor {
+pub struct UnnamedYamlTokenTdataAnchor {
     /// The anchor value.
     pub value: *mut yaml_char_t,
 }
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 #[repr(C)]
 #[non_exhaustive]
-pub struct unnamed_yaml_token_t_data_tag {
+pub struct UnnamedYamlTokenTdataTag {
     /// The tag handle.
     pub handle: *mut yaml_char_t,
     /// The tag suffix.
     pub suffix: *mut yaml_char_t,
 }
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 #[repr(C)]
 #[non_exhaustive]
-pub struct unnamed_yaml_token_t_data_scalar {
+pub struct UnnamedYamlTokenTdataScalar {
     /// The scalar value.
     pub value: *mut yaml_char_t,
     /// The length of the scalar value.
     pub length: size_t,
     /// The scalar style.
-    pub style: yaml_scalar_style_t,
+    pub style: YamlScalarStyleT,
 }
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 #[repr(C)]
 #[non_exhaustive]
-pub struct unnamed_yaml_token_t_data_version_directive {
+pub struct UnnamedYamlTokenTdataVersionDirective {
     /// The major version number.
     pub major: libc::c_int,
     /// The minor version number.
     pub minor: libc::c_int,
 }
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 #[repr(C)]
 #[non_exhaustive]
-pub struct unnamed_yaml_token_t_data_tag_directive {
+pub struct UnnamedYamlTokenTdataTagDirective {
     /// The tag handle.
     pub handle: *mut yaml_char_t,
     /// The tag prefix.
@@ -345,73 +350,73 @@ pub struct unnamed_yaml_token_t_data_tag_directive {
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)]
 #[repr(u32)]
 #[non_exhaustive]
-pub enum yaml_event_type_t {
+pub enum YamlEventTypeT {
     /// An empty event.
-    YAML_NO_EVENT = 0,
-    /// A STREAM-START event.
-    YAML_STREAM_START_EVENT = 1,
-    /// A STREAM-END event.
-    YAML_STREAM_END_EVENT = 2,
-    /// A DOCUMENT-START event.
-    YAML_DOCUMENT_START_EVENT = 3,
-    /// A DOCUMENT-END event.
-    YAML_DOCUMENT_END_EVENT = 4,
-    /// An ALIAS event.
-    YAML_ALIAS_EVENT = 5,
-    /// A SCALAR event.
-    YAML_SCALAR_EVENT = 6,
-    /// A SEQUENCE-START event.
-    YAML_SEQUENCE_START_EVENT = 7,
-    /// A SEQUENCE-END event.
-    YAML_SEQUENCE_END_EVENT = 8,
-    /// A MAPPING-START event.
-    YAML_MAPPING_START_EVENT = 9,
-    /// A MAPPING-END event.
-    YAML_MAPPING_END_EVENT = 10,
+    YamlNoEvent = 0,
+    /// A stream-start event.
+    YamlStreamStartEvent = 1,
+    /// A stream-end event.
+    YamlStreamEndEvent = 2,
+    /// A document-start event.
+    YamlDocumentStartEvent = 3,
+    /// A document-end event.
+    YamlDocumentEndEvent = 4,
+    /// An alias event.
+    YamlAliasEvent = 5,
+    /// A scalar event.
+    YamlScalarEvent = 6,
+    /// A sequence-start event.
+    YamlSequenceStartEvent = 7,
+    /// A sequence-end event.
+    YamlSequenceEndEvent = 8,
+    /// A mapping-start event.
+    YamlMappingStartEvent = 9,
+    /// A mapping-end event.
+    YamlMappingEndEvent = 10,
 }
 
 /// The event structure.
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 #[repr(C)]
 #[non_exhaustive]
-pub struct yaml_event_t {
+pub struct YamlEventT {
     /// The event type.
-    pub type_: yaml_event_type_t,
+    pub type_: YamlEventTypeT,
     /// The event data.
     ///
     /// ```
     /// # const _: &str = stringify! {
     /// union {
-    ///     /// The stream parameters (for YAML_STREAM_START_EVENT).
+    ///     /// The stream parameters (for YamlStreamStartEvent).
     ///     stream_start: struct {
     ///         /// The document encoding.
-    ///         encoding: yaml_encoding_t,
+    ///         encoding: YamlEncodingT,
     ///     },
-    ///     /// The document parameters (for YAML_DOCUMENT_START_EVENT).
+    ///     /// The document parameters (for YamlDocumentStartEvent).
     ///     document_start: struct {
     ///         /// The version directive.
-    ///         version_directive: *mut yaml_version_directive_t,
+    ///         version_directive: *mut YamlVersionDirectiveT,
     ///         /// The list of tag directives.
     ///         tag_directives: struct {
     ///             /// The beginning of the tag directives list.
-    ///             start: *mut yaml_tag_directive_t,
+    ///             start: *mut YamlTagDirectiveT,
     ///             /// The end of the tag directives list.
-    ///             end: *mut yaml_tag_directive_t,
+    ///             end: *mut YamlTagDirectiveT,
     ///         },
     ///         /// Is the document indicator implicit?
     ///         implicit: i32,
     ///     },
-    ///     /// The document end parameters (for YAML_DOCUMENT_END_EVENT).
+    ///     /// The document end parameters (for YamlDocumentEndEvent).
     ///     document_end: struct {
     ///         /// Is the document end indicator implicit?
     ///         implicit: i32,
     ///     },
-    ///     /// The alias parameters (for YAML_ALIAS_EVENT).
+    ///     /// The alias parameters (for YamlAliasEvent).
     ///     alias: struct {
     ///         /// The anchor.
     ///         anchor: *mut u8,
     ///     },
-    ///     /// The scalar parameters (for YAML_SCALAR_EVENT).
+    ///     /// The scalar parameters (for YamlScalarEvent).
     ///     scalar: struct {
     ///         /// The anchor.
     ///         anchor: *mut u8,
@@ -426,9 +431,9 @@ pub struct yaml_event_t {
     ///         /// Is the tag optional for any non-plain style?
     ///         quoted_implicit: i32,
     ///         /// The scalar style.
-    ///         style: yaml_scalar_style_t,
+    ///         style: YamlScalarStyleT,
     ///     },
-    ///     /// The sequence parameters (for YAML_SEQUENCE_START_EVENT).
+    ///     /// The sequence parameters (for YamlSequenceStartEvent).
     ///     sequence_start: struct {
     ///         /// The anchor.
     ///         anchor: *mut u8,
@@ -437,9 +442,9 @@ pub struct yaml_event_t {
     ///         /// Is the tag optional?
     ///         implicit: i32,
     ///         /// The sequence style.
-    ///         style: yaml_sequence_style_t,
+    ///         style: YamlSequenceStyleT,
     ///     },
-    ///     /// The mapping parameters (for YAML_MAPPING_START_EVENT).
+    ///     /// The mapping parameters (for YamlMappingStartEvent).
     ///     mapping_start: struct {
     ///         /// The anchor.
     ///         anchor: *mut u8,
@@ -448,87 +453,87 @@ pub struct yaml_event_t {
     ///         /// Is the tag optional?
     ///         implicit: i32,
     ///         /// The mapping style.
-    ///         style: yaml_mapping_style_t,
+    ///         style: YamlMappingStyleT,
     ///     },
     /// }
     /// # };
     /// ```
-    pub data: unnamed_yaml_event_t_data,
+    pub data: UnnamedYamlEventTData,
     /// The beginning of the event.
-    pub start_mark: yaml_mark_t,
+    pub start_mark: YamlMarkT,
     /// The end of the event.
-    pub end_mark: yaml_mark_t,
+    pub end_mark: YamlMarkT,
 }
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 #[repr(C)]
-pub union unnamed_yaml_event_t_data {
-    /// The stream parameters (for YAML_STREAM_START_EVENT).
-    pub stream_start: unnamed_yaml_event_t_data_stream_start,
-    /// The document parameters (for YAML_DOCUMENT_START_EVENT).
-    pub document_start: unnamed_yaml_event_t_data_document_start,
-    /// The document end parameters (for YAML_DOCUMENT_END_EVENT).
-    pub document_end: unnamed_yaml_event_t_data_document_end,
-    /// The alias parameters (for YAML_ALIAS_EVENT).
-    pub alias: unnamed_yaml_event_t_data_alias,
-    /// The scalar parameters (for YAML_SCALAR_EVENT).
-    pub scalar: unnamed_yaml_event_t_data_scalar,
-    /// The sequence parameters (for YAML_SEQUENCE_START_EVENT).
-    pub sequence_start: unnamed_yaml_event_t_data_sequence_start,
-    /// The mapping parameters (for YAML_MAPPING_START_EVENT).
-    pub mapping_start: unnamed_yaml_event_t_data_mapping_start,
+pub struct UnnamedYamlEventTData {
+    /// The stream parameters (for YamlStreamStartEvent).
+    pub stream_start: UnnamedYamlEventTdataStreamStart,
+    /// The document parameters (for YamlDocumentStartEvent).
+    pub document_start: UnnamedYamlEventTdataDocumentStart,
+    /// The document end parameters (for YamlDocumentEndEvent).
+    pub document_end: UnnamedYamlEventTdataDocumentEnd,
+    /// The alias parameters (for YamlAliasEvent).
+    pub alias: UnnamedYamlEventTdataAlias,
+    /// The scalar parameters (for YamlScalarEvent).
+    pub scalar: UnnamedYamlEventTdataScalar,
+    /// The sequence parameters (for YamlSequenceStartEvent).
+    pub sequence_start: UnnamedYamlEventTdataSequenceStart,
+    /// The mapping parameters (for YamlMappingStartEvent).
+    pub mapping_start: UnnamedYamlEventTdataMappingStart,
 }
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 #[repr(C)]
 #[non_exhaustive]
-pub struct unnamed_yaml_event_t_data_stream_start {
+pub struct UnnamedYamlEventTdataStreamStart {
     /// The document encoding.
-    pub encoding: yaml_encoding_t,
+    pub encoding: YamlEncodingT,
 }
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 #[repr(C)]
 #[non_exhaustive]
-pub struct unnamed_yaml_event_t_data_document_start {
+pub struct UnnamedYamlEventTdataDocumentStart {
     /// The version directive.
-    pub version_directive: *mut yaml_version_directive_t,
+    pub version_directive: *mut YamlVersionDirectiveT,
     /// The list of tag directives.
-    pub tag_directives: unnamed_yaml_event_t_data_document_start_tag_directives,
+    pub tag_directives: UnnamedYamlEventTdataDocumentStartTagDirectives,
     /// Is the document indicator implicit?
     pub implicit: bool,
 }
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 #[repr(C)]
 #[non_exhaustive]
-pub struct unnamed_yaml_event_t_data_document_start_tag_directives {
+pub struct UnnamedYamlEventTdataDocumentStartTagDirectives {
     /// The beginning of the tag directives list.
-    pub start: *mut yaml_tag_directive_t,
+    pub start: *mut YamlTagDirectiveT,
     /// The end of the tag directives list.
-    pub end: *mut yaml_tag_directive_t,
+    pub end: *mut YamlTagDirectiveT,
 }
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 #[repr(C)]
 #[non_exhaustive]
-pub struct unnamed_yaml_event_t_data_document_end {
+pub struct UnnamedYamlEventTdataDocumentEnd {
     /// Is the document end indicator implicit?
     pub implicit: bool,
 }
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 #[repr(C)]
 #[non_exhaustive]
-pub struct unnamed_yaml_event_t_data_alias {
+pub struct UnnamedYamlEventTdataAlias {
     /// The anchor.
     pub anchor: *mut yaml_char_t,
 }
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 #[repr(C)]
 #[non_exhaustive]
-pub struct unnamed_yaml_event_t_data_scalar {
+pub struct UnnamedYamlEventTdataScalar {
     /// The anchor.
     pub anchor: *mut yaml_char_t,
     /// The tag.
@@ -542,13 +547,13 @@ pub struct unnamed_yaml_event_t_data_scalar {
     /// Is the tag optional for any non-plain style?
     pub quoted_implicit: bool,
     /// The scalar style.
-    pub style: yaml_scalar_style_t,
+    pub style: YamlScalarStyleT,
 }
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 #[repr(C)]
 #[non_exhaustive]
-pub struct unnamed_yaml_event_t_data_sequence_start {
+pub struct UnnamedYamlEventTdataSequenceStart {
     /// The anchor.
     pub anchor: *mut yaml_char_t,
     /// The tag.
@@ -556,13 +561,13 @@ pub struct unnamed_yaml_event_t_data_sequence_start {
     /// Is the tag optional?
     pub implicit: bool,
     /// The sequence style.
-    pub style: yaml_sequence_style_t,
+    pub style: YamlSequenceStyleT,
 }
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 #[repr(C)]
 #[non_exhaustive]
-pub struct unnamed_yaml_event_t_data_mapping_start {
+pub struct UnnamedYamlEventTdataMappingStart {
     /// The anchor.
     pub anchor: *mut yaml_char_t,
     /// The tag.
@@ -570,31 +575,31 @@ pub struct unnamed_yaml_event_t_data_mapping_start {
     /// Is the tag optional?
     pub implicit: bool,
     /// The mapping style.
-    pub style: yaml_mapping_style_t,
+    pub style: YamlMappingStyleT,
 }
 
 /// Node types.
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)]
 #[repr(u32)]
 #[non_exhaustive]
-pub enum yaml_node_type_t {
+pub enum YamlNodeTypeT {
     /// An empty node.
-    YAML_NO_NODE = 0,
+    YamlNoNode = 0,
     /// A scalar node.
-    YAML_SCALAR_NODE = 1,
+    YamlScalarNode = 1,
     /// A sequence node.
-    YAML_SEQUENCE_NODE = 2,
+    YamlSequenceNode = 2,
     /// A mapping node.
-    YAML_MAPPING_NODE = 3,
+    YamlMappingNode = 3,
 }
 
 /// The node structure.
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 #[repr(C)]
 #[non_exhaustive]
-pub struct yaml_node_t {
+pub struct YamlNodeT {
     /// The node type.
-    pub type_: yaml_node_type_t,
+    pub type_: YamlNodeTypeT,
     /// The node tag.
     pub tag: *mut yaml_char_t,
     /// The node data.
@@ -602,90 +607,90 @@ pub struct yaml_node_t {
     /// ```
     /// # const _: &str = stringify! {
     /// union {
-    ///     /// The scalar parameters (for YAML_SCALAR_NODE).
+    ///     /// The scalar parameters (for YamlScalarNode).
     ///     scalar: struct {
     ///         /// The scalar value.
     ///         value: *mut u8,
     ///         /// The length of the scalar value.
     ///         length: u64,
     ///         /// The scalar style.
-    ///         style: yaml_scalar_style_t,
+    ///         style: YamlScalarStyleT,
     ///     },
-    ///     /// The sequence parameters (for YAML_SEQUENCE_NODE).
+    ///     /// The sequence parameters (for YamlSequenceNode).
     ///     sequence: struct {
     ///         /// The stack of sequence items.
-    ///         items: yaml_stack_t<yaml_node_item_t>,
+    ///         items: YamlStackT<YamlNodeItemT>,
     ///         /// The sequence style.
-    ///         style: yaml_sequence_style_t,
+    ///         style: YamlSequenceStyleT,
     ///     },
-    ///     /// The mapping parameters (for YAML_MAPPING_NODE).
+    ///     /// The mapping parameters (for YamlMappingNode).
     ///     mapping: struct {
     ///         /// The stack of mapping pairs (key, value).
-    ///         pairs: yaml_stack_t<yaml_node_pair_t>,
+    ///         pairs: YamlStackT<YamlNodePairT>,
     ///         /// The mapping style.
-    ///         style: yaml_mapping_style_t,
+    ///         style: YamlMappingStyleT,
     ///     },
     /// }
     /// # };
     /// ```
-    pub data: unnamed_yaml_node_t_data,
+    pub data: UnnamedYamlNodeTData,
     /// The beginning of the node.
-    pub start_mark: yaml_mark_t,
+    pub start_mark: YamlMarkT,
     /// The end of the node.
-    pub end_mark: yaml_mark_t,
+    pub end_mark: YamlMarkT,
 }
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 #[repr(C)]
-pub union unnamed_yaml_node_t_data {
-    /// The scalar parameters (for YAML_SCALAR_NODE).
-    pub scalar: unnamed_yaml_node_t_data_scalar,
-    /// The sequence parameters (for YAML_SEQUENCE_NODE).
-    pub sequence: unnamed_yaml_node_t_data_sequence,
-    /// The mapping parameters (for YAML_MAPPING_NODE).
-    pub mapping: unnamed_yaml_node_t_data_mapping,
+pub struct UnnamedYamlNodeTData {
+    /// The scalar parameters (for YamlScalarNode).
+    pub scalar: UnnamedYamlNodeTDataScalar,
+    /// The sequence parameters (for YamlSequenceNode).
+    pub sequence: UnnamedYamlNodeTDataSequence,
+    /// The mapping parameters (for YamlMappingNode).
+    pub mapping: UnnamedYamlNodeTDataMapping,
 }
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 #[repr(C)]
 #[non_exhaustive]
-pub struct unnamed_yaml_node_t_data_scalar {
+pub struct UnnamedYamlNodeTDataScalar {
     /// The scalar value.
     pub value: *mut yaml_char_t,
     /// The length of the scalar value.
     pub length: size_t,
     /// The scalar style.
-    pub style: yaml_scalar_style_t,
+    pub style: YamlScalarStyleT,
 }
 
 /// An element of a sequence node.
-pub type yaml_node_item_t = libc::c_int;
+pub type YamlNodeItemT = libc::c_int;
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 #[repr(C)]
 #[non_exhaustive]
-pub struct unnamed_yaml_node_t_data_sequence {
+pub struct UnnamedYamlNodeTDataSequence {
     /// The stack of sequence items.
-    pub items: yaml_stack_t<yaml_node_item_t>,
+    pub items: YamlStackT<YamlNodeItemT>,
     /// The sequence style.
-    pub style: yaml_sequence_style_t,
+    pub style: YamlSequenceStyleT,
 }
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 #[repr(C)]
 #[non_exhaustive]
-pub struct unnamed_yaml_node_t_data_mapping {
+pub struct UnnamedYamlNodeTDataMapping {
     /// The stack of mapping pairs (key, value).
-    pub pairs: yaml_stack_t<yaml_node_pair_t>,
+    pub pairs: YamlStackT<YamlNodePairT>,
     /// The mapping style.
-    pub style: yaml_mapping_style_t,
+    pub style: YamlMappingStyleT,
 }
 
 /// An element of a mapping node.
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 #[repr(C)]
 #[non_exhaustive]
-pub struct yaml_node_pair_t {
+pub struct YamlNodePairT {
     /// The key of the element.
     pub key: libc::c_int,
     /// The value of the element.
@@ -693,45 +698,45 @@ pub struct yaml_node_pair_t {
 }
 
 /// The document structure.
-#[derive(Copy, Clone)]
+#[derive(Clone, Debug)]
 #[repr(C)]
 #[non_exhaustive]
-pub struct yaml_document_t {
+pub struct YamlDocumentT {
     /// The document nodes.
-    pub nodes: yaml_stack_t<yaml_node_t>,
+    pub nodes: YamlStackT<YamlNodeT>,
     /// The version directive.
-    pub version_directive: *mut yaml_version_directive_t,
+    pub version_directive: *mut YamlVersionDirectiveT,
     /// The list of tag directives.
     ///
     /// ```
     /// # const _: &str = stringify! {
     /// struct {
     ///     /// The beginning of the tag directives list.
-    ///     start: *mut yaml_tag_directive_t,
+    ///     start: *mut YamlTagDirectiveT,
     ///     /// The end of the tag directives list.
-    ///     end: *mut yaml_tag_directive_t,
+    ///     end: *mut YamlTagDirectiveT,
     /// }
     /// # };
     /// ```
-    pub tag_directives: unnamed_yaml_document_t_tag_directives,
+    pub tag_directives: UnnamedYamlDocumentTTagDirectives,
     /// Is the document start indicator implicit?
     pub start_implicit: bool,
     /// Is the document end indicator implicit?
     pub end_implicit: bool,
     /// The beginning of the document.
-    pub start_mark: yaml_mark_t,
+    pub start_mark: YamlMarkT,
     /// The end of the document.
-    pub end_mark: yaml_mark_t,
+    pub end_mark: YamlMarkT,
 }
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 #[repr(C)]
 #[non_exhaustive]
-pub struct unnamed_yaml_document_t_tag_directives {
+pub struct UnnamedYamlDocumentTTagDirectives {
     /// The beginning of the tag directives list.
-    pub start: *mut yaml_tag_directive_t,
+    pub start: *mut YamlTagDirectiveT,
     /// The end of the tag directives list.
-    pub end: *mut yaml_tag_directive_t,
+    pub end: *mut YamlTagDirectiveT,
 }
 
 /// The prototype of a read handler.
@@ -743,7 +748,7 @@ pub struct unnamed_yaml_document_t_tag_directives {
 /// On success, the handler should return 1. If the handler failed, the returned
 /// value should be 0. On EOF, the handler should set the `size_read` to 0 and
 /// return 1.
-pub type yaml_read_handler_t = unsafe fn(
+pub type YamlReadHandlerT = unsafe fn(
     data: *mut libc::c_void,
     buffer: *mut libc::c_uchar,
     size: size_t,
@@ -751,10 +756,10 @@ pub type yaml_read_handler_t = unsafe fn(
 ) -> libc::c_int;
 
 /// This structure holds information about a potential simple key.
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 #[repr(C)]
 #[non_exhaustive]
-pub struct yaml_simple_key_t {
+pub struct YamlSimpleKeyT {
     /// Is a simple key possible?
     pub possible: bool,
     /// Is a simple key required?
@@ -762,90 +767,90 @@ pub struct yaml_simple_key_t {
     /// The number of the token.
     pub token_number: size_t,
     /// The position mark.
-    pub mark: yaml_mark_t,
+    pub mark: YamlMarkT,
 }
 
 /// The states of the parser.
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)]
 #[repr(u32)]
 #[non_exhaustive]
-pub enum yaml_parser_state_t {
-    /// Expect STREAM-START.
-    YAML_PARSE_STREAM_START_STATE = 0,
+pub enum YamlParserStateT {
+    /// Expect stream-start.
+    YamlParseStreamStartState = 0,
     /// Expect the beginning of an implicit document.
-    YAML_PARSE_IMPLICIT_DOCUMENT_START_STATE = 1,
-    /// Expect DOCUMENT-START.
-    YAML_PARSE_DOCUMENT_START_STATE = 2,
+    YamlParseImplicitDocumentStartState = 1,
+    /// Expect document-start.
+    YamlParseDocumentStartState = 2,
     /// Expect the content of a document.
-    YAML_PARSE_DOCUMENT_CONTENT_STATE = 3,
-    /// Expect DOCUMENT-END.
-    YAML_PARSE_DOCUMENT_END_STATE = 4,
+    YamlParseDocumentContentState = 3,
+    /// Expect document-end.
+    YamlParseDocumentEndState = 4,
     /// Expect a block node.
-    YAML_PARSE_BLOCK_NODE_STATE = 5,
+    YamlParseBlockNodeState = 5,
     /// Expect a block node or indentless sequence.
-    YAML_PARSE_BLOCK_NODE_OR_INDENTLESS_SEQUENCE_STATE = 6,
+    YamlParseBlockNodeOrIndentlessSequenceState = 6,
     /// Expect a flow node.
-    YAML_PARSE_FLOW_NODE_STATE = 7,
+    YamlParseFlowNodeState = 7,
     /// Expect the first entry of a block sequence.
-    YAML_PARSE_BLOCK_SEQUENCE_FIRST_ENTRY_STATE = 8,
+    YamlParseBlockSequenceFirstEntryState = 8,
     /// Expect an entry of a block sequence.
-    YAML_PARSE_BLOCK_SEQUENCE_ENTRY_STATE = 9,
+    YamlParseBlockSequenceEntryState = 9,
     /// Expect an entry of an indentless sequence.
-    YAML_PARSE_INDENTLESS_SEQUENCE_ENTRY_STATE = 10,
+    YamlParseIndentlessSequenceEntryState = 10,
     /// Expect the first key of a block mapping.
-    YAML_PARSE_BLOCK_MAPPING_FIRST_KEY_STATE = 11,
+    YamlParseBlockMappingFirstKeyState = 11,
     /// Expect a block mapping key.
-    YAML_PARSE_BLOCK_MAPPING_KEY_STATE = 12,
+    YamlParseBlockMappingKeyState = 12,
     /// Expect a block mapping value.
-    YAML_PARSE_BLOCK_MAPPING_VALUE_STATE = 13,
+    YamlParseBlockMappingValueState = 13,
     /// Expect the first entry of a flow sequence.
-    YAML_PARSE_FLOW_SEQUENCE_FIRST_ENTRY_STATE = 14,
+    YamlParseFlowSequenceFirstEntryState = 14,
     /// Expect an entry of a flow sequence.
-    YAML_PARSE_FLOW_SEQUENCE_ENTRY_STATE = 15,
+    YamlParseFlowSequenceEntryState = 15,
     /// Expect a key of an ordered mapping.
-    YAML_PARSE_FLOW_SEQUENCE_ENTRY_MAPPING_KEY_STATE = 16,
+    YamlParseFlowSequenceEntryMappingKeyState = 16,
     /// Expect a value of an ordered mapping.
-    YAML_PARSE_FLOW_SEQUENCE_ENTRY_MAPPING_VALUE_STATE = 17,
+    YamlParseFlowSequenceEntryMappingValueState = 17,
     /// Expect the and of an ordered mapping entry.
-    YAML_PARSE_FLOW_SEQUENCE_ENTRY_MAPPING_END_STATE = 18,
+    YamlParseFlowSequenceEntryMappingEndState = 18,
     /// Expect the first key of a flow mapping.
-    YAML_PARSE_FLOW_MAPPING_FIRST_KEY_STATE = 19,
+    YamlParseFlowMappingFirstKeyState = 19,
     /// Expect a key of a flow mapping.
-    YAML_PARSE_FLOW_MAPPING_KEY_STATE = 20,
+    YamlParseFlowMappingKeyState = 20,
     /// Expect a value of a flow mapping.
-    YAML_PARSE_FLOW_MAPPING_VALUE_STATE = 21,
+    YamlParseFlowMappingValueState = 21,
     /// Expect an empty value of a flow mapping.
-    YAML_PARSE_FLOW_MAPPING_EMPTY_VALUE_STATE = 22,
+    YamlParseFlowMappingEmptyValueState = 22,
     /// Expect nothing.
-    YAML_PARSE_END_STATE = 23,
+    YamlParseEndState = 23,
 }
 
 /// This structure holds aliases data.
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 #[repr(C)]
 #[non_exhaustive]
-pub struct yaml_alias_data_t {
+pub struct YamlAliasDataT {
     /// The anchor.
     pub anchor: *mut yaml_char_t,
     /// The node id.
     pub index: libc::c_int,
     /// The anchor mark.
-    pub mark: yaml_mark_t,
+    pub mark: YamlMarkT,
 }
 
 /// The parser structure.
 ///
 /// All members are internal. Manage the structure using the `yaml_parser_`
 /// family of functions.
-#[derive(Copy, Clone)]
+#[derive(Clone, Debug)]
 #[repr(C)]
 #[non_exhaustive]
-pub struct yaml_parser_t {
+pub struct YamlParserT {
     /// Error type.
     #[cfg(doc)]
-    pub error: yaml_error_type_t,
+    pub error: YamlErrorTypeT,
     #[cfg(not(doc))]
-    pub(crate) error: yaml_error_type_t,
+    pub(crate) error: YamlErrorTypeT,
     /// Error description.
     #[cfg(doc)]
     pub problem: *const libc::c_char,
@@ -863,9 +868,9 @@ pub struct yaml_parser_t {
     pub(crate) problem_value: libc::c_int,
     /// The problem position.
     #[cfg(doc)]
-    pub problem_mark: yaml_mark_t,
+    pub problem_mark: YamlMarkT,
     #[cfg(not(doc))]
-    pub(crate) problem_mark: yaml_mark_t,
+    pub(crate) problem_mark: YamlMarkT,
     /// The error context.
     #[cfg(doc)]
     pub context: *const libc::c_char,
@@ -873,29 +878,29 @@ pub struct yaml_parser_t {
     pub(crate) context: *const libc::c_char,
     /// The context position.
     #[cfg(doc)]
-    pub context_mark: yaml_mark_t,
+    pub context_mark: YamlMarkT,
     #[cfg(not(doc))]
-    pub(crate) context_mark: yaml_mark_t,
+    pub(crate) context_mark: YamlMarkT,
     /// Read handler.
-    pub(crate) read_handler: Option<yaml_read_handler_t>,
+    pub(crate) read_handler: Option<YamlReadHandlerT>,
     /// A pointer for passing to the read handler.
     pub(crate) read_handler_data: *mut libc::c_void,
     /// Standard (string or file) input data.
-    pub(crate) input: unnamed_yaml_parser_t_input,
+    pub(crate) input: UnnamedYamlParserTInput,
     /// EOF flag
     pub(crate) eof: bool,
     /// The working buffer.
-    pub(crate) buffer: yaml_buffer_t<yaml_char_t>,
+    pub(crate) buffer: YamlBufferT<yaml_char_t>,
     /// The number of unread characters in the buffer.
     pub(crate) unread: size_t,
     /// The raw buffer.
-    pub(crate) raw_buffer: yaml_buffer_t<libc::c_uchar>,
+    pub(crate) raw_buffer: YamlBufferT<libc::c_uchar>,
     /// The input encoding.
-    pub(crate) encoding: yaml_encoding_t,
+    pub(crate) encoding: YamlEncodingT,
     /// The offset of the current position (in bytes).
     pub(crate) offset: size_t,
     /// The mark of the current position.
-    pub(crate) mark: yaml_mark_t,
+    pub(crate) mark: YamlMarkT,
     /// Have we started to scan the input stream?
     pub(crate) stream_start_produced: bool,
     /// Have we reached the end of the input stream?
@@ -903,40 +908,41 @@ pub struct yaml_parser_t {
     /// The number of unclosed '[' and '{' indicators.
     pub(crate) flow_level: libc::c_int,
     /// The tokens queue.
-    pub(crate) tokens: yaml_queue_t<yaml_token_t>,
+    pub(crate) tokens: YamlQueueT<YamlTokenT>,
     /// The number of tokens fetched from the queue.
     pub(crate) tokens_parsed: size_t,
     /// Does the tokens queue contain a token ready for dequeueing.
     pub(crate) token_available: bool,
     /// The indentation levels stack.
-    pub(crate) indents: yaml_stack_t<libc::c_int>,
+    pub(crate) indents: YamlStackT<libc::c_int>,
     /// The current indentation level.
     pub(crate) indent: libc::c_int,
     /// May a simple key occur at the current position?
     pub(crate) simple_key_allowed: bool,
     /// The stack of simple keys.
-    pub(crate) simple_keys: yaml_stack_t<yaml_simple_key_t>,
+    pub(crate) simple_keys: YamlStackT<YamlSimpleKeyT>,
     /// At least this many leading elements of simple_keys have possible=0.
     pub(crate) not_simple_keys: libc::c_int,
     /// The parser states stack.
-    pub(crate) states: yaml_stack_t<yaml_parser_state_t>,
+    pub(crate) states: YamlStackT<YamlParserStateT>,
     /// The current parser state.
-    pub(crate) state: yaml_parser_state_t,
+    pub(crate) state: YamlParserStateT,
     /// The stack of marks.
-    pub(crate) marks: yaml_stack_t<yaml_mark_t>,
+    pub(crate) marks: YamlStackT<YamlMarkT>,
     /// The list of TAG directives.
-    pub(crate) tag_directives: yaml_stack_t<yaml_tag_directive_t>,
+    pub(crate) tag_directives: YamlStackT<YamlTagDirectiveT>,
     /// The alias data.
-    pub(crate) aliases: yaml_stack_t<yaml_alias_data_t>,
+    pub(crate) aliases: YamlStackT<YamlAliasDataT>,
     /// The currently parsed document.
-    pub(crate) document: *mut yaml_document_t,
+    pub(crate) document: *mut YamlDocumentT,
 }
 
+#[derive(Copy, Clone, Debug)]
 #[repr(C)]
 #[non_exhaustive]
-pub struct yaml_parser_t_prefix {
+pub struct YamlParserTPrefix {
     /// Error type.
-    pub error: yaml_error_type_t,
+    pub error: YamlErrorTypeT,
     /// Error description.
     pub problem: *const libc::c_char,
     /// The byte about which the problem occurred.
@@ -944,37 +950,37 @@ pub struct yaml_parser_t_prefix {
     /// The problematic value (-1 is none).
     pub problem_value: libc::c_int,
     /// The problem position.
-    pub problem_mark: yaml_mark_t,
+    pub problem_mark: YamlMarkT,
     /// The error context.
     pub context: *const libc::c_char,
     /// The context position.
-    pub context_mark: yaml_mark_t,
+    pub context_mark: YamlMarkT,
 }
 
 #[doc(hidden)]
-impl Deref for yaml_parser_t {
-    type Target = yaml_parser_t_prefix;
+impl Deref for YamlParserT {
+    type Target = YamlParserTPrefix;
     fn deref(&self) -> &Self::Target {
         unsafe { &*addr_of!(*self).cast() }
     }
 }
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 #[repr(C)]
-pub(crate) union unnamed_yaml_parser_t_input {
+pub(crate) struct UnnamedYamlParserTInput {
     /// String input data.
-    pub string: unnamed_yaml_parser_t_input_string,
+    pub(crate) string: UnnamedYamlParserTInputString,
 }
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 #[repr(C)]
-pub(crate) struct unnamed_yaml_parser_t_input_string {
+pub(crate) struct UnnamedYamlParserTInputString {
     /// The string start pointer.
-    pub start: *const libc::c_uchar,
+    pub(crate) start: *const libc::c_uchar,
     /// The string end pointer.
-    pub end: *const libc::c_uchar,
+    pub(crate) end: *const libc::c_uchar,
     /// The string current position.
-    pub current: *const libc::c_uchar,
+    pub(crate) current: *const libc::c_uchar,
 }
 
 /// The prototype of a write handler.
@@ -985,93 +991,93 @@ pub(crate) struct unnamed_yaml_parser_t_input_string {
 ///
 /// On success, the handler should return 1. If the handler failed, the returned
 /// value should be 0.
-pub type yaml_write_handler_t =
+pub type YamlWriteHandlerT =
     unsafe fn(data: *mut libc::c_void, buffer: *mut libc::c_uchar, size: size_t) -> libc::c_int;
 
 /// The emitter states.
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Debug)]
 #[repr(u32)]
 #[non_exhaustive]
-pub enum yaml_emitter_state_t {
-    /// Expect STREAM-START.
-    YAML_EMIT_STREAM_START_STATE = 0,
-    /// Expect the first DOCUMENT-START or STREAM-END.
-    YAML_EMIT_FIRST_DOCUMENT_START_STATE = 1,
-    /// Expect DOCUMENT-START or STREAM-END.
-    YAML_EMIT_DOCUMENT_START_STATE = 2,
+pub enum YamlEmitterStateT {
+    /// Expect stream-start.
+    YamlEmitStreamStartState = 0,
+    /// Expect the first document-start or stream-end.
+    YamlEmitFirstDocumentStartState = 1,
+    /// Expect document-start or stream-end.
+    YamlEmitDocumentStartState = 2,
     /// Expect the content of a document.
-    YAML_EMIT_DOCUMENT_CONTENT_STATE = 3,
-    /// Expect DOCUMENT-END.
-    YAML_EMIT_DOCUMENT_END_STATE = 4,
+    YamlEmitDocumentContentState = 3,
+    /// Expect document-end.
+    YamlEmitDocumentEndState = 4,
     /// Expect the first item of a flow sequence.
-    YAML_EMIT_FLOW_SEQUENCE_FIRST_ITEM_STATE = 5,
+    YamlEmitFlowSequenceFirstItemState = 5,
     /// Expect an item of a flow sequence.
-    YAML_EMIT_FLOW_SEQUENCE_ITEM_STATE = 6,
+    YamlEmitFlowSequenceItemState = 6,
     /// Expect the first key of a flow mapping.
-    YAML_EMIT_FLOW_MAPPING_FIRST_KEY_STATE = 7,
+    YamlEmitFlowMappingFirstKeyState = 7,
     /// Expect a key of a flow mapping.
-    YAML_EMIT_FLOW_MAPPING_KEY_STATE = 8,
+    YamlEmitFlowMappingKeyState = 8,
     /// Expect a value for a simple key of a flow mapping.
-    YAML_EMIT_FLOW_MAPPING_SIMPLE_VALUE_STATE = 9,
+    YamlEmitFlowMappingSimpleValueState = 9,
     /// Expect a value of a flow mapping.
-    YAML_EMIT_FLOW_MAPPING_VALUE_STATE = 10,
+    YamlEmitFlowMappingValueState = 10,
     /// Expect the first item of a block sequence.
-    YAML_EMIT_BLOCK_SEQUENCE_FIRST_ITEM_STATE = 11,
+    YamlEmitBlockSequenceFirstItemState = 11,
     /// Expect an item of a block sequence.
-    YAML_EMIT_BLOCK_SEQUENCE_ITEM_STATE = 12,
+    YamlEmitBlockSequenceItemState = 12,
     /// Expect the first key of a block mapping.
-    YAML_EMIT_BLOCK_MAPPING_FIRST_KEY_STATE = 13,
+    YamlEmitBlockMappingFirstKeyState = 13,
     /// Expect the key of a block mapping.
-    YAML_EMIT_BLOCK_MAPPING_KEY_STATE = 14,
+    YamlEmitBlockMappingKeyState = 14,
     /// Expect a value for a simple key of a block mapping.
-    YAML_EMIT_BLOCK_MAPPING_SIMPLE_VALUE_STATE = 15,
+    YamlEmitBlockMappingSimpleValueState = 15,
     /// Expect a value of a block mapping.
-    YAML_EMIT_BLOCK_MAPPING_VALUE_STATE = 16,
+    YamlEmitBlockMappingValueState = 16,
     /// Expect nothing.
-    YAML_EMIT_END_STATE = 17,
+    YamlEmitEndState = 17,
 }
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 #[repr(C)]
-pub(crate) struct yaml_anchors_t {
+pub(crate) struct YamlAnchorsT {
     /// The number of references.
-    pub references: libc::c_int,
+    pub(crate) references: libc::c_int,
     /// The anchor id.
-    pub anchor: libc::c_int,
+    pub(crate) anchor: libc::c_int,
     /// If the node has been emitted?
-    pub serialized: bool,
+    pub(crate) serialized: bool,
 }
 
 /// The emitter structure.
 ///
 /// All members are internal. Manage the structure using the `yaml_emitter_`
 /// family of functions.
-#[derive(Copy, Clone)]
+#[derive(Clone, Debug)]
 #[repr(C)]
 #[non_exhaustive]
-pub struct yaml_emitter_t {
+pub struct YamlEmitterT {
     /// Error type.
     #[cfg(doc)]
-    pub error: yaml_error_type_t,
+    pub error: YamlErrorTypeT,
     #[cfg(not(doc))]
-    pub(crate) error: yaml_error_type_t,
+    pub(crate) error: YamlErrorTypeT,
     /// Error description.
     #[cfg(doc)]
     pub problem: *const libc::c_char,
     #[cfg(not(doc))]
     pub(crate) problem: *const libc::c_char,
     /// Write handler.
-    pub(crate) write_handler: Option<yaml_write_handler_t>,
+    pub(crate) write_handler: Option<YamlWriteHandlerT>,
     /// A pointer for passing to the write handler.
     pub(crate) write_handler_data: *mut libc::c_void,
     /// Standard (string or file) output data.
-    pub(crate) output: unnamed_yaml_emitter_t_output,
+    pub(crate) output: UnnamedYamlEmitterTOutput,
     /// The working buffer.
-    pub(crate) buffer: yaml_buffer_t<yaml_char_t>,
+    pub(crate) buffer: YamlBufferT<yaml_char_t>,
     /// The raw buffer.
-    pub(crate) raw_buffer: yaml_buffer_t<libc::c_uchar>,
+    pub(crate) raw_buffer: YamlBufferT<libc::c_uchar>,
     /// The stream encoding.
-    pub(crate) encoding: yaml_encoding_t,
+    pub(crate) encoding: YamlEncodingT,
     /// If the output is in the canonical style?
     pub(crate) canonical: bool,
     /// The number of indentation spaces.
@@ -1081,17 +1087,17 @@ pub struct yaml_emitter_t {
     /// Allow unescaped non-ASCII characters?
     pub(crate) unicode: bool,
     /// The preferred line break.
-    pub(crate) line_break: yaml_break_t,
+    pub(crate) line_break: YamlBreakT,
     /// The stack of states.
-    pub(crate) states: yaml_stack_t<yaml_emitter_state_t>,
+    pub(crate) states: YamlStackT<YamlEmitterStateT>,
     /// The current emitter state.
-    pub(crate) state: yaml_emitter_state_t,
+    pub(crate) state: YamlEmitterStateT,
     /// The event queue.
-    pub(crate) events: yaml_queue_t<yaml_event_t>,
+    pub(crate) events: YamlQueueT<YamlEventT>,
     /// The stack of indentation levels.
-    pub(crate) indents: yaml_stack_t<libc::c_int>,
+    pub(crate) indents: YamlStackT<libc::c_int>,
     /// The list of tag directives.
-    pub(crate) tag_directives: yaml_stack_t<yaml_tag_directive_t>,
+    pub(crate) tag_directives: YamlStackT<YamlTagDirectiveT>,
     /// The current indentation level.
     pub(crate) indent: libc::c_int,
     /// The current flow level.
@@ -1115,138 +1121,158 @@ pub struct yaml_emitter_t {
     /// If an explicit document end is required?
     pub(crate) open_ended: libc::c_int,
     /// Anchor analysis.
-    pub(crate) anchor_data: unnamed_yaml_emitter_t_anchor_data,
+    pub(crate) anchor_data: UnnamedYamlEmitterTAnchorData,
     /// Tag analysis.
-    pub(crate) tag_data: unnamed_yaml_emitter_t_tag_data,
+    pub(crate) tag_data: UnnamedYamlEmitterTTagData,
     /// Scalar analysis.
-    pub(crate) scalar_data: unnamed_yaml_emitter_t_scalar_data,
+    pub(crate) scalar_data: UnnamedYamlEmitterTScalarData,
     /// If the stream was already opened?
     pub(crate) opened: bool,
     /// If the stream was already closed?
     pub(crate) closed: bool,
     /// The information associated with the document nodes.
-    pub(crate) anchors: *mut yaml_anchors_t,
+    pub(crate) anchors: *mut YamlAnchorsT,
     /// The last assigned anchor id.
     pub(crate) last_anchor_id: libc::c_int,
     /// The currently emitted document.
-    pub(crate) document: *mut yaml_document_t,
+    pub(crate) document: *mut YamlDocumentT,
 }
 
+#[derive(Copy, Clone, Debug)]
 #[repr(C)]
 #[non_exhaustive]
-pub struct yaml_emitter_t_prefix {
+pub struct YamlEmitterTPrefix {
     /// Error type.
-    pub error: yaml_error_type_t,
+    pub error: YamlErrorTypeT,
     /// Error description.
     pub problem: *const libc::c_char,
 }
 
 #[doc(hidden)]
-impl Deref for yaml_emitter_t {
-    type Target = yaml_emitter_t_prefix;
+impl Deref for YamlEmitterT {
+    type Target = YamlEmitterTPrefix;
     fn deref(&self) -> &Self::Target {
         unsafe { &*addr_of!(*self).cast() }
     }
 }
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 #[repr(C)]
-pub(crate) union unnamed_yaml_emitter_t_output {
+pub(crate) struct UnnamedYamlEmitterTOutput {
     /// String output data.
-    pub string: unnamed_yaml_emitter_t_output_string,
+    pub(crate) string: UnnamedYamlEmitterTOutputString,
 }
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 #[repr(C)]
-pub(crate) struct unnamed_yaml_emitter_t_output_string {
+pub(crate) struct UnnamedYamlEmitterTOutputString {
     /// The buffer pointer.
-    pub buffer: *mut libc::c_uchar,
+    pub(crate) buffer: *mut libc::c_uchar,
     /// The buffer size.
-    pub size: size_t,
+    pub(crate) size: size_t,
     /// The number of written bytes.
-    pub size_written: *mut size_t,
+    pub(crate) size_written: *mut size_t,
 }
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 #[repr(C)]
-pub(crate) struct unnamed_yaml_emitter_t_anchor_data {
+pub(crate) struct UnnamedYamlEmitterTAnchorData {
     /// The anchor value.
-    pub anchor: *mut yaml_char_t,
+    pub(crate) anchor: *mut yaml_char_t,
     /// The anchor length.
-    pub anchor_length: size_t,
+    pub(crate) anchor_length: size_t,
     /// Is it an alias?
-    pub alias: bool,
+    pub(crate) alias: bool,
 }
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash)]
 #[repr(C)]
-pub(crate) struct unnamed_yaml_emitter_t_tag_data {
+pub(crate) struct UnnamedYamlEmitterTTagData {
     /// The tag handle.
-    pub handle: *mut yaml_char_t,
+    pub(crate) handle: *mut yaml_char_t,
     /// The tag handle length.
-    pub handle_length: size_t,
+    pub(crate) handle_length: size_t,
     /// The tag suffix.
-    pub suffix: *mut yaml_char_t,
+    pub(crate) suffix: *mut yaml_char_t,
     /// The tag suffix length.
-    pub suffix_length: size_t,
+    pub(crate) suffix_length: size_t,
 }
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 #[repr(C)]
-pub(crate) struct unnamed_yaml_emitter_t_scalar_data {
+pub(crate) struct UnnamedYamlEmitterTScalarData {
     /// The scalar value.
-    pub value: *mut yaml_char_t,
+    pub(crate) value: *mut yaml_char_t,
     /// The scalar length.
-    pub length: size_t,
+    pub(crate) length: size_t,
     /// Does the scalar contain line breaks?
-    pub multiline: bool,
+    pub(crate) multiline: bool,
     /// Can the scalar be expressed in the flow plain style?
-    pub flow_plain_allowed: bool,
+    pub(crate) flow_plain_allowed: bool,
     /// Can the scalar be expressed in the block plain style?
-    pub block_plain_allowed: bool,
+    pub(crate) block_plain_allowed: bool,
     /// Can the scalar be expressed in the single quoted style?
-    pub single_quoted_allowed: bool,
+    pub(crate) single_quoted_allowed: bool,
     /// Can the scalar be expressed in the literal or folded styles?
-    pub block_allowed: bool,
+    pub(crate) block_allowed: bool,
     /// The output style.
-    pub style: yaml_scalar_style_t,
+    pub(crate) style: YamlScalarStyleT,
 }
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 #[repr(C)]
-pub(crate) struct yaml_string_t {
-    pub start: *mut yaml_char_t,
-    pub end: *mut yaml_char_t,
-    pub pointer: *mut yaml_char_t,
+pub(crate) struct YamlStringT {
+    pub(crate) start: *mut yaml_char_t,
+    pub(crate) end: *mut yaml_char_t,
+    pub(crate) pointer: *mut yaml_char_t,
 }
 
-pub(crate) const NULL_STRING: yaml_string_t = yaml_string_t {
+pub(crate) const NULL_STRING: YamlStringT = YamlStringT {
     start: ptr::null_mut::<yaml_char_t>(),
     end: ptr::null_mut::<yaml_char_t>(),
     pointer: ptr::null_mut::<yaml_char_t>(),
 };
 
+#[derive(Copy, Clone, Debug)]
 #[repr(C)]
-pub(crate) struct yaml_buffer_t<T> {
+pub(crate) struct YamlBufferT<T> {
     /// The beginning of the buffer.
-    pub start: *mut T,
+    pub(crate) start: *mut T,
     /// The end of the buffer.
-    pub end: *mut T,
+    pub(crate) end: *mut T,
     /// The current position of the buffer.
-    pub pointer: *mut T,
+    pub(crate) pointer: *mut T,
     /// The last filled position of the buffer.
-    pub last: *mut T,
+    pub(crate) last: *mut T,
 }
 
-impl<T> Copy for yaml_buffer_t<T> {}
-impl<T> Clone for yaml_buffer_t<T> {
-    fn clone(&self) -> Self {
-        *self
+impl<T> YamlBufferT<T> {
+    /// Is the buffer empty?
+    pub(crate) fn is_empty(&self) -> bool {
+        self.pointer == self.last
+    }
+
+    /// Advances the buffer by one character.
+    pub(crate) fn next(&mut self) {
+        if !self.is_empty() {
+            unsafe {
+                self.pointer = self.pointer.add(1);
+            }
+        }
     }
 }
 
+// impl<T> Copy for YamlBufferT<T> {}
+// impl<T> Clone for YamlBufferT<T> {
+//     fn clone(&self) -> Self {
+//         *self
+//     }
+// }
+
+#[derive(Debug)]
 #[repr(C)]
-pub struct yaml_stack_t<T> {
+/// The beginning of the stack.
+pub struct YamlStackT<T> {
     /// The beginning of the stack.
     pub start: *mut T,
     /// The end of the stack.
@@ -1255,27 +1281,28 @@ pub struct yaml_stack_t<T> {
     pub top: *mut T,
 }
 
-impl<T> Copy for yaml_stack_t<T> {}
-impl<T> Clone for yaml_stack_t<T> {
+impl<T> Copy for YamlStackT<T> {}
+impl<T> Clone for YamlStackT<T> {
     fn clone(&self) -> Self {
         *self
     }
 }
 
+#[derive(Debug)]
 #[repr(C)]
-pub(crate) struct yaml_queue_t<T> {
+pub(crate) struct YamlQueueT<T> {
     /// The beginning of the queue.
-    pub start: *mut T,
+    pub(crate) start: *mut T,
     /// The end of the queue.
-    pub end: *mut T,
+    pub(crate) end: *mut T,
     /// The head of the queue.
-    pub head: *mut T,
+    pub(crate) head: *mut T,
     /// The tail of the queue.
-    pub tail: *mut T,
+    pub(crate) tail: *mut T,
 }
 
-impl<T> Copy for yaml_queue_t<T> {}
-impl<T> Clone for yaml_queue_t<T> {
+impl<T> Copy for YamlQueueT<T> {}
+impl<T> Clone for YamlQueueT<T> {
     fn clone(&self) -> Self {
         *self
     }

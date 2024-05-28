@@ -1,18 +1,23 @@
+// Copyright notice and licensing information.
+// These lines indicate the copyright of the software and its licensing terms.
+// SPDX-License-Identifier: Apache-2.0 OR MIT indicates dual licensing under Apache 2.0 or MIT licenses.
+// Copyright © 2024 LibYML. All rights reserved.
+
 use crate::externs::{free, malloc, memcpy, memmove, memset, realloc, strdup, strlen};
 use crate::ops::{ForceAdd as _, ForceMul as _};
 use crate::success::{Success, FAIL, OK};
 use crate::yaml::{size_t, yaml_char_t};
 use crate::{
-    libc, yaml_break_t, yaml_document_t, yaml_emitter_state_t, yaml_emitter_t, yaml_encoding_t,
-    yaml_event_t, yaml_mapping_style_t, yaml_mark_t, yaml_node_item_t, yaml_node_pair_t,
-    yaml_node_t, yaml_parser_state_t, yaml_parser_t, yaml_read_handler_t, yaml_scalar_style_t,
-    yaml_sequence_style_t, yaml_simple_key_t, yaml_tag_directive_t, yaml_token_t,
-    yaml_version_directive_t, yaml_write_handler_t, PointerExt, YAML_ALIAS_EVENT, YAML_ALIAS_TOKEN,
-    YAML_ANCHOR_TOKEN, YAML_ANY_ENCODING, YAML_DOCUMENT_END_EVENT, YAML_DOCUMENT_START_EVENT,
-    YAML_MAPPING_END_EVENT, YAML_MAPPING_NODE, YAML_MAPPING_START_EVENT, YAML_SCALAR_EVENT,
-    YAML_SCALAR_NODE, YAML_SCALAR_TOKEN, YAML_SEQUENCE_END_EVENT, YAML_SEQUENCE_NODE,
-    YAML_SEQUENCE_START_EVENT, YAML_STREAM_END_EVENT, YAML_STREAM_START_EVENT,
-    YAML_TAG_DIRECTIVE_TOKEN, YAML_TAG_TOKEN,
+    libc, YamlBreakT, YamlDocumentT, YamlEmitterStateT, YamlEmitterT, YamlEncodingT,
+    YamlEventT, YamlMappingStyleT, YamlMarkT, YamlNodeItemT, YamlNodePairT,
+    YamlNodeT, YamlParserStateT, YamlParserT, YamlReadHandlerT, YamlScalarStyleT,
+    YamlSequenceStyleT, YamlSimpleKeyT, YamlTagDirectiveT, YamlTokenT,
+    YamlVersionDirectiveT, YamlWriteHandlerT, PointerExt, YamlAliasEvent, YamlAliasToken,
+    YamlAnchorToken, YamlAnyEncoding, YamlDocumentEndEvent, YamlDocumentStartEvent,
+    YamlMappingEndEvent, YamlMappingNode, YamlMappingStartEvent, YamlScalarEvent,
+    YamlScalarNode, YamlScalarToken, YamlSequenceEndEvent, YamlSequenceNode,
+    YamlSequenceStartEvent, YamlStreamEndEvent, YamlStreamStartEvent,
+    YamlTagDirectiveToken, YamlTagToken,
 };
 use core::mem::{size_of, MaybeUninit};
 use core::ptr::{self, addr_of_mut};
@@ -22,11 +27,42 @@ const INPUT_BUFFER_SIZE: usize = INPUT_RAW_BUFFER_SIZE * 3;
 const OUTPUT_BUFFER_SIZE: usize = 16384;
 const OUTPUT_RAW_BUFFER_SIZE: usize = OUTPUT_BUFFER_SIZE * 2 + 2;
 
-pub(crate) unsafe fn yaml_malloc(size: size_t) -> *mut libc::c_void {
+/// Allocate memory using the system's `malloc` function.
+///
+/// This function is a thin wrapper around the system's `malloc` function,
+/// used for memory allocation within the LibYML crate.
+///
+/// # Safety
+///
+/// - This function is unsafe because it directly calls the system's `malloc` function,
+///   which can lead to undefined behaviour if misused.
+/// - The caller must ensure that the requested size is valid and does not overflow.
+/// - The caller is responsible for properly freeing the allocated memory using
+///   the corresponding `yaml_free` function when it is no longer needed.
+///
+pub unsafe fn yaml_malloc(size: size_t) -> *mut libc::c_void {
     malloc(size)
 }
 
-pub(crate) unsafe fn yaml_realloc(ptr: *mut libc::c_void, size: size_t) -> *mut libc::c_void {
+/// Reallocate memory using the system's `realloc` function.
+///
+/// This function is a thin wrapper around the system's `realloc` function,
+/// used for memory reallocation within the LibYML crate.
+///
+/// # Safety
+///
+/// - This function is unsafe because it directly calls the system's `realloc` function,
+///   which can lead to undefined behaviour if misused.
+/// - The caller must ensure that the provided `ptr` is either a valid pointer returned
+///   by a previous call to `yaml_malloc` or `yaml_realloc`, or a null pointer.
+/// - The caller must ensure that the requested size is valid and does not overflow.
+/// - If `realloc` fails to reallocate the memory, it returns a null pointer, and the
+///   original memory block pointed to by `ptr` is left unchanged.
+/// - The caller is responsible for properly freeing the reallocated memory using
+///   the corresponding `yaml_free` function when it is no longer needed.
+///
+pub unsafe fn yaml_realloc(ptr: *mut libc::c_void, size: size_t) -> *mut libc::c_void {
+
     if !ptr.is_null() {
         realloc(ptr, size)
     } else {
@@ -34,20 +70,63 @@ pub(crate) unsafe fn yaml_realloc(ptr: *mut libc::c_void, size: size_t) -> *mut 
     }
 }
 
-pub(crate) unsafe fn yaml_free(ptr: *mut libc::c_void) {
+/// Free memory allocated by `yaml_malloc` or `yaml_realloc`.
+///
+/// This function is a thin wrapper around the system's `free` function,
+/// used for freeing memory within the LibYML crate.
+///
+/// # Safety
+///
+/// - This function is unsafe because it directly calls the system's `free` function,
+///   which can lead to undefined behaviour if misused.
+/// - The caller must ensure that the provided `ptr` is either a valid pointer returned
+///   by a previous call to `yaml_malloc` or `yaml_realloc`, or a null pointer.
+/// - If `ptr` is a null pointer, no operation is performed.
+///
+pub unsafe fn yaml_free(ptr: *mut libc::c_void) {
     if !ptr.is_null() {
         free(ptr);
     }
 }
 
-pub(crate) unsafe fn yaml_strdup(str: *const yaml_char_t) -> *mut yaml_char_t {
+/// Duplicate a string using the system's `strdup` function.
+///
+/// This function is a thin wrapper around the system's `strdup` function,
+/// used for string duplication within the LibYML crate.
+///
+/// # Safety
+///
+/// - This function is unsafe because it directly calls the system's `strdup` function,
+///   which can lead to undefined behaviour if misused.
+/// - The caller must ensure that the provided `str` is either a valid pointer to a
+///   null-terminated string, or a null pointer.
+/// - If `str` is a null pointer, this function returns a null pointer.
+/// - The caller is responsible for properly freeing the duplicated string using
+///   the corresponding `yaml_free` function when it is no longer needed.
+///
+pub unsafe fn yaml_strdup(str: *const yaml_char_t) -> *mut yaml_char_t {
     if str.is_null() {
         return ptr::null_mut::<yaml_char_t>();
     }
     strdup(str as *mut libc::c_char) as *mut yaml_char_t
 }
 
-pub(crate) unsafe fn yaml_string_extend(
+/// Extend a string buffer by reallocating and copying the existing data.
+///
+/// This function is used to grow a string buffer when more space is needed.
+///
+/// # Safety
+///
+/// - This function is unsafe because it directly calls the system's `realloc` and
+///   `memset` functions, which can lead to undefined behaviour if misused.
+/// - The caller must ensure that `start`, `pointer`, and `end` are valid pointers
+///   into the same allocated memory block.
+/// - The caller must ensure that the memory block being extended is large enough
+///   to accommodate the new size.
+/// - The caller is responsible for properly freeing the extended memory block using
+///   the corresponding `yaml_free` function when it is no longer needed.
+///
+pub unsafe fn yaml_string_extend(
     start: *mut *mut yaml_char_t,
     pointer: *mut *mut yaml_char_t,
     end: *mut *mut yaml_char_t,
@@ -69,7 +148,22 @@ pub(crate) unsafe fn yaml_string_extend(
     *start = new_start;
 }
 
-pub(crate) unsafe fn yaml_string_join(
+/// Join two string buffers by copying data from one to the other.
+///
+/// This function is used to concatenate two string buffers.
+///
+/// # Safety
+///
+/// - This function is unsafe because it directly calls the system's `memcpy` function,
+///   which can lead to undefined behaviour if misused.
+/// - The caller must ensure that `a_start`, `a_pointer`, `a_end`, `b_start`, `b_pointer`,
+///   and `b_end` are valid pointers into their respective allocated memory blocks.
+/// - The caller must ensure that the memory blocks being joined are large enough to
+///   accommodate the combined data.
+/// - The caller is responsible for properly freeing the joined memory block using
+///   the corresponding `yaml_free` function when it is no longer needed.
+///
+pub unsafe fn yaml_string_join(
     a_start: *mut *mut yaml_char_t,
     a_pointer: *mut *mut yaml_char_t,
     a_end: *mut *mut yaml_char_t,
@@ -94,7 +188,22 @@ pub(crate) unsafe fn yaml_string_join(
         (*a_pointer).wrapping_offset((*b_pointer).c_offset_from(*b_start) as libc::c_long as isize);
 }
 
-pub(crate) unsafe fn yaml_stack_extend(
+/// Extend a stack by reallocating and copying the existing data.
+///
+/// This function is used to grow a stack when more space is needed.
+///
+/// # Safety
+///
+/// - This function is unsafe because it directly calls the system's `realloc` function,
+///   which can lead to undefined behaviour if misused.
+/// - The caller must ensure that `start`, `top`, and `end` are valid pointers into the
+///   same allocated memory block.
+/// - The caller must ensure that the memory block being extended is large enough to
+///   accommodate the new size.
+/// - The caller is responsible for properly freeing the extended memory block using
+///   the corresponding `yaml_free` function when it is no longer needed.
+///
+pub unsafe fn yaml_stack_extend(
     start: *mut *mut libc::c_void,
     top: *mut *mut libc::c_void,
     end: *mut *mut libc::c_void,
@@ -115,7 +224,22 @@ pub(crate) unsafe fn yaml_stack_extend(
     *start = new_start;
 }
 
-pub(crate) unsafe fn yaml_queue_extend(
+/// Extend a queue by reallocating and copying the existing data.
+///
+/// This function is used to grow a queue when more space is needed.
+///
+/// # Safety
+///
+/// - This function is unsafe because it directly calls the system's `realloc` and
+///   `memmove` functions, which can lead to undefined behaviour if misused.
+/// - The caller must ensure that `start`, `head`, `tail`, and `end` are valid pointers
+///   into the same allocated memory block.
+/// - The caller must ensure that the memory block being extended is large enough to
+///   accommodate the new size.
+/// - The caller is responsible for properly freeing the extended memory block using
+///   the corresponding `yaml_free` function when it is no longer needed.
+///
+pub unsafe fn yaml_queue_extend(
     start: *mut *mut libc::c_void,
     head: *mut *mut libc::c_void,
     tail: *mut *mut libc::c_void,
@@ -164,26 +288,44 @@ pub(crate) unsafe fn yaml_queue_extend(
 ///
 /// This function creates a new parser object. An application is responsible
 /// for destroying the object using the yaml_parser_delete() function.
-pub unsafe fn yaml_parser_initialize(parser: *mut yaml_parser_t) -> Success {
+///
+/// # Safety
+///
+/// - `parser` must be a valid, non-null pointer to an uninitialized `YamlParserT` struct.
+/// - The `YamlParserT` struct must be properly aligned and have the expected memory layout.
+/// - The caller is responsible for properly destroying the parser object using `yaml_parser_delete`.
+///
+pub unsafe fn yaml_parser_initialize(parser: *mut YamlParserT) -> Success {
     __assert!(!parser.is_null());
     memset(
         parser as *mut libc::c_void,
         0,
-        size_of::<yaml_parser_t>() as libc::c_ulong,
+        size_of::<YamlParserT>() as libc::c_ulong,
     );
     BUFFER_INIT!((*parser).raw_buffer, INPUT_RAW_BUFFER_SIZE);
     BUFFER_INIT!((*parser).buffer, INPUT_BUFFER_SIZE);
-    QUEUE_INIT!((*parser).tokens, yaml_token_t);
+    QUEUE_INIT!((*parser).tokens, YamlTokenT);
     STACK_INIT!((*parser).indents, libc::c_int);
-    STACK_INIT!((*parser).simple_keys, yaml_simple_key_t);
-    STACK_INIT!((*parser).states, yaml_parser_state_t);
-    STACK_INIT!((*parser).marks, yaml_mark_t);
-    STACK_INIT!((*parser).tag_directives, yaml_tag_directive_t);
+    STACK_INIT!((*parser).simple_keys, YamlSimpleKeyT);
+    STACK_INIT!((*parser).states, YamlParserStateT);
+    STACK_INIT!((*parser).marks, YamlMarkT);
+    STACK_INIT!((*parser).tag_directives, YamlTagDirectiveT);
     OK
 }
 
 /// Destroy a parser.
-pub unsafe fn yaml_parser_delete(parser: *mut yaml_parser_t) {
+///
+/// This function frees all memory associated with a parser object, including
+/// any dynamically allocated buffers, tokens, and other data structures.
+///
+/// # Safety
+///
+/// - `parser` must be a valid, non-null pointer to a properly initialized `YamlParserT` struct.
+/// - The `YamlParserT` struct and its associated data structures must have been properly initialized and their memory allocated correctly.
+/// - The `YamlParserT` struct and its associated data structures must be properly aligned and have the expected memory layout.
+/// - After calling this function, the `parser` pointer should be considered invalid and should not be used again.
+///
+pub unsafe fn yaml_parser_delete(parser: *mut YamlParserT) {
     __assert!(!parser.is_null());
     BUFFER_DEL!((*parser).raw_buffer);
     BUFFER_DEL!((*parser).buffer);
@@ -204,7 +346,7 @@ pub unsafe fn yaml_parser_delete(parser: *mut yaml_parser_t) {
     memset(
         parser as *mut libc::c_void,
         0,
-        size_of::<yaml_parser_t>() as libc::c_ulong,
+        size_of::<YamlParserT>() as libc::c_ulong,
     );
 }
 
@@ -214,7 +356,7 @@ unsafe fn yaml_string_read_handler(
     mut size: size_t,
     size_read: *mut size_t,
 ) -> libc::c_int {
-    let parser: *mut yaml_parser_t = data as *mut yaml_parser_t;
+    let parser: *mut YamlParserT = data as *mut YamlParserT;
     if (*parser).input.string.current == (*parser).input.string.end {
         *size_read = 0_u64;
         return 1;
@@ -245,36 +387,50 @@ unsafe fn yaml_string_read_handler(
 
 /// Set a string input.
 ///
+/// This function sets the input source for the parser to a string buffer.
 /// Note that the `input` pointer must be valid while the `parser` object
 /// exists. The application is responsible for destroying `input` after
 /// destroying the `parser`.
+///
+/// # Safety
+///
+/// - `parser` must be a valid, non-null pointer to a properly initialized `YamlParserT` struct.
+/// - The `YamlParserT` struct must not have an input handler already set.
+/// - `input` must be a valid, non-null pointer to a null-terminated string buffer.
+/// - The `input` string buffer must remain valid and unmodified until the `parser` object is destroyed.
+/// - The `YamlParserT` struct and its associated data structures must be properly aligned and have the expected memory layout.
+///
 pub unsafe fn yaml_parser_set_input_string(
-    parser: *mut yaml_parser_t,
+    parser: *mut YamlParserT,
     input: *const libc::c_uchar,
     size: size_t,
 ) {
-    __assert!(!parser.is_null());
-    __assert!(((*parser).read_handler).is_none());
-    __assert!(!input.is_null());
-    let fresh81 = addr_of_mut!((*parser).read_handler);
-    *fresh81 = Some(
-        yaml_string_read_handler
-            as unsafe fn(*mut libc::c_void, *mut libc::c_uchar, size_t, *mut size_t) -> libc::c_int,
-    );
-    let fresh82 = addr_of_mut!((*parser).read_handler_data);
-    *fresh82 = parser as *mut libc::c_void;
-    let fresh83 = addr_of_mut!((*parser).input.string.start);
-    *fresh83 = input;
-    let fresh84 = addr_of_mut!((*parser).input.string.current);
-    *fresh84 = input;
-    let fresh85 = addr_of_mut!((*parser).input.string.end);
-    *fresh85 = input.wrapping_offset(size as isize);
+    assert!(!parser.is_null());
+    assert!((*parser).read_handler.is_none());
+    assert!(!input.is_null());
+
+    (*parser).read_handler = Some(yaml_string_read_handler);
+    (*parser).read_handler_data = parser as *mut libc::c_void;
+    (*parser).input.string.start = input;
+    (*parser).input.string.current = input;
+    (*parser).input.string.end = input.wrapping_offset(size as isize);
 }
 
 /// Set a generic input handler.
+///
+/// This function sets a custom input handler for the parser.
+///
+/// # Safety
+///
+/// - `parser` must be a valid, non-null pointer to a properly initialized `YamlParserT` struct.
+/// - The `YamlParserT` struct must not have an input handler already set.
+/// - `handler` must be a valid function pointer that follows the signature of `YamlReadHandlerT`.
+/// - `data` must be a valid pointer that will be passed to the `handler` function.
+/// - The `YamlParserT` struct and its associated data structures must be properly aligned and have the expected memory layout.
+///
 pub unsafe fn yaml_parser_set_input(
-    parser: *mut yaml_parser_t,
-    handler: yaml_read_handler_t,
+    parser: *mut YamlParserT,
+    handler: YamlReadHandlerT,
     data: *mut libc::c_void,
 ) {
     __assert!(!parser.is_null());
@@ -286,9 +442,18 @@ pub unsafe fn yaml_parser_set_input(
 }
 
 /// Set the source encoding.
-pub unsafe fn yaml_parser_set_encoding(parser: *mut yaml_parser_t, encoding: yaml_encoding_t) {
+///
+/// This function sets the expected encoding of the input source for the parser.
+///
+/// # Safety
+///
+/// - `parser` must be a valid, non-null pointer to a properly initialized `YamlParserT` struct.
+/// - The `YamlParserT` struct must not have an encoding already set, or the encoding must be `YamlAnyEncoding`.
+/// - The `YamlParserT` struct and its associated data structures must be properly aligned and have the expected memory layout.
+///
+pub unsafe fn yaml_parser_set_encoding(parser: *mut YamlParserT, encoding: YamlEncodingT) {
     __assert!(!parser.is_null());
-    __assert!((*parser).encoding == YAML_ANY_ENCODING);
+    __assert!((*parser).encoding == YamlAnyEncoding);
     (*parser).encoding = encoding;
 }
 
@@ -296,24 +461,42 @@ pub unsafe fn yaml_parser_set_encoding(parser: *mut yaml_parser_t, encoding: yam
 ///
 /// This function creates a new emitter object. An application is responsible
 /// for destroying the object using the yaml_emitter_delete() function.
-pub unsafe fn yaml_emitter_initialize(emitter: *mut yaml_emitter_t) -> Success {
+///
+/// # Safety
+///
+/// - `emitter` must be a valid, non-null pointer to an uninitialized `YamlEmitterT` struct.
+/// - The `YamlEmitterT` struct must be properly aligned and have the expected memory layout.
+/// - The caller is responsible for properly destroying the emitter object using `yaml_emitter_delete`.
+///
+pub unsafe fn yaml_emitter_initialize(emitter: *mut YamlEmitterT) -> Success {
     __assert!(!emitter.is_null());
     memset(
         emitter as *mut libc::c_void,
         0,
-        size_of::<yaml_emitter_t>() as libc::c_ulong,
+        size_of::<YamlEmitterT>() as libc::c_ulong,
     );
     BUFFER_INIT!((*emitter).buffer, OUTPUT_BUFFER_SIZE);
     BUFFER_INIT!((*emitter).raw_buffer, OUTPUT_RAW_BUFFER_SIZE);
-    STACK_INIT!((*emitter).states, yaml_emitter_state_t);
-    QUEUE_INIT!((*emitter).events, yaml_event_t);
+    STACK_INIT!((*emitter).states, YamlEmitterStateT);
+    QUEUE_INIT!((*emitter).events, YamlEventT);
     STACK_INIT!((*emitter).indents, libc::c_int);
-    STACK_INIT!((*emitter).tag_directives, yaml_tag_directive_t);
+    STACK_INIT!((*emitter).tag_directives, YamlTagDirectiveT);
     OK
 }
 
 /// Destroy an emitter.
-pub unsafe fn yaml_emitter_delete(emitter: *mut yaml_emitter_t) {
+///
+/// This function frees all memory associated with an emitter object, including
+/// any dynamically allocated buffers, events, and other data structures.
+///
+/// # Safety
+///
+/// - `emitter` must be a valid, non-null pointer to a properly initialized `YamlEmitterT` struct.
+/// - The `YamlEmitterT` struct and its associated data structures must have been properly initialized and their memory allocated correctly.
+/// - The `YamlEmitterT` struct and its associated data structures must be properly aligned and have the expected memory layout.
+/// - After calling this function, the `emitter` pointer should be considered invalid and should not be used again.
+///
+pub unsafe fn yaml_emitter_delete(emitter: *mut YamlEmitterT) {
     __assert!(!emitter.is_null());
     BUFFER_DEL!((*emitter).buffer);
     BUFFER_DEL!((*emitter).raw_buffer);
@@ -333,7 +516,7 @@ pub unsafe fn yaml_emitter_delete(emitter: *mut yaml_emitter_t) {
     memset(
         emitter as *mut libc::c_void,
         0,
-        size_of::<yaml_emitter_t>() as libc::c_ulong,
+        size_of::<YamlEmitterT>() as libc::c_ulong,
     );
 }
 
@@ -342,7 +525,7 @@ unsafe fn yaml_string_write_handler(
     buffer: *mut libc::c_uchar,
     size: size_t,
 ) -> libc::c_int {
-    let emitter: *mut yaml_emitter_t = data as *mut yaml_emitter_t;
+    let emitter: *mut YamlEmitterT = data as *mut YamlEmitterT;
     if (*emitter)
         .output
         .string
@@ -378,44 +561,60 @@ unsafe fn yaml_string_write_handler(
         size,
     );
     let fresh153 = addr_of_mut!((*(*emitter).output.string.size_written));
-    *fresh153 = (*fresh153 as libc::c_ulong).force_add(size) as size_t;
+    *fresh153 = (*fresh153).wrapping_add(size);
     1
 }
 
 /// Set a string output.
 ///
+/// This function sets the output destination for the emitter to a string buffer.
 /// The emitter will write the output characters to the `output` buffer of the
-/// size `size`. The emitter will set `size_written` to the number of written
+/// specified `size`. The emitter will set `size_written` to the number of written
 /// bytes. If the buffer is smaller than required, the emitter produces the
-/// YAML_WRITE_ERROR error.
+/// YAML_write_ERROR error.
+///
+/// # Safety
+///
+/// - `emitter` must be a valid, non-null pointer to a properly initialized `YamlEmitterT` struct.
+/// - The `YamlEmitterT` struct must not have an output handler already set.
+/// - `output` must be a valid, non-null pointer to a writeable buffer of size `size`.
+/// - `size_written` must be a valid, non-null pointer to a `size_t` variable.
+/// - The `output` buffer must remain valid and unmodified until the emitter is destroyed or the output is reset.
+/// - The `YamlEmitterT` struct and its associated data structures must be properly aligned and have the expected memory layout.
+///
 pub unsafe fn yaml_emitter_set_output_string(
-    emitter: *mut yaml_emitter_t,
+    emitter: *mut YamlEmitterT,
     output: *mut libc::c_uchar,
     size: size_t,
     size_written: *mut size_t,
 ) {
-    __assert!(!emitter.is_null());
-    __assert!(((*emitter).write_handler).is_none());
-    __assert!(!output.is_null());
-    let fresh154 = addr_of_mut!((*emitter).write_handler);
-    *fresh154 = Some(
-        yaml_string_write_handler
-            as unsafe fn(*mut libc::c_void, *mut libc::c_uchar, size_t) -> libc::c_int,
-    );
-    let fresh155 = addr_of_mut!((*emitter).write_handler_data);
-    *fresh155 = emitter as *mut libc::c_void;
-    let fresh156 = addr_of_mut!((*emitter).output.string.buffer);
-    *fresh156 = output;
+    assert!(!emitter.is_null());
+    assert!((*emitter).write_handler.is_none());
+    assert!(!output.is_null());
+
+    (*emitter).write_handler = Some(yaml_string_write_handler);
+    (*emitter).write_handler_data = emitter as *mut libc::c_void;
+    (*emitter).output.string.buffer = output;
     (*emitter).output.string.size = size;
-    let fresh157 = addr_of_mut!((*emitter).output.string.size_written);
-    *fresh157 = size_written;
-    *size_written = 0_u64;
+    *size_written = 0;
 }
 
+
 /// Set a generic output handler.
+///
+/// This function sets a custom output handler for the emitter.
+///
+/// # Safety
+///
+/// - `emitter` must be a valid, non-null pointer to a properly initialized `YamlEmitterT` struct.
+/// - The `YamlEmitterT` struct must not have an output handler already set.
+/// - `handler` must be a valid function pointer that follows the signature of `YamlWriteHandlerT`.
+/// - `data` must be a valid pointer that will be passed to the `handler` function.
+/// - The `YamlEmitterT` struct and its associated data structures must be properly aligned and have the expected memory layout.
+///
 pub unsafe fn yaml_emitter_set_output(
-    emitter: *mut yaml_emitter_t,
-    handler: yaml_write_handler_t,
+    emitter: *mut YamlEmitterT,
+    handler: YamlWriteHandlerT,
     data: *mut libc::c_void,
 ) {
     __assert!(!emitter.is_null());
@@ -427,62 +626,125 @@ pub unsafe fn yaml_emitter_set_output(
 }
 
 /// Set the output encoding.
-pub unsafe fn yaml_emitter_set_encoding(emitter: *mut yaml_emitter_t, encoding: yaml_encoding_t) {
+///
+/// This function sets the encoding to be used for the output by the emitter.
+///
+/// # Safety
+///
+/// - `emitter` must be a valid, non-null pointer to a properly initialized `YamlEmitterT` struct.
+/// - The `YamlEmitterT` struct must not have an encoding already set, or the encoding must be `YamlAnyEncoding`.
+/// - The `YamlEmitterT` struct and its associated data structures must be properly aligned and have the expected memory layout.
+///
+pub unsafe fn yaml_emitter_set_encoding(emitter: *mut YamlEmitterT, encoding: YamlEncodingT) {
     __assert!(!emitter.is_null());
-    __assert!((*emitter).encoding == YAML_ANY_ENCODING);
+    __assert!((*emitter).encoding == YamlAnyEncoding);
     (*emitter).encoding = encoding;
 }
 
 /// Set if the output should be in the "canonical" format as in the YAML
 /// specification.
-pub unsafe fn yaml_emitter_set_canonical(emitter: *mut yaml_emitter_t, canonical: bool) {
+///
+/// This function sets whether the emitter should produce output in the canonical
+/// format, as defined by the YAML specification.
+///
+/// # Safety
+///
+/// - `emitter` must be a valid, non-null pointer to a properly initialized `YamlEmitterT` struct.
+/// - The `YamlEmitterT` struct and its associated data structures must be properly aligned and have the expected memory layout.
+///
+pub unsafe fn yaml_emitter_set_canonical(emitter: *mut YamlEmitterT, canonical: bool) {
     __assert!(!emitter.is_null());
     (*emitter).canonical = canonical;
 }
 
 /// Set the indentation increment.
-pub unsafe fn yaml_emitter_set_indent(emitter: *mut yaml_emitter_t, indent: libc::c_int) {
+///
+/// This function sets the indentation increment to be used by the emitter when
+/// emitting indented content.
+///
+/// # Safety
+///
+/// - `emitter` must be a valid, non-null pointer to a properly initialized `YamlEmitterT` struct.
+/// - The `YamlEmitterT` struct and its associated data structures must be properly aligned and have the expected memory layout.
+///
+pub unsafe fn yaml_emitter_set_indent(emitter: *mut YamlEmitterT, indent: libc::c_int) {
     __assert!(!emitter.is_null());
     (*emitter).best_indent = if 1 < indent && indent < 10 { indent } else { 2 };
 }
 
 /// Set the preferred line width. -1 means unlimited.
-pub unsafe fn yaml_emitter_set_width(emitter: *mut yaml_emitter_t, width: libc::c_int) {
+///
+/// This function sets the preferred line width for the emitter's output.
+/// A value of -1 means that the line width is unlimited.
+///
+/// # Safety
+///
+/// - `emitter` must be a valid, non-null pointer to a properly initialized `YamlEmitterT` struct.
+/// - The `YamlEmitterT` struct and its associated data structures must be properly aligned and have the expected memory layout.
+///
+pub unsafe fn yaml_emitter_set_width(emitter: *mut YamlEmitterT, width: libc::c_int) {
     __assert!(!emitter.is_null());
     (*emitter).best_width = if width >= 0 { width } else { -1 };
 }
 
 /// Set if unescaped non-ASCII characters are allowed.
-pub unsafe fn yaml_emitter_set_unicode(emitter: *mut yaml_emitter_t, unicode: bool) {
+///
+/// This function sets whether the emitter should allow unescaped non-ASCII
+/// characters in its output.
+///
+/// # Safety
+///
+/// - `emitter` must be a valid, non-null pointer to a properly initialized `YamlEmitterT` struct.
+/// - The `YamlEmitterT` struct and its associated data structures must be properly aligned and have the expected memory layout.
+///
+pub unsafe fn yaml_emitter_set_unicode(emitter: *mut YamlEmitterT, unicode: bool) {
     __assert!(!emitter.is_null());
     (*emitter).unicode = unicode;
 }
 
 /// Set the preferred line break.
-pub unsafe fn yaml_emitter_set_break(emitter: *mut yaml_emitter_t, line_break: yaml_break_t) {
+///
+/// This function sets the preferred line break character to be used by the emitter.
+///
+/// # Safety
+///
+/// - `emitter` must be a valid, non-null pointer to a properly initialized `YamlEmitterT` struct.
+/// - The `YamlEmitterT` struct and its associated data structures must be properly aligned and have the expected memory layout.
+///
+pub unsafe fn yaml_emitter_set_break(emitter: *mut YamlEmitterT, line_break: YamlBreakT) {
     __assert!(!emitter.is_null());
     (*emitter).line_break = line_break;
 }
 
 /// Free any memory allocated for a token object.
-pub unsafe fn yaml_token_delete(token: *mut yaml_token_t) {
+///
+/// This function frees the dynamically allocated memory associated with a `YamlTokenT` struct,
+/// such as strings for tag directives, aliases, anchors, tags, and scalar values.
+///
+/// # Safety
+///
+/// - `token` must be a valid, non-null pointer to a `YamlTokenT` struct.
+/// - The `YamlTokenT` struct must have been properly initialized and its memory allocated correctly.
+/// - The `YamlTokenT` struct must be properly aligned and have the expected memory layout.
+///
+pub unsafe fn yaml_token_delete(token: *mut YamlTokenT) {
     __assert!(!token.is_null());
     match (*token).type_ {
-        YAML_TAG_DIRECTIVE_TOKEN => {
+        YamlTagDirectiveToken => {
             yaml_free((*token).data.tag_directive.handle as *mut libc::c_void);
             yaml_free((*token).data.tag_directive.prefix as *mut libc::c_void);
         }
-        YAML_ALIAS_TOKEN => {
+        YamlAliasToken => {
             yaml_free((*token).data.alias.value as *mut libc::c_void);
         }
-        YAML_ANCHOR_TOKEN => {
+        YamlAnchorToken => {
             yaml_free((*token).data.anchor.value as *mut libc::c_void);
         }
-        YAML_TAG_TOKEN => {
+        YamlTagToken => {
             yaml_free((*token).data.tag.handle as *mut libc::c_void);
             yaml_free((*token).data.tag.suffix as *mut libc::c_void);
         }
-        YAML_SCALAR_TOKEN => {
+        YamlScalarToken => {
             yaml_free((*token).data.scalar.value as *mut libc::c_void);
         }
         _ => {}
@@ -490,7 +752,7 @@ pub unsafe fn yaml_token_delete(token: *mut yaml_token_t) {
     memset(
         token as *mut libc::c_void,
         0,
-        size_of::<yaml_token_t>() as libc::c_ulong,
+        size_of::<YamlTokenT>() as libc::c_ulong,
     );
 }
 
@@ -552,11 +814,20 @@ unsafe fn yaml_check_utf8(start: *const yaml_char_t, length: size_t) -> Success 
 }
 
 /// Create the STREAM-START event.
+///
+/// This function initializes a `YamlEventT` struct with the type `YamlStreamStartEvent`.
+/// It is used to signal the start of a YAML stream being emitted.
+///
+/// # Safety
+///
+/// - `event` must be a valid, non-null pointer to a `YamlEventT` struct that can be safely written to.
+/// - The `YamlEventT` struct must be properly aligned and have the expected memory layout.
+///
 pub unsafe fn yaml_stream_start_event_initialize(
-    event: *mut yaml_event_t,
-    encoding: yaml_encoding_t,
+    event: *mut YamlEventT,
+    encoding: YamlEncodingT,
 ) -> Success {
-    let mark = yaml_mark_t {
+    let mark = YamlMarkT {
         index: 0_u64,
         line: 0_u64,
         column: 0_u64,
@@ -565,9 +836,9 @@ pub unsafe fn yaml_stream_start_event_initialize(
     memset(
         event as *mut libc::c_void,
         0,
-        size_of::<yaml_event_t>() as libc::c_ulong,
+        size_of::<YamlEventT>() as libc::c_ulong,
     );
-    (*event).type_ = YAML_STREAM_START_EVENT;
+    (*event).type_ = YamlStreamStartEvent;
     (*event).start_mark = mark;
     (*event).end_mark = mark;
     (*event).data.stream_start.encoding = encoding;
@@ -575,8 +846,17 @@ pub unsafe fn yaml_stream_start_event_initialize(
 }
 
 /// Create the STREAM-END event.
-pub unsafe fn yaml_stream_end_event_initialize(event: *mut yaml_event_t) -> Success {
-    let mark = yaml_mark_t {
+///
+/// This function initializes a `YamlEventT` struct with the type `YamlStreamEndEvent`.
+/// It is used to signal the end of a YAML stream being emitted.
+///
+/// # Safety
+///
+/// - `event` must be a valid, non-null pointer to a `YamlEventT` struct that can be safely written to.
+/// - The `YamlEventT` struct must be properly aligned and have the expected memory layout.
+///
+pub unsafe fn yaml_stream_end_event_initialize(event: *mut YamlEventT) -> Success {
+    let mark = YamlMarkT {
         index: 0_u64,
         line: 0_u64,
         column: 0_u64,
@@ -585,9 +865,9 @@ pub unsafe fn yaml_stream_end_event_initialize(event: *mut yaml_event_t) -> Succ
     memset(
         event as *mut libc::c_void,
         0,
-        size_of::<yaml_event_t>() as libc::c_ulong,
+        size_of::<YamlEventT>() as libc::c_ulong,
     );
-    (*event).type_ = YAML_STREAM_END_EVENT;
+    (*event).type_ = YamlStreamEndEvent;
     (*event).start_mark = mark;
     (*event).end_mark = mark;
     OK
@@ -597,32 +877,42 @@ pub unsafe fn yaml_stream_end_event_initialize(event: *mut yaml_event_t) -> Succ
 ///
 /// The `implicit` argument is considered as a stylistic parameter and may be
 /// ignored by the emitter.
+///
+/// # Safety
+///
+/// - `event` must be a valid, non-null pointer to a `YamlEventT` struct that can be safely written to.
+/// - `version_directive`, if not null, must point to a valid `YamlVersionDirectiveT` struct.
+/// - `tag_directives_start` and `tag_directives_end` must be valid pointers to `YamlTagDirectiveT` structs, or both must be null.
+/// - If `tag_directives_start` and `tag_directives_end` are not null, the range they define must contain valid `YamlTagDirectiveT` structs with non-null `handle` and `prefix` members, and the `handle` and `prefix` strings must be valid UTF-8.
+/// - The `YamlEventT`, `YamlVersionDirectiveT`, and `YamlTagDirectiveT` structs must be properly aligned and have the expected memory layout.
+/// - The caller is responsible for freeing any dynamically allocated memory associated with the event using `yaml_event_delete`.
+///
 pub unsafe fn yaml_document_start_event_initialize(
-    event: *mut yaml_event_t,
-    version_directive: *mut yaml_version_directive_t,
-    tag_directives_start: *mut yaml_tag_directive_t,
-    tag_directives_end: *mut yaml_tag_directive_t,
+    event: *mut YamlEventT,
+    version_directive: *mut YamlVersionDirectiveT,
+    tag_directives_start: *mut YamlTagDirectiveT,
+    tag_directives_end: *mut YamlTagDirectiveT,
     implicit: bool,
 ) -> Success {
     let current_block: u64;
-    let mark = yaml_mark_t {
+    let mark = YamlMarkT {
         index: 0_u64,
         line: 0_u64,
         column: 0_u64,
     };
-    let mut version_directive_copy: *mut yaml_version_directive_t =
-        ptr::null_mut::<yaml_version_directive_t>();
+    let mut version_directive_copy: *mut YamlVersionDirectiveT =
+        ptr::null_mut::<YamlVersionDirectiveT>();
     struct TagDirectivesCopy {
-        start: *mut yaml_tag_directive_t,
-        end: *mut yaml_tag_directive_t,
-        top: *mut yaml_tag_directive_t,
+        start: *mut YamlTagDirectiveT,
+        end: *mut YamlTagDirectiveT,
+        top: *mut YamlTagDirectiveT,
     }
     let mut tag_directives_copy = TagDirectivesCopy {
-        start: ptr::null_mut::<yaml_tag_directive_t>(),
-        end: ptr::null_mut::<yaml_tag_directive_t>(),
-        top: ptr::null_mut::<yaml_tag_directive_t>(),
+        start: ptr::null_mut::<YamlTagDirectiveT>(),
+        end: ptr::null_mut::<YamlTagDirectiveT>(),
+        top: ptr::null_mut::<YamlTagDirectiveT>(),
     };
-    let mut value = yaml_tag_directive_t {
+    let mut value = YamlTagDirectiveT {
         handle: ptr::null_mut::<yaml_char_t>(),
         prefix: ptr::null_mut::<yaml_char_t>(),
     };
@@ -632,17 +922,17 @@ pub unsafe fn yaml_document_start_event_initialize(
             || tag_directives_start == tag_directives_end
     );
     if !version_directive.is_null() {
-        version_directive_copy = yaml_malloc(size_of::<yaml_version_directive_t>() as libc::c_ulong)
-            as *mut yaml_version_directive_t;
+        version_directive_copy = yaml_malloc(size_of::<YamlVersionDirectiveT>() as libc::c_ulong)
+            as *mut YamlVersionDirectiveT;
         (*version_directive_copy).major = (*version_directive).major;
         (*version_directive_copy).minor = (*version_directive).minor;
     }
     if tag_directives_start != tag_directives_end {
-        let mut tag_directive: *mut yaml_tag_directive_t;
-        STACK_INIT!(tag_directives_copy, yaml_tag_directive_t);
+        let mut tag_directive: *mut YamlTagDirectiveT;
+        STACK_INIT!(tag_directives_copy, YamlTagDirectiveT);
         tag_directive = tag_directives_start;
         loop {
-            if !(tag_directive != tag_directives_end) {
+            if tag_directive == tag_directives_end {
                 current_block = 16203760046146113240;
                 break;
             }
@@ -684,9 +974,9 @@ pub unsafe fn yaml_document_start_event_initialize(
         memset(
             event as *mut libc::c_void,
             0,
-            size_of::<yaml_event_t>() as libc::c_ulong,
+            size_of::<YamlEventT>() as libc::c_ulong,
         );
-        (*event).type_ = YAML_DOCUMENT_START_EVENT;
+        (*event).type_ = YamlDocumentStartEvent;
         (*event).start_mark = mark;
         (*event).end_mark = mark;
         let fresh164 = addr_of_mut!((*event).data.document_start.version_directive);
@@ -714,11 +1004,17 @@ pub unsafe fn yaml_document_start_event_initialize(
 ///
 /// The `implicit` argument is considered as a stylistic parameter and may be
 /// ignored by the emitter.
+///
+/// # Safety
+///
+/// - `event` must be a valid, non-null pointer to a `YamlEventT` struct that can be safely written to.
+/// - The `YamlEventT` struct must be properly aligned and have the expected memory layout.
+///
 pub unsafe fn yaml_document_end_event_initialize(
-    event: *mut yaml_event_t,
+    event: *mut YamlEventT,
     implicit: bool,
 ) -> Success {
-    let mark = yaml_mark_t {
+    let mark = YamlMarkT {
         index: 0_u64,
         line: 0_u64,
         column: 0_u64,
@@ -727,9 +1023,9 @@ pub unsafe fn yaml_document_end_event_initialize(
     memset(
         event as *mut libc::c_void,
         0,
-        size_of::<yaml_event_t>() as libc::c_ulong,
+        size_of::<YamlEventT>() as libc::c_ulong,
     );
-    (*event).type_ = YAML_DOCUMENT_END_EVENT;
+    (*event).type_ = YamlDocumentEndEvent;
     (*event).start_mark = mark;
     (*event).end_mark = mark;
     (*event).data.document_end.implicit = implicit;
@@ -737,11 +1033,19 @@ pub unsafe fn yaml_document_end_event_initialize(
 }
 
 /// Create an ALIAS event.
+///
+/// # Safety
+///
+/// - `event` must be a valid, non-null pointer to a `YamlEventT` struct that can be safely written to.
+/// - `anchor` must be a valid, non-null pointer to a null-terminated UTF-8 string.
+/// - The `YamlEventT` struct must be properly aligned and have the expected memory layout.
+/// - The caller is responsible for freeing any dynamically allocated memory associated with the event using `yaml_event_delete`.
+///
 pub unsafe fn yaml_alias_event_initialize(
-    event: *mut yaml_event_t,
+    event: *mut YamlEventT,
     anchor: *const yaml_char_t,
 ) -> Success {
-    let mark = yaml_mark_t {
+    let mark = YamlMarkT {
         index: 0_u64,
         line: 0_u64,
         column: 0_u64,
@@ -758,9 +1062,9 @@ pub unsafe fn yaml_alias_event_initialize(
     memset(
         event as *mut libc::c_void,
         0,
-        size_of::<yaml_event_t>() as libc::c_ulong,
+        size_of::<YamlEventT>() as libc::c_ulong,
     );
-    (*event).type_ = YAML_ALIAS_EVENT;
+    (*event).type_ = YamlAliasEvent;
     (*event).start_mark = mark;
     (*event).end_mark = mark;
     let fresh167 = addr_of_mut!((*event).data.alias.anchor);
@@ -775,18 +1079,50 @@ pub unsafe fn yaml_alias_event_initialize(
 /// Either the `tag` attribute or one of the `plain_implicit` and
 /// `quoted_implicit` flags must be set.
 ///
+/// # Safety
+///
+/// - `event` must be a valid, non-null pointer to a `YamlEventT` struct that can be safely written to.
+/// - `data.value` must be a valid, non-null pointer to a null-terminated UTF-8 string.
+/// - `data.anchor`, if not null, must be a valid pointer to a null-terminated UTF-8 string.
+/// - `data.tag`, if not null, must be a valid pointer to a null-terminated UTF-8 string.
+/// - The `YamlEventT` struct must be properly aligned and have the expected memory layout.
+/// - The caller is responsible for freeing any dynamically allocated memory associated with the event using `yaml_event_delete`.
+///
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+#[repr(C)]
+pub struct ScalarEventData<'a> {
+    pub anchor: *const yaml_char_t,
+    pub tag: *const yaml_char_t,
+    pub value: *const yaml_char_t,
+    pub length: libc::c_int,
+    pub plain_implicit: bool,
+    pub quoted_implicit: bool,
+    pub style: YamlScalarStyleT,
+    pub _marker: core::marker::PhantomData<&'a ()>,
+}
+
+/// Create a SCALAR event.
+///
+/// The `style` argument may be ignored by the emitter.
+///
+/// Either the `tag` attribute or one of the `plain_implicit` and
+/// `quoted_implicit` flags must be set.
+///
+/// # Safety
+///
+/// - `event` must be a valid, non-null pointer to a `YamlEventT` struct that can be safely written to.
+/// - `value` must be a valid, non-null pointer to a null-terminated UTF-8 string.
+/// - `anchor`, if not null, must be a valid pointer to a null-terminated UTF-8 string.
+/// - `tag`, if not null, must be a valid pointer to a null-terminated UTF-8 string.
+/// - The `YamlEventT` struct must be properly aligned and have the expected memory layout.
+/// - The caller is responsible for freeing any dynamically allocated memory associated with the event using `yaml_event_delete`.
+///
 pub unsafe fn yaml_scalar_event_initialize(
-    event: *mut yaml_event_t,
-    anchor: *const yaml_char_t,
-    tag: *const yaml_char_t,
-    value: *const yaml_char_t,
-    mut length: libc::c_int,
-    plain_implicit: bool,
-    quoted_implicit: bool,
-    style: yaml_scalar_style_t,
+    event: *mut YamlEventT,
+    mut data: ScalarEventData<'_>,
 ) -> Success {
     let mut current_block: u64;
-    let mark = yaml_mark_t {
+    let mark = YamlMarkT {
         index: 0_u64,
         line: 0_u64,
         column: 0_u64,
@@ -794,13 +1130,15 @@ pub unsafe fn yaml_scalar_event_initialize(
     let mut anchor_copy: *mut yaml_char_t = ptr::null_mut::<yaml_char_t>();
     let mut tag_copy: *mut yaml_char_t = ptr::null_mut::<yaml_char_t>();
     let mut value_copy: *mut yaml_char_t = ptr::null_mut::<yaml_char_t>();
+
     __assert!(!event.is_null());
-    __assert!(!value.is_null());
-    if !anchor.is_null() {
-        if yaml_check_utf8(anchor, strlen(anchor as *mut libc::c_char)).fail {
+    __assert!(!data.value.is_null());
+
+    if !data.anchor.is_null() {
+        if yaml_check_utf8(data.anchor, strlen(data.anchor as *mut libc::c_char)).fail {
             current_block = 16285396129609901221;
         } else {
-            anchor_copy = yaml_strdup(anchor);
+            anchor_copy = yaml_strdup(data.anchor);
             if anchor_copy.is_null() {
                 current_block = 16285396129609901221;
             } else {
@@ -810,12 +1148,13 @@ pub unsafe fn yaml_scalar_event_initialize(
     } else {
         current_block = 8515828400728868193;
     }
+
     if current_block == 8515828400728868193 {
-        if !tag.is_null() {
-            if yaml_check_utf8(tag, strlen(tag as *mut libc::c_char)).fail {
+        if !data.tag.is_null() {
+            if yaml_check_utf8(data.tag, strlen(data.tag as *mut libc::c_char)).fail {
                 current_block = 16285396129609901221;
             } else {
-                tag_copy = yaml_strdup(tag);
+                tag_copy = yaml_strdup(data.tag);
                 if tag_copy.is_null() {
                     current_block = 16285396129609901221;
                 } else {
@@ -825,24 +1164,26 @@ pub unsafe fn yaml_scalar_event_initialize(
         } else {
             current_block = 12800627514080957624;
         }
+
         if current_block != 16285396129609901221 {
-            if length < 0 {
-                length = strlen(value as *mut libc::c_char) as libc::c_int;
+            if data.length < 0 {
+                data.length = strlen(data.value as *mut libc::c_char) as libc::c_int;
             }
-            if yaml_check_utf8(value, length as size_t).ok {
-                value_copy = yaml_malloc(length.force_add(1) as size_t) as *mut yaml_char_t;
+
+            if yaml_check_utf8(data.value, data.length as size_t).ok {
+                value_copy = yaml_malloc(data.length.force_add(1) as size_t) as *mut yaml_char_t;
                 memcpy(
                     value_copy as *mut libc::c_void,
-                    value as *const libc::c_void,
-                    length as libc::c_ulong,
+                    data.value as *const libc::c_void,
+                    data.length as libc::c_ulong,
                 );
-                *value_copy.wrapping_offset(length as isize) = b'\0';
+                *value_copy.wrapping_offset(data.length as isize) = b'\0';
                 memset(
                     event as *mut libc::c_void,
                     0,
-                    size_of::<yaml_event_t>() as libc::c_ulong,
+                    size_of::<YamlEventT>() as libc::c_ulong,
                 );
-                (*event).type_ = YAML_SCALAR_EVENT;
+                (*event).type_ = YamlScalarEvent;
                 (*event).start_mark = mark;
                 (*event).end_mark = mark;
                 let fresh168 = addr_of_mut!((*event).data.scalar.anchor);
@@ -851,14 +1192,15 @@ pub unsafe fn yaml_scalar_event_initialize(
                 *fresh169 = tag_copy;
                 let fresh170 = addr_of_mut!((*event).data.scalar.value);
                 *fresh170 = value_copy;
-                (*event).data.scalar.length = length as size_t;
-                (*event).data.scalar.plain_implicit = plain_implicit;
-                (*event).data.scalar.quoted_implicit = quoted_implicit;
-                (*event).data.scalar.style = style;
+                (*event).data.scalar.length = data.length as size_t;
+                (*event).data.scalar.plain_implicit = data.plain_implicit;
+                (*event).data.scalar.quoted_implicit = data.quoted_implicit;
+                (*event).data.scalar.style = data.style;
                 return OK;
             }
         }
     }
+
     yaml_free(anchor_copy as *mut libc::c_void);
     yaml_free(tag_copy as *mut libc::c_void);
     yaml_free(value_copy as *mut libc::c_void);
@@ -870,15 +1212,24 @@ pub unsafe fn yaml_scalar_event_initialize(
 /// The `style` argument may be ignored by the emitter.
 ///
 /// Either the `tag` attribute or the `implicit` flag must be set.
+///
+/// # Safety
+///
+/// - `event` must be a valid, non-null pointer to a `YamlEventT` struct that can be safely written to.
+/// - `anchor`, if not null, must be a valid pointer to a null-terminated UTF-8 string.
+/// - `tag`, if not null, must be a valid pointer to a null-terminated UTF-8 string.
+/// - The `YamlEventT` struct must be properly aligned and have the expected memory layout.
+/// - The caller is responsible for freeing any dynamically allocated memory associated with the event using `yaml_event_delete`.
+///
 pub unsafe fn yaml_sequence_start_event_initialize(
-    event: *mut yaml_event_t,
+    event: *mut YamlEventT,
     anchor: *const yaml_char_t,
     tag: *const yaml_char_t,
     implicit: bool,
-    style: yaml_sequence_style_t,
+    style: YamlSequenceStyleT,
 ) -> Success {
     let mut current_block: u64;
-    let mark = yaml_mark_t {
+    let mark = YamlMarkT {
         index: 0_u64,
         line: 0_u64,
         column: 0_u64,
@@ -900,41 +1251,38 @@ pub unsafe fn yaml_sequence_start_event_initialize(
     } else {
         current_block = 11006700562992250127;
     }
-    match current_block {
-        11006700562992250127 => {
-            if !tag.is_null() {
-                if yaml_check_utf8(tag, strlen(tag as *mut libc::c_char)).fail {
+    if current_block == 11006700562992250127 {
+        if !tag.is_null() {
+            if yaml_check_utf8(tag, strlen(tag as *mut libc::c_char)).fail {
+                current_block = 8817775685815971442;
+            } else {
+                tag_copy = yaml_strdup(tag);
+                if tag_copy.is_null() {
                     current_block = 8817775685815971442;
                 } else {
-                    tag_copy = yaml_strdup(tag);
-                    if tag_copy.is_null() {
-                        current_block = 8817775685815971442;
-                    } else {
-                        current_block = 7651349459974463963;
-                    }
+                    current_block = 7651349459974463963;
                 }
-            } else {
-                current_block = 7651349459974463963;
             }
-            if current_block != 8817775685815971442 {
-                memset(
-                    event as *mut libc::c_void,
-                    0,
-                    size_of::<yaml_event_t>() as libc::c_ulong,
-                );
-                (*event).type_ = YAML_SEQUENCE_START_EVENT;
-                (*event).start_mark = mark;
-                (*event).end_mark = mark;
-                let fresh171 = addr_of_mut!((*event).data.sequence_start.anchor);
-                *fresh171 = anchor_copy;
-                let fresh172 = addr_of_mut!((*event).data.sequence_start.tag);
-                *fresh172 = tag_copy;
-                (*event).data.sequence_start.implicit = implicit;
-                (*event).data.sequence_start.style = style;
-                return OK;
-            }
+        } else {
+            current_block = 7651349459974463963;
         }
-        _ => {}
+        if current_block != 8817775685815971442 {
+            memset(
+                event as *mut libc::c_void,
+                0,
+                size_of::<YamlEventT>() as libc::c_ulong,
+            );
+            (*event).type_ = YamlSequenceStartEvent;
+            (*event).start_mark = mark;
+            (*event).end_mark = mark;
+            let fresh171 = addr_of_mut!((*event).data.sequence_start.anchor);
+            *fresh171 = anchor_copy;
+            let fresh172 = addr_of_mut!((*event).data.sequence_start.tag);
+            *fresh172 = tag_copy;
+            (*event).data.sequence_start.implicit = implicit;
+            (*event).data.sequence_start.style = style;
+            return OK;
+        }
     }
     yaml_free(anchor_copy as *mut libc::c_void);
     yaml_free(tag_copy as *mut libc::c_void);
@@ -942,8 +1290,18 @@ pub unsafe fn yaml_sequence_start_event_initialize(
 }
 
 /// Create a SEQUENCE-END event.
-pub unsafe fn yaml_sequence_end_event_initialize(event: *mut yaml_event_t) -> Success {
-    let mark = yaml_mark_t {
+///
+/// This function initializes a `YamlEventT` struct with the type `YamlSequenceEndEvent`.
+/// It is used to signal the end of a sequence in the YAML document being emitted.
+///
+/// # Safety
+///
+/// - `event` must be a valid, non-null pointer to a `YamlEventT` struct that can be safely written to.
+/// - The `YamlEventT` struct must be properly aligned and have the expected memory layout.
+///
+pub unsafe fn yaml_sequence_end_event_initialize(event: *mut YamlEventT) -> Success {
+
+    let mark = YamlMarkT {
         index: 0_u64,
         line: 0_u64,
         column: 0_u64,
@@ -952,9 +1310,9 @@ pub unsafe fn yaml_sequence_end_event_initialize(event: *mut yaml_event_t) -> Su
     memset(
         event as *mut libc::c_void,
         0,
-        size_of::<yaml_event_t>() as libc::c_ulong,
+        size_of::<YamlEventT>() as libc::c_ulong,
     );
-    (*event).type_ = YAML_SEQUENCE_END_EVENT;
+    (*event).type_ = YamlSequenceEndEvent;
     (*event).start_mark = mark;
     (*event).end_mark = mark;
     OK
@@ -962,18 +1320,30 @@ pub unsafe fn yaml_sequence_end_event_initialize(event: *mut yaml_event_t) -> Su
 
 /// Create a MAPPING-START event.
 ///
+/// This function initializes a `YamlEventT` struct with the type `YamlMappingStartEvent`.
+/// It is used to signal the start of a mapping (key-value pairs) in the YAML document being emitted.
+///
 /// The `style` argument may be ignored by the emitter.
 ///
 /// Either the `tag` attribute or the `implicit` flag must be set.
+///
+/// # Safety
+///
+/// - `event` must be a valid, non-null pointer to a `YamlEventT` struct that can be safely written to.
+/// - `anchor`, if not null, must be a valid pointer to a null-terminated UTF-8 string.
+/// - `tag`, if not null, must be a valid pointer to a null-terminated UTF-8 string.
+/// - The `YamlEventT` struct must be properly aligned and have the expected memory layout.
+/// - The caller is responsible for freeing any dynamically allocated memory associated with the event using `yaml_event_delete`.
+///
 pub unsafe fn yaml_mapping_start_event_initialize(
-    event: *mut yaml_event_t,
+    event: *mut YamlEventT,
     anchor: *const yaml_char_t,
     tag: *const yaml_char_t,
     implicit: bool,
-    style: yaml_mapping_style_t,
+    style: YamlMappingStyleT,
 ) -> Success {
     let mut current_block: u64;
-    let mark = yaml_mark_t {
+    let mark = YamlMarkT {
         index: 0_u64,
         line: 0_u64,
         column: 0_u64,
@@ -1014,9 +1384,9 @@ pub unsafe fn yaml_mapping_start_event_initialize(
             memset(
                 event as *mut libc::c_void,
                 0,
-                size_of::<yaml_event_t>() as libc::c_ulong,
+                size_of::<YamlEventT>() as libc::c_ulong,
             );
-            (*event).type_ = YAML_MAPPING_START_EVENT;
+            (*event).type_ = YamlMappingStartEvent;
             (*event).start_mark = mark;
             (*event).end_mark = mark;
             let fresh173 = addr_of_mut!((*event).data.mapping_start.anchor);
@@ -1034,8 +1404,18 @@ pub unsafe fn yaml_mapping_start_event_initialize(
 }
 
 /// Create a MAPPING-END event.
-pub unsafe fn yaml_mapping_end_event_initialize(event: *mut yaml_event_t) -> Success {
-    let mark = yaml_mark_t {
+///
+/// This function initializes a `YamlEventT` struct with the type `YamlMappingEndEvent`.
+/// It is used to signal the end of a mapping (key-value pairs) in the YAML document being emitted.
+///
+/// # Safety
+///
+/// - `event` must be a valid, non-null pointer to a `YamlEventT` struct that can be safely written to.
+/// - The `YamlEventT` struct must be properly aligned and have the expected memory layout.
+///
+pub unsafe fn yaml_mapping_end_event_initialize(event: *mut YamlEventT) -> Success {
+
+    let mark = YamlMarkT {
         index: 0_u64,
         line: 0_u64,
         column: 0_u64,
@@ -1044,20 +1424,30 @@ pub unsafe fn yaml_mapping_end_event_initialize(event: *mut yaml_event_t) -> Suc
     memset(
         event as *mut libc::c_void,
         0,
-        size_of::<yaml_event_t>() as libc::c_ulong,
+        size_of::<YamlEventT>() as libc::c_ulong,
     );
-    (*event).type_ = YAML_MAPPING_END_EVENT;
+    (*event).type_ = YamlMappingEndEvent;
     (*event).start_mark = mark;
     (*event).end_mark = mark;
     OK
 }
 
 /// Free any memory allocated for an event object.
-pub unsafe fn yaml_event_delete(event: *mut yaml_event_t) {
-    let mut tag_directive: *mut yaml_tag_directive_t;
+///
+/// This function frees the dynamically allocated memory associated with a `YamlEventT` struct,
+/// such as strings for anchors, tags, and scalar values.
+///
+/// # Safety
+///
+/// - `event` must be a valid, non-null pointer to a `YamlEventT` struct.
+/// - The `YamlEventT` struct must have been properly initialized and its memory allocated correctly.
+/// - The `YamlEventT` struct must be properly aligned and have the expected memory layout.
+///
+pub unsafe fn yaml_event_delete(event: *mut YamlEventT) {
+    let mut tag_directive: *mut YamlTagDirectiveT;
     __assert!(!event.is_null());
     match (*event).type_ {
-        YAML_DOCUMENT_START_EVENT => {
+        YamlDocumentStartEvent => {
             yaml_free((*event).data.document_start.version_directive as *mut libc::c_void);
             tag_directive = (*event).data.document_start.tag_directives.start;
             while tag_directive != (*event).data.document_start.tag_directives.end {
@@ -1067,19 +1457,19 @@ pub unsafe fn yaml_event_delete(event: *mut yaml_event_t) {
             }
             yaml_free((*event).data.document_start.tag_directives.start as *mut libc::c_void);
         }
-        YAML_ALIAS_EVENT => {
+        YamlAliasEvent => {
             yaml_free((*event).data.alias.anchor as *mut libc::c_void);
         }
-        YAML_SCALAR_EVENT => {
+        YamlScalarEvent => {
             yaml_free((*event).data.scalar.anchor as *mut libc::c_void);
             yaml_free((*event).data.scalar.tag as *mut libc::c_void);
             yaml_free((*event).data.scalar.value as *mut libc::c_void);
         }
-        YAML_SEQUENCE_START_EVENT => {
+        YamlSequenceStartEvent => {
             yaml_free((*event).data.sequence_start.anchor as *mut libc::c_void);
             yaml_free((*event).data.sequence_start.tag as *mut libc::c_void);
         }
-        YAML_MAPPING_START_EVENT => {
+        YamlMappingStartEvent => {
             yaml_free((*event).data.mapping_start.anchor as *mut libc::c_void);
             yaml_free((*event).data.mapping_start.tag as *mut libc::c_void);
         }
@@ -1088,47 +1478,61 @@ pub unsafe fn yaml_event_delete(event: *mut yaml_event_t) {
     memset(
         event as *mut libc::c_void,
         0,
-        size_of::<yaml_event_t>() as libc::c_ulong,
+        size_of::<YamlEventT>() as libc::c_ulong,
     );
 }
 
 /// Create a YAML document.
+///
+/// This function initializes a `YamlDocumentT` struct with the provided version directive,
+/// tag directives, and implicit flags. It allocates memory for the document data and
+/// copies the provided directives.
+///
+/// # Safety
+///
+/// - `document` must be a valid, non-null pointer to a `YamlDocumentT` struct that can be safely written to.
+/// - `version_directive`, if not null, must point to a valid `YamlVersionDirectiveT` struct.
+/// - `tag_directives_start` and `tag_directives_end` must be valid pointers to `YamlTagDirectiveT` structs, or both must be null.
+/// - If `tag_directives_start` and `tag_directives_end` are not null, the range they define must contain valid `YamlTagDirectiveT` structs with non-null `handle` and `prefix` members, and the `handle` and `prefix` strings must be valid UTF-8.
+/// - The `YamlDocumentT`, `YamlVersionDirectiveT`, and `YamlTagDirectiveT` structs must be properly aligned and have the expected memory layout.
+/// - The caller is responsible for freeing the memory allocated for the document using `yaml_document_delete`.
+///
 pub unsafe fn yaml_document_initialize(
-    document: *mut yaml_document_t,
-    version_directive: *mut yaml_version_directive_t,
-    tag_directives_start: *mut yaml_tag_directive_t,
-    tag_directives_end: *mut yaml_tag_directive_t,
+    document: *mut YamlDocumentT,
+    version_directive: *mut YamlVersionDirectiveT,
+    tag_directives_start: *mut YamlTagDirectiveT,
+    tag_directives_end: *mut YamlTagDirectiveT,
     start_implicit: bool,
     end_implicit: bool,
 ) -> Success {
     let current_block: u64;
     struct Nodes {
-        start: *mut yaml_node_t,
-        end: *mut yaml_node_t,
-        top: *mut yaml_node_t,
+        start: *mut YamlNodeT,
+        end: *mut YamlNodeT,
+        top: *mut YamlNodeT,
     }
     let mut nodes = Nodes {
-        start: ptr::null_mut::<yaml_node_t>(),
-        end: ptr::null_mut::<yaml_node_t>(),
-        top: ptr::null_mut::<yaml_node_t>(),
+        start: ptr::null_mut::<YamlNodeT>(),
+        end: ptr::null_mut::<YamlNodeT>(),
+        top: ptr::null_mut::<YamlNodeT>(),
     };
-    let mut version_directive_copy: *mut yaml_version_directive_t =
-        ptr::null_mut::<yaml_version_directive_t>();
+    let mut version_directive_copy: *mut YamlVersionDirectiveT =
+        ptr::null_mut::<YamlVersionDirectiveT>();
     struct TagDirectivesCopy {
-        start: *mut yaml_tag_directive_t,
-        end: *mut yaml_tag_directive_t,
-        top: *mut yaml_tag_directive_t,
+        start: *mut YamlTagDirectiveT,
+        end: *mut YamlTagDirectiveT,
+        top: *mut YamlTagDirectiveT,
     }
     let mut tag_directives_copy = TagDirectivesCopy {
-        start: ptr::null_mut::<yaml_tag_directive_t>(),
-        end: ptr::null_mut::<yaml_tag_directive_t>(),
-        top: ptr::null_mut::<yaml_tag_directive_t>(),
+        start: ptr::null_mut::<YamlTagDirectiveT>(),
+        end: ptr::null_mut::<YamlTagDirectiveT>(),
+        top: ptr::null_mut::<YamlTagDirectiveT>(),
     };
-    let mut value = yaml_tag_directive_t {
+    let mut value = YamlTagDirectiveT {
         handle: ptr::null_mut::<yaml_char_t>(),
         prefix: ptr::null_mut::<yaml_char_t>(),
     };
-    let mark = yaml_mark_t {
+    let mark = YamlMarkT {
         index: 0_u64,
         line: 0_u64,
         column: 0_u64,
@@ -1138,19 +1542,19 @@ pub unsafe fn yaml_document_initialize(
         !tag_directives_start.is_null() && !tag_directives_end.is_null()
             || tag_directives_start == tag_directives_end
     );
-    STACK_INIT!(nodes, yaml_node_t);
+    STACK_INIT!(nodes, YamlNodeT);
     if !version_directive.is_null() {
-        version_directive_copy = yaml_malloc(size_of::<yaml_version_directive_t>() as libc::c_ulong)
-            as *mut yaml_version_directive_t;
+        version_directive_copy = yaml_malloc(size_of::<YamlVersionDirectiveT>() as libc::c_ulong)
+            as *mut YamlVersionDirectiveT;
         (*version_directive_copy).major = (*version_directive).major;
         (*version_directive_copy).minor = (*version_directive).minor;
     }
     if tag_directives_start != tag_directives_end {
-        let mut tag_directive: *mut yaml_tag_directive_t;
-        STACK_INIT!(tag_directives_copy, yaml_tag_directive_t);
+        let mut tag_directive: *mut YamlTagDirectiveT;
+        STACK_INIT!(tag_directives_copy, YamlTagDirectiveT);
         tag_directive = tag_directives_start;
         loop {
-            if !(tag_directive != tag_directives_end) {
+            if tag_directive == tag_directives_end {
                 current_block = 14818589718467733107;
                 break;
             }
@@ -1192,7 +1596,7 @@ pub unsafe fn yaml_document_initialize(
         memset(
             document as *mut libc::c_void,
             0,
-            size_of::<yaml_document_t>() as libc::c_ulong,
+            size_of::<YamlDocumentT>() as libc::c_ulong,
         );
         let fresh176 = addr_of_mut!((*document).nodes.start);
         *fresh176 = nodes.start;
@@ -1226,20 +1630,30 @@ pub unsafe fn yaml_document_initialize(
 }
 
 /// Delete a YAML document and all its nodes.
-pub unsafe fn yaml_document_delete(document: *mut yaml_document_t) {
-    let mut tag_directive: *mut yaml_tag_directive_t;
+///
+/// This function frees the memory allocated for a `YamlDocumentT` struct and all its associated
+/// nodes, including scalar values, sequences, and mappings.
+///
+/// # Safety
+///
+/// - `document` must be a valid, non-null pointer to a `YamlDocumentT` struct.
+/// - The `YamlDocumentT` struct and its associated nodes must have been properly initialized and their memory allocated correctly.
+/// - The `YamlDocumentT` struct and its associated nodes must be properly aligned and have the expected memory layout.
+///
+pub unsafe fn yaml_document_delete(document: *mut YamlDocumentT) {
+    let mut tag_directive: *mut YamlTagDirectiveT;
     __assert!(!document.is_null());
     while !STACK_EMPTY!((*document).nodes) {
         let mut node = POP!((*document).nodes);
         yaml_free(node.tag as *mut libc::c_void);
         match node.type_ {
-            YAML_SCALAR_NODE => {
+            YamlScalarNode => {
                 yaml_free(node.data.scalar.value as *mut libc::c_void);
             }
-            YAML_SEQUENCE_NODE => {
+            YamlSequenceNode => {
                 STACK_DEL!(node.data.sequence.items);
             }
-            YAML_MAPPING_NODE => {
+            YamlMappingNode => {
                 STACK_DEL!(node.data.mapping.pairs);
             }
             _ => {
@@ -1259,20 +1673,30 @@ pub unsafe fn yaml_document_delete(document: *mut yaml_document_t) {
     memset(
         document as *mut libc::c_void,
         0,
-        size_of::<yaml_document_t>() as libc::c_ulong,
+        size_of::<YamlDocumentT>() as libc::c_ulong,
     );
 }
 
 /// Get a node of a YAML document.
 ///
-/// The pointer returned by this function is valid until any of the functions
-/// modifying the documents are called.
+/// This function returns a pointer to the node at the specified `index` in the document's node
+/// stack. The pointer returned by this function is valid until any of the functions modifying the
+/// document are called.
 ///
-/// Returns the node objct or NULL if `node_id` is out of range.
+/// Returns the node object or NULL if `index` is out of range.
+///
+/// # Safety
+///
+/// - `document` must be a valid, non-null pointer to a `YamlDocumentT` struct.
+/// - `index` must be a valid index within the range of nodes in the `YamlDocumentT` struct.
+/// - The `YamlDocumentT` struct and its associated nodes must be properly initialized and their memory allocated correctly.
+/// - The `YamlDocumentT` struct and its associated nodes must be properly aligned and have the expected memory layout.
+/// - The caller must not modify or free the returned pointer, as it is owned by the `YamlDocumentT` struct.
+///
 pub unsafe fn yaml_document_get_node(
-    document: *mut yaml_document_t,
+    document: *mut YamlDocumentT,
     index: libc::c_int,
-) -> *mut yaml_node_t {
+) -> *mut YamlNodeT {
     __assert!(!document.is_null());
     if index > 0 && (*document).nodes.start.wrapping_offset(index as isize) <= (*document).nodes.top
     {
@@ -1282,48 +1706,70 @@ pub unsafe fn yaml_document_get_node(
             .wrapping_offset(index as isize)
             .wrapping_offset(-1_isize);
     }
-    ptr::null_mut::<yaml_node_t>()
+    ptr::null_mut::<YamlNodeT>()
 }
 
 /// Get the root of a YAML document node.
 ///
-/// The root object is the first object added to the document.
+/// This function returns a pointer to the root node of the YAML document. The root object is the
+/// first object added to the document.
 ///
-/// The pointer returned by this function is valid until any of the functions
-/// modifying the documents are called.
+/// The pointer returned by this function is valid until any of the functions modifying the
+/// document are called.
 ///
 /// An empty document produced by the parser signifies the end of a YAML stream.
 ///
 /// Returns the node object or NULL if the document is empty.
-pub unsafe fn yaml_document_get_root_node(document: *mut yaml_document_t) -> *mut yaml_node_t {
+///
+/// # Safety
+///
+/// - `document` must be a valid, non-null pointer to a `YamlDocumentT` struct.
+/// - The `YamlDocumentT` struct and its associated nodes must be properly initialized and their memory allocated correctly.
+/// - The `YamlDocumentT` struct and its associated nodes must be properly aligned and have the expected memory layout.
+/// - The caller must not modify or free the returned pointer, as it is owned by the `YamlDocumentT` struct.
+///
+pub unsafe fn yaml_document_get_root_node(document: *mut YamlDocumentT) -> *mut YamlNodeT {
     __assert!(!document.is_null());
     if (*document).nodes.top != (*document).nodes.start {
         return (*document).nodes.start;
     }
-    ptr::null_mut::<yaml_node_t>()
+    ptr::null_mut::<YamlNodeT>()
 }
 
 /// Create a SCALAR node and attach it to the document.
 ///
+/// This function creates a new SCALAR node with the provided `tag`, `value`, and `style`, and
+/// adds it to the document's node stack.
+///
 /// The `style` argument may be ignored by the emitter.
 ///
 /// Returns the node id or 0 on error.
+///
+/// # Safety
+///
+/// - `document` must be a valid, non-null pointer to a `YamlDocumentT` struct.
+/// - `value` must be a valid, non-null pointer to a null-terminated UTF-8 string.
+/// - `tag`, if not null, must be a valid pointer to a null-terminated UTF-8 string.
+/// - The `YamlDocumentT` struct and its associated nodes must be properly initialized and their memory allocated correctly.
+/// - The `YamlDocumentT` struct and its associated nodes must be properly aligned and have the expected memory layout.
+/// - The caller is responsible for freeing the memory allocated for the document using `yaml_document_delete`.
+///
 #[must_use]
 pub unsafe fn yaml_document_add_scalar(
-    document: *mut yaml_document_t,
+    document: *mut YamlDocumentT,
     mut tag: *const yaml_char_t,
     value: *const yaml_char_t,
     mut length: libc::c_int,
-    style: yaml_scalar_style_t,
+    style: YamlScalarStyleT,
 ) -> libc::c_int {
-    let mark = yaml_mark_t {
+    let mark = YamlMarkT {
         index: 0_u64,
         line: 0_u64,
         column: 0_u64,
     };
     let mut tag_copy: *mut yaml_char_t = ptr::null_mut::<yaml_char_t>();
     let mut value_copy: *mut yaml_char_t = ptr::null_mut::<yaml_char_t>();
-    let mut node = MaybeUninit::<yaml_node_t>::uninit();
+    let mut node = MaybeUninit::<YamlNodeT>::uninit();
     let node = node.as_mut_ptr();
     __assert!(!document.is_null());
     __assert!(!value.is_null());
@@ -1347,9 +1793,9 @@ pub unsafe fn yaml_document_add_scalar(
                 memset(
                     node as *mut libc::c_void,
                     0,
-                    size_of::<yaml_node_t>() as libc::c_ulong,
+                    size_of::<YamlNodeT>() as libc::c_ulong,
                 );
-                (*node).type_ = YAML_SCALAR_NODE;
+                (*node).type_ = YamlScalarNode;
                 (*node).tag = tag_copy;
                 (*node).start_mark = mark;
                 (*node).end_mark = mark;
@@ -1368,32 +1814,44 @@ pub unsafe fn yaml_document_add_scalar(
 
 /// Create a SEQUENCE node and attach it to the document.
 ///
+/// This function creates a new SEQUENCE node with the provided `tag` and `style`, and adds it to
+/// the document's node stack.
+///
 /// The `style` argument may be ignored by the emitter.
 ///
 /// Returns the node id or 0 on error.
+///
+/// # Safety
+///
+/// - `document` must be a valid, non-null pointer to a `YamlDocumentT` struct.
+/// - `tag`, if not null, must be a valid pointer to a null-terminated UTF-8 string.
+/// - The `YamlDocumentT` struct and its associated nodes must be properly initialized and their memory allocated correctly.
+/// - The `YamlDocumentT` struct and its associated nodes must be properly aligned and have the expected memory layout.
+/// - The caller is responsible for freeing the memory allocated for the document using `yaml_document_delete`.
+///
 #[must_use]
 pub unsafe fn yaml_document_add_sequence(
-    document: *mut yaml_document_t,
+    document: *mut YamlDocumentT,
     mut tag: *const yaml_char_t,
-    style: yaml_sequence_style_t,
+    style: YamlSequenceStyleT,
 ) -> libc::c_int {
-    let mark = yaml_mark_t {
+    let mark = YamlMarkT {
         index: 0_u64,
         line: 0_u64,
         column: 0_u64,
     };
     let mut tag_copy: *mut yaml_char_t = ptr::null_mut::<yaml_char_t>();
     struct Items {
-        start: *mut yaml_node_item_t,
-        end: *mut yaml_node_item_t,
-        top: *mut yaml_node_item_t,
+        start: *mut YamlNodeItemT,
+        end: *mut YamlNodeItemT,
+        top: *mut YamlNodeItemT,
     }
     let mut items = Items {
-        start: ptr::null_mut::<yaml_node_item_t>(),
-        end: ptr::null_mut::<yaml_node_item_t>(),
-        top: ptr::null_mut::<yaml_node_item_t>(),
+        start: ptr::null_mut::<YamlNodeItemT>(),
+        end: ptr::null_mut::<YamlNodeItemT>(),
+        top: ptr::null_mut::<YamlNodeItemT>(),
     };
-    let mut node = MaybeUninit::<yaml_node_t>::uninit();
+    let mut node = MaybeUninit::<YamlNodeT>::uninit();
     let node = node.as_mut_ptr();
     __assert!(!document.is_null());
     if tag.is_null() {
@@ -1402,13 +1860,13 @@ pub unsafe fn yaml_document_add_sequence(
     if yaml_check_utf8(tag, strlen(tag as *mut libc::c_char)).ok {
         tag_copy = yaml_strdup(tag);
         if !tag_copy.is_null() {
-            STACK_INIT!(items, yaml_node_item_t);
+            STACK_INIT!(items, YamlNodeItemT);
             memset(
                 node as *mut libc::c_void,
                 0,
-                size_of::<yaml_node_t>() as libc::c_ulong,
+                size_of::<YamlNodeT>() as libc::c_ulong,
             );
-            (*node).type_ = YAML_SEQUENCE_NODE;
+            (*node).type_ = YamlSequenceNode;
             (*node).tag = tag_copy;
             (*node).start_mark = mark;
             (*node).end_mark = mark;
@@ -1427,32 +1885,44 @@ pub unsafe fn yaml_document_add_sequence(
 
 /// Create a MAPPING node and attach it to the document.
 ///
+/// This function creates a new MAPPING node with the provided `tag` and `style`, and adds it to
+/// the document's node stack.
+///
 /// The `style` argument may be ignored by the emitter.
 ///
 /// Returns the node id or 0 on error.
+///
+/// # Safety
+///
+/// - `document` must be a valid, non-null pointer to a `YamlDocumentT` struct.
+/// - `tag`, if not null, must be a valid pointer to a null-terminated UTF-8 string.
+/// - The `YamlDocumentT` struct and its associated nodes must be properly initialized and their memory allocated correctly.
+/// - The `YamlDocumentT` struct and its associated nodes must be properly aligned and have the expected memory layout.
+/// - The caller is responsible for freeing the memory allocated for the document using `yaml_document_delete`.
+///
 #[must_use]
 pub unsafe fn yaml_document_add_mapping(
-    document: *mut yaml_document_t,
+    document: *mut YamlDocumentT,
     mut tag: *const yaml_char_t,
-    style: yaml_mapping_style_t,
+    style: YamlMappingStyleT,
 ) -> libc::c_int {
-    let mark = yaml_mark_t {
+    let mark = YamlMarkT {
         index: 0_u64,
         line: 0_u64,
         column: 0_u64,
     };
     let mut tag_copy: *mut yaml_char_t = ptr::null_mut::<yaml_char_t>();
     struct Pairs {
-        start: *mut yaml_node_pair_t,
-        end: *mut yaml_node_pair_t,
-        top: *mut yaml_node_pair_t,
+        start: *mut YamlNodePairT,
+        end: *mut YamlNodePairT,
+        top: *mut YamlNodePairT,
     }
     let mut pairs = Pairs {
-        start: ptr::null_mut::<yaml_node_pair_t>(),
-        end: ptr::null_mut::<yaml_node_pair_t>(),
-        top: ptr::null_mut::<yaml_node_pair_t>(),
+        start: ptr::null_mut::<YamlNodePairT>(),
+        end: ptr::null_mut::<YamlNodePairT>(),
+        top: ptr::null_mut::<YamlNodePairT>(),
     };
-    let mut node = MaybeUninit::<yaml_node_t>::uninit();
+    let mut node = MaybeUninit::<YamlNodeT>::uninit();
     let node = node.as_mut_ptr();
     __assert!(!document.is_null());
     if tag.is_null() {
@@ -1461,13 +1931,13 @@ pub unsafe fn yaml_document_add_mapping(
     if yaml_check_utf8(tag, strlen(tag as *mut libc::c_char)).ok {
         tag_copy = yaml_strdup(tag);
         if !tag_copy.is_null() {
-            STACK_INIT!(pairs, yaml_node_pair_t);
+            STACK_INIT!(pairs, YamlNodePairT);
             memset(
                 node as *mut libc::c_void,
                 0,
-                size_of::<yaml_node_t>() as libc::c_ulong,
+                size_of::<YamlNodeT>() as libc::c_ulong,
             );
-            (*node).type_ = YAML_MAPPING_NODE;
+            (*node).type_ = YamlMappingNode;
             (*node).tag = tag_copy;
             (*node).start_mark = mark;
             (*node).end_mark = mark;
@@ -1485,8 +1955,20 @@ pub unsafe fn yaml_document_add_mapping(
 }
 
 /// Add an item to a SEQUENCE node.
+///
+/// This function adds a node with the given `item` id to the sequence node with the given
+/// `sequence` id in the document.
+///
+/// # Safety
+///
+/// - `document` must be a valid, non-null pointer to a `YamlDocumentT` struct.
+/// - `sequence` must be a valid index within the range of nodes in the `YamlDocumentT` struct, and the node at that index must be a `YamlSequenceNode`.
+/// - `item` must be a valid index within the range of nodes in the `YamlDocumentT` struct.
+/// - The `YamlDocumentT` struct and its associated nodes must be properly initialized and their memory allocated correctly.
+/// - The `YamlDocumentT` struct and its associated nodes must be properly aligned and have the expected memory layout.
+///
 pub unsafe fn yaml_document_append_sequence_item(
-    document: *mut yaml_document_t,
+    document: *mut YamlDocumentT,
     sequence: libc::c_int,
     item: libc::c_int,
 ) -> Success {
@@ -1498,7 +1980,7 @@ pub unsafe fn yaml_document_append_sequence_item(
     );
     __assert!(
         (*((*document).nodes.start).wrapping_offset((sequence - 1) as isize)).type_
-            == YAML_SEQUENCE_NODE
+            == YamlSequenceNode
     );
     __assert!(
         item > 0
@@ -1515,8 +1997,21 @@ pub unsafe fn yaml_document_append_sequence_item(
 }
 
 /// Add a pair of a key and a value to a MAPPING node.
+///
+/// This function adds a key-value pair to the mapping node with the given `mapping` id in the
+/// document. The `key` and `value` arguments are the ids of the nodes to be used as the key and
+/// value, respectively.
+///
+/// # Safety
+///
+/// - `document` must be a valid, non-null pointer to a `YamlDocumentT` struct.
+/// - `mapping` must be a valid index within the range of nodes in the `YamlDocumentT` struct, and the node at that index must be a `YamlMappingNode`.
+/// - `key` and `value` must be valid indices within the range of nodes in the `YamlDocumentT` struct.
+/// - The `YamlDocumentT` struct and its associated nodes must be properly initialized and their memory allocated correctly.
+/// - The `YamlDocumentT` struct and its associated nodes must be properly aligned and have the expected memory layout.
+///
 pub unsafe fn yaml_document_append_mapping_pair(
-    document: *mut yaml_document_t,
+    document: *mut YamlDocumentT,
     mapping: libc::c_int,
     key: libc::c_int,
     value: libc::c_int,
@@ -1528,7 +2023,7 @@ pub unsafe fn yaml_document_append_mapping_pair(
     );
     __assert!(
         (*((*document).nodes.start).wrapping_offset((mapping - 1) as isize)).type_
-            == YAML_MAPPING_NODE
+            == YamlMappingNode
     );
     __assert!(
         key > 0 && ((*document).nodes.start).wrapping_offset(key as isize) <= (*document).nodes.top
@@ -1537,7 +2032,7 @@ pub unsafe fn yaml_document_append_mapping_pair(
         value > 0
             && ((*document).nodes.start).wrapping_offset(value as isize) <= (*document).nodes.top
     );
-    let pair = yaml_node_pair_t { key, value };
+    let pair = YamlNodePairT { key, value };
     PUSH!(
         (*((*document).nodes.start).wrapping_offset((mapping - 1) as isize))
             .data

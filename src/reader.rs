@@ -1,20 +1,25 @@
+// Copyright notice and licensing information.
+// These lines indicate the copyright of the software and its licensing terms.
+// SPDX-License-Identifier: Apache-2.0 OR MIT indicates dual licensing under Apache 2.0 or MIT licenses.
+// Copyright © 2024 LibYML. All rights reserved.
+
 use crate::externs::{memcmp, memmove};
 use crate::ops::ForceAdd as _;
 use crate::success::{Success, FAIL, OK};
 use crate::yaml::{size_t, yaml_char_t};
 use crate::{
-    libc, yaml_parser_t, PointerExt, YAML_ANY_ENCODING, YAML_READER_ERROR, YAML_UTF16BE_ENCODING,
-    YAML_UTF16LE_ENCODING, YAML_UTF8_ENCODING,
+    libc, YamlParserT, PointerExt, YamlAnyEncoding, YamlReaderError, YamlUtf16beEncoding,
+    YamlUtf16leEncoding, YamlUtf8Encoding,
 };
 use core::ptr::addr_of_mut;
 
 unsafe fn yaml_parser_set_reader_error(
-    parser: *mut yaml_parser_t,
+    parser: *mut YamlParserT,
     problem: *const libc::c_char,
     offset: size_t,
     value: libc::c_int,
 ) -> Success {
-    (*parser).error = YAML_READER_ERROR;
+    (*parser).error = YamlReaderError;
     let fresh0 = addr_of_mut!((*parser).problem);
     *fresh0 = problem;
     (*parser).problem_offset = offset;
@@ -26,7 +31,7 @@ const BOM_UTF8: *const libc::c_char = b"\xEF\xBB\xBF\0" as *const u8 as *const l
 const BOM_UTF16LE: *const libc::c_char = b"\xFF\xFE\0" as *const u8 as *const libc::c_char;
 const BOM_UTF16BE: *const libc::c_char = b"\xFE\xFF\0" as *const u8 as *const libc::c_char;
 
-unsafe fn yaml_parser_determine_encoding(parser: *mut yaml_parser_t) -> Success {
+unsafe fn yaml_parser_determine_encoding(parser: *mut YamlParserT) -> Success {
     while !(*parser).eof
         && ((*parser)
             .raw_buffer
@@ -49,11 +54,11 @@ unsafe fn yaml_parser_determine_encoding(parser: *mut yaml_parser_t) -> Success 
             2_u64,
         ) == 0
     {
-        (*parser).encoding = YAML_UTF16LE_ENCODING;
+        (*parser).encoding = YamlUtf16leEncoding;
         let fresh1 = addr_of_mut!((*parser).raw_buffer.pointer);
         *fresh1 = (*fresh1).wrapping_offset(2_isize);
         let fresh2 = addr_of_mut!((*parser).offset);
-        *fresh2 = (*fresh2 as libc::c_ulong).force_add(2_u64) as size_t;
+        *fresh2 = (*fresh2).force_add(3_u64);
     } else if (*parser)
         .raw_buffer
         .last
@@ -65,11 +70,11 @@ unsafe fn yaml_parser_determine_encoding(parser: *mut yaml_parser_t) -> Success 
             2_u64,
         ) == 0
     {
-        (*parser).encoding = YAML_UTF16BE_ENCODING;
+        (*parser).encoding = YamlUtf16beEncoding;
         let fresh3 = addr_of_mut!((*parser).raw_buffer.pointer);
         *fresh3 = (*fresh3).wrapping_offset(2_isize);
         let fresh4 = addr_of_mut!((*parser).offset);
-        *fresh4 = (*fresh4 as libc::c_ulong).force_add(2_u64) as size_t;
+        *fresh4 = (*fresh4).force_add(3_u64);
     } else if (*parser)
         .raw_buffer
         .last
@@ -81,18 +86,18 @@ unsafe fn yaml_parser_determine_encoding(parser: *mut yaml_parser_t) -> Success 
             3_u64,
         ) == 0
     {
-        (*parser).encoding = YAML_UTF8_ENCODING;
+        (*parser).encoding = YamlUtf8Encoding;
         let fresh5 = addr_of_mut!((*parser).raw_buffer.pointer);
         *fresh5 = (*fresh5).wrapping_offset(3_isize);
         let fresh6 = addr_of_mut!((*parser).offset);
-        *fresh6 = (*fresh6 as libc::c_ulong).force_add(3_u64) as size_t;
+        *fresh6 = (*fresh6).force_add(3_u64);
     } else {
-        (*parser).encoding = YAML_UTF8_ENCODING;
+        (*parser).encoding = YamlUtf8Encoding;
     }
     OK
 }
 
-unsafe fn yaml_parser_update_raw_buffer(parser: *mut yaml_parser_t) -> Success {
+unsafe fn yaml_parser_update_raw_buffer(parser: *mut YamlParserT) -> Success {
     let mut size_read: size_t = 0_u64;
     if (*parser).raw_buffer.start == (*parser).raw_buffer.pointer
         && (*parser).raw_buffer.last == (*parser).raw_buffer.end
@@ -150,7 +155,7 @@ unsafe fn yaml_parser_update_raw_buffer(parser: *mut yaml_parser_t) -> Success {
 }
 
 pub(crate) unsafe fn yaml_parser_update_buffer(
-    parser: *mut yaml_parser_t,
+    parser: *mut YamlParserT,
     length: size_t,
 ) -> Success {
     let mut first = true;
@@ -161,10 +166,8 @@ pub(crate) unsafe fn yaml_parser_update_buffer(
     if (*parser).unread >= length {
         return OK;
     }
-    if (*parser).encoding == YAML_ANY_ENCODING {
-        if yaml_parser_determine_encoding(parser).fail {
-            return FAIL;
-        }
+    if (*parser).encoding == YamlAnyEncoding && yaml_parser_determine_encoding(parser).fail {
+        return FAIL;
     }
     if (*parser).buffer.start < (*parser).buffer.pointer
         && (*parser).buffer.pointer < (*parser).buffer.last
@@ -189,10 +192,8 @@ pub(crate) unsafe fn yaml_parser_update_buffer(
         *fresh13 = (*parser).buffer.start;
     }
     while (*parser).unread < length {
-        if !first || (*parser).raw_buffer.pointer == (*parser).raw_buffer.last {
-            if yaml_parser_update_raw_buffer(parser).fail {
-                return FAIL;
-            }
+        if (!first || (*parser).raw_buffer.pointer == (*parser).raw_buffer.last) && yaml_parser_update_raw_buffer(parser).fail {
+            return FAIL;
         }
         first = false;
         while (*parser).raw_buffer.pointer != (*parser).raw_buffer.last {
@@ -210,7 +211,7 @@ pub(crate) unsafe fn yaml_parser_update_buffer(
                 .c_offset_from((*parser).raw_buffer.pointer)
                 as size_t;
             match (*parser).encoding {
-                YAML_UTF8_ENCODING => {
+                YamlUtf8Encoding => {
                     octet = *(*parser).raw_buffer.pointer;
                     width = if octet & 0x80 == 0 {
                         1
@@ -282,7 +283,7 @@ pub(crate) unsafe fn yaml_parser_update_buffer(
                                 -1,
                             );
                         }
-                        if value >= 0xD800 && value <= 0xDFFF || value > 0x10FFFF {
+                        if (0xD800..=0xDFFF).contains(&value) || value > 0x10FFFF {
                             return yaml_parser_set_reader_error(
                                 parser,
                                 b"invalid Unicode character\0" as *const u8 as *const libc::c_char,
@@ -292,13 +293,13 @@ pub(crate) unsafe fn yaml_parser_update_buffer(
                         }
                     }
                 }
-                YAML_UTF16LE_ENCODING | YAML_UTF16BE_ENCODING => {
-                    low = if (*parser).encoding == YAML_UTF16LE_ENCODING {
+                YamlUtf16leEncoding | YamlUtf16beEncoding => {
+                    low = if (*parser).encoding == YamlUtf16leEncoding {
                         0
                     } else {
                         1
                     };
-                    high = if (*parser).encoding == YAML_UTF16LE_ENCODING {
+                    high = if (*parser).encoding == YamlUtf16leEncoding {
                         1
                     } else {
                         0
@@ -381,11 +382,11 @@ pub(crate) unsafe fn yaml_parser_update_buffer(
             if !(value == 0x9
                 || value == 0xA
                 || value == 0xD
-                || value >= 0x20 && value <= 0x7E
+                || (0x20..=0x7E).contains(&value)
                 || value == 0x85
-                || value >= 0xA0 && value <= 0xD7FF
-                || value >= 0xE000 && value <= 0xFFFD
-                || value >= 0x10000 && value <= 0x10FFFF)
+                || (0xA0..=0xD7FF).contains(&value)
+                || (0xE000..=0xFFFD).contains(&value)
+                || (0x10000..=0x10FFFF).contains(&value))
             {
                 return yaml_parser_set_reader_error(
                     parser,
@@ -397,7 +398,7 @@ pub(crate) unsafe fn yaml_parser_update_buffer(
             let fresh14 = addr_of_mut!((*parser).raw_buffer.pointer);
             *fresh14 = (*fresh14).wrapping_offset(width as isize);
             let fresh15 = addr_of_mut!((*parser).offset);
-            *fresh15 = (*fresh15 as libc::c_ulong).force_add(width as libc::c_ulong) as size_t;
+            *fresh15 = (*fresh15).force_add(width as size_t);
             if value <= 0x7F {
                 let fresh16 = addr_of_mut!((*parser).buffer.last);
                 let fresh17 = *fresh16;

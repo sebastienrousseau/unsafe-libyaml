@@ -1,3 +1,8 @@
+// Copyright notice and licensing information.
+// These lines indicate the copyright of the software and its licensing terms.
+// SPDX-License-Identifier: Apache-2.0 OR MIT indicates dual licensing under Apache 2.0 or MIT licenses.
+// Copyright © 2024 LibYML. All rights reserved.
+
 macro_rules! BUFFER_INIT {
     ($buffer:expr, $size:expr) => {{
         let start = addr_of_mut!($buffer.start);
@@ -7,7 +12,7 @@ macro_rules! BUFFER_INIT {
         let last = addr_of_mut!($buffer.last);
         *last = *pointer;
         let end = addr_of_mut!($buffer.end);
-        *end = $buffer.start.wrapping_add($size as usize);
+        *end = $buffer.start.wrapping_add($size);
     }};
 }
 
@@ -25,7 +30,7 @@ macro_rules! BUFFER_DEL {
 
 macro_rules! STRING_ASSIGN {
     ($string:expr, $length:expr) => {
-        yaml_string_t {
+        YamlStringT {
             start: $string,
             end: $string.wrapping_offset($length as isize),
             pointer: $string,
@@ -90,7 +95,7 @@ macro_rules! JOIN {
 
 macro_rules! CHECK_AT {
     ($string:expr, $octet:expr, $offset:expr) => {
-        *$string.pointer.offset($offset as isize) == $octet
+        *$string.pointer.offset($offset) == $octet
     };
 }
 
@@ -254,15 +259,16 @@ macro_rules! IS_BREAK_AT {
     ($string:expr, $offset:expr) => {
         CHECK_AT!($string, b'\r', $offset)
             || CHECK_AT!($string, b'\n', $offset)
-            || CHECK_AT!($string, b'\xC2', $offset) && CHECK_AT!($string, b'\x85', $offset + 1)
+            || CHECK_AT!($string, b'\xC2', $offset) && CHECK_AT!($string, b'\x85', ($offset + 1).try_into().unwrap())
             || CHECK_AT!($string, b'\xE2', $offset)
-                && CHECK_AT!($string, b'\x80', $offset + 1)
-                && CHECK_AT!($string, b'\xA8', $offset + 2)
+                && CHECK_AT!($string, b'\x80', ($offset + 1).try_into().unwrap())
+                && CHECK_AT!($string, b'\xA8', ($offset + 2).try_into().unwrap())
             || CHECK_AT!($string, b'\xE2', $offset)
-                && CHECK_AT!($string, b'\x80', $offset + 1)
-                && CHECK_AT!($string, b'\xA9', $offset + 2)
+                && CHECK_AT!($string, b'\x80', ($offset + 1).try_into().unwrap())
+                && CHECK_AT!($string, b'\xA9', ($offset + 2).try_into().unwrap())
     };
 }
+
 
 macro_rules! IS_BREAK {
     ($string:expr) => {
@@ -302,19 +308,20 @@ macro_rules! IS_BLANKZ {
 
 macro_rules! WIDTH_AT {
     ($string:expr, $offset:expr) => {
-        if *$string.pointer.wrapping_offset($offset as isize) & 0x80 == 0x00 {
+        if *$string.pointer.wrapping_offset($offset) & 0x80 == 0x00 {
             1
-        } else if *$string.pointer.wrapping_offset($offset as isize) & 0xE0 == 0xC0 {
+        } else if *$string.pointer.wrapping_offset($offset) & 0xE0 == 0xC0 {
             2
-        } else if *$string.pointer.wrapping_offset($offset as isize) & 0xF0 == 0xE0 {
+        } else if *$string.pointer.wrapping_offset($offset) & 0xF0 == 0xE0 {
             3
-        } else if *$string.pointer.wrapping_offset($offset as isize) & 0xF8 == 0xF0 {
+        } else if *$string.pointer.wrapping_offset($offset) & 0xF8 == 0xF0 {
             4
         } else {
             0
         }
     };
 }
+
 
 macro_rules! WIDTH {
     ($string:expr) => {
@@ -324,11 +331,11 @@ macro_rules! WIDTH {
 
 macro_rules! MOVE {
     ($string:expr) => {
-        $string.pointer = $string.pointer.wrapping_offset(WIDTH!($string) as isize)
+        $string.pointer = $string.pointer.wrapping_offset(WIDTH!($string))
     };
 }
 
-macro_rules! COPY {
+macro_rules! copy {
     ($string_a:expr, $string_b:expr) => {
         if *$string_b.pointer & 0x80 == 0x00 {
             *$string_a.pointer = *$string_b.pointer;
@@ -396,7 +403,7 @@ macro_rules! STACK_LIMIT {
         if $stack.top.c_offset_from($stack.start) < libc::c_int::MAX as isize - 1 {
             OK
         } else {
-            (*$context).error = YAML_MEMORY_ERROR;
+            (*$context).error = YamlMemoryError;
             FAIL
         }
     };
@@ -472,9 +479,10 @@ macro_rules! ENQUEUE {
     ($queue:expr, *$value:expr) => {
         ENQUEUE!(do $queue, ptr::copy_nonoverlapping($value, $queue.tail, 1))
     };
-    ($queue:expr, $value:expr) => {
-        ENQUEUE!(do $queue, ptr::write($queue.tail, $value))
-    };
+    //FIXME: macro `ENQUEUE` is never used
+    // ($queue:expr, $value:expr) => {
+    //     ENQUEUE!(do $queue, ptr::write($queue.tail, $value))
+    // };
 }
 
 macro_rules! DEQUEUE {
@@ -505,7 +513,7 @@ macro_rules! QUEUE_INSERT {
             $queue.head.wrapping_offset($index as isize) as *const libc::c_void,
             ($queue.tail.c_offset_from($queue.head) as libc::c_ulong)
                 .wrapping_sub($index)
-                .wrapping_mul(size_of::<yaml_token_t>() as libc::c_ulong),
+                .wrapping_mul(size_of::<YamlTokenT>() as libc::c_ulong),
         );
         *$queue.head.wrapping_offset($index as isize) = $value;
         let fresh14 = addr_of_mut!($queue.tail);

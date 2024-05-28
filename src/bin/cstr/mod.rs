@@ -1,3 +1,8 @@
+// Copyright notice and licensing information.
+// These lines indicate the copyright of the software and its licensing terms.
+// SPDX-License-Identifier: Apache-2.0 OR MIT indicates dual licensing under Apache 2.0 or MIT licenses.
+// Copyright © 2024 LibYML. All rights reserved.
+
 use std::fmt::{self, Display, Write as _};
 use std::slice;
 use std::str;
@@ -5,18 +10,18 @@ use std::str;
 #[allow(non_camel_case_types)]
 type c_char = i8;
 
-pub struct CStr {
-    ptr: *const u8,
+pub(crate) struct CStr {
+    pub(crate) ptr: *const u8,
 }
 
 impl CStr {
-    pub unsafe fn from_ptr(ptr: *const c_char) -> Self {
+    pub(crate) unsafe fn from_ptr(ptr: *const c_char) -> Self {
         CStr { ptr: ptr.cast() }
     }
 }
 
 impl Display for CStr {
-    fn fmt(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, formatter: &mut fmt::Formatter<'_>) -> fmt::Result {
         let len = unsafe { strlen(self.ptr) };
         let mut bytes = unsafe { slice::from_raw_parts(self.ptr, len) };
         loop {

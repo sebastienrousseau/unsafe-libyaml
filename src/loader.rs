@@ -1,20 +1,25 @@
+// Copyright notice and licensing information.
+// These lines indicate the copyright of the software and its licensing terms.
+// SPDX-License-Identifier: Apache-2.0 OR MIT indicates dual licensing under Apache 2.0 or MIT licenses.
+// Copyright © 2024 LibYML. All rights reserved.
+
 use crate::api::{yaml_free, yaml_malloc, yaml_stack_extend, yaml_strdup};
 use crate::externs::{memset, strcmp};
 use crate::success::{Success, FAIL, OK};
 use crate::yaml::yaml_char_t;
 use crate::{
-    libc, yaml_alias_data_t, yaml_document_delete, yaml_document_t, yaml_event_t, yaml_mark_t,
-    yaml_node_item_t, yaml_node_pair_t, yaml_node_t, yaml_parser_parse, yaml_parser_t, PointerExt,
-    YAML_ALIAS_EVENT, YAML_COMPOSER_ERROR, YAML_DOCUMENT_END_EVENT, YAML_DOCUMENT_START_EVENT,
-    YAML_MAPPING_END_EVENT, YAML_MAPPING_NODE, YAML_MAPPING_START_EVENT, YAML_MEMORY_ERROR,
-    YAML_SCALAR_EVENT, YAML_SCALAR_NODE, YAML_SEQUENCE_END_EVENT, YAML_SEQUENCE_NODE,
-    YAML_SEQUENCE_START_EVENT, YAML_STREAM_END_EVENT, YAML_STREAM_START_EVENT,
+    libc, YamlAliasDataT, yaml_document_delete, YamlDocumentT, YamlEventT, YamlMarkT,
+    YamlNodeItemT, YamlNodePairT, YamlNodeT, yaml_parser_parse, YamlParserT, PointerExt,
+    YamlAliasEvent, YamlComposerError, YamlDocumentEndEvent, YamlDocumentStartEvent,
+    YamlMappingEndEvent, YamlMappingNode, YamlMappingStartEvent, YamlMemoryError,
+    YamlScalarEvent, YamlScalarNode, YamlSequenceEndEvent, YamlSequenceNode,
+    YamlSequenceStartEvent, YamlStreamEndEvent, YamlStreamStartEvent,
 };
 use core::mem::{size_of, MaybeUninit};
 use core::ptr::{self, addr_of_mut};
 
 #[repr(C)]
-struct loader_ctx {
+struct LoaderCtx {
     start: *mut libc::c_int,
     end: *mut libc::c_int,
     top: *mut libc::c_int,
@@ -34,26 +39,34 @@ struct loader_ctx {
 /// An application must not alternate the calls of yaml_parser_load() with the
 /// calls of yaml_parser_scan() or yaml_parser_parse(). Doing this will break
 /// the parser.
+///
+/// # Safety
+///
+/// - `parser` must be a valid, non-null pointer to a properly initialized `YamlParserT` struct.
+/// - `document` must be a valid, non-null pointer to a `YamlDocumentT` struct that can be safely written to.
+/// - The `YamlParserT` and `YamlDocumentT` structs must be properly aligned and have the expected memory layout.
+/// - The caller must call `yaml_document_delete` to free any data associated with the produced document object.
+/// - The caller must not alternate calls to `yaml_parser_load` with calls to `yaml_parser_scan` or `yaml_parser_parse` on the same `YamlParserT` instance.
 pub unsafe fn yaml_parser_load(
-    parser: *mut yaml_parser_t,
-    document: *mut yaml_document_t,
+    parser: *mut YamlParserT,
+    document: *mut YamlDocumentT,
 ) -> Success {
     let current_block: u64;
-    let mut event = MaybeUninit::<yaml_event_t>::uninit();
+    let mut event = MaybeUninit::<YamlEventT>::uninit();
     let event = event.as_mut_ptr();
     __assert!(!parser.is_null());
     __assert!(!document.is_null());
     memset(
         document as *mut libc::c_void,
         0,
-        size_of::<yaml_document_t>() as libc::c_ulong,
+        size_of::<YamlDocumentT>() as libc::c_ulong,
     );
-    STACK_INIT!((*document).nodes, yaml_node_t);
+    STACK_INIT!((*document).nodes, YamlNodeT);
     if !(*parser).stream_start_produced {
         if yaml_parser_parse(parser, event).fail {
             current_block = 6234624449317607669;
         } else {
-            __assert!((*event).type_ == YAML_STREAM_START_EVENT);
+            __assert!((*event).type_ == YamlStreamStartEvent);
             current_block = 7815301370352969686;
         }
     } else {
@@ -64,16 +77,16 @@ pub unsafe fn yaml_parser_load(
             return OK;
         }
         if yaml_parser_parse(parser, event).ok {
-            if (*event).type_ == YAML_STREAM_END_EVENT {
+            if (*event).type_ == YamlStreamEndEvent {
                 return OK;
             }
-            STACK_INIT!((*parser).aliases, yaml_alias_data_t);
+            STACK_INIT!((*parser).aliases, YamlAliasDataT);
             let fresh6 = addr_of_mut!((*parser).document);
             *fresh6 = document;
             if yaml_parser_load_document(parser, event).ok {
                 yaml_parser_delete_aliases(parser);
                 let fresh7 = addr_of_mut!((*parser).document);
-                *fresh7 = ptr::null_mut::<yaml_document_t>();
+                *fresh7 = ptr::null_mut::<YamlDocumentT>();
                 return OK;
             }
         }
@@ -81,16 +94,16 @@ pub unsafe fn yaml_parser_load(
     yaml_parser_delete_aliases(parser);
     yaml_document_delete(document);
     let fresh8 = addr_of_mut!((*parser).document);
-    *fresh8 = ptr::null_mut::<yaml_document_t>();
+    *fresh8 = ptr::null_mut::<YamlDocumentT>();
     FAIL
 }
 
 unsafe fn yaml_parser_set_composer_error(
-    parser: *mut yaml_parser_t,
+    parser: *mut YamlParserT,
     problem: *const libc::c_char,
-    problem_mark: yaml_mark_t,
+    problem_mark: YamlMarkT,
 ) -> Success {
-    (*parser).error = YAML_COMPOSER_ERROR;
+    (*parser).error = YamlComposerError;
     let fresh9 = addr_of_mut!((*parser).problem);
     *fresh9 = problem;
     (*parser).problem_mark = problem_mark;
@@ -98,13 +111,13 @@ unsafe fn yaml_parser_set_composer_error(
 }
 
 unsafe fn yaml_parser_set_composer_error_context(
-    parser: *mut yaml_parser_t,
+    parser: *mut YamlParserT,
     context: *const libc::c_char,
-    context_mark: yaml_mark_t,
+    context_mark: YamlMarkT,
     problem: *const libc::c_char,
-    problem_mark: yaml_mark_t,
+    problem_mark: YamlMarkT,
 ) -> Success {
-    (*parser).error = YAML_COMPOSER_ERROR;
+    (*parser).error = YamlComposerError;
     let fresh10 = addr_of_mut!((*parser).context);
     *fresh10 = context;
     (*parser).context_mark = context_mark;
@@ -114,7 +127,7 @@ unsafe fn yaml_parser_set_composer_error_context(
     FAIL
 }
 
-unsafe fn yaml_parser_delete_aliases(parser: *mut yaml_parser_t) {
+unsafe fn yaml_parser_delete_aliases(parser: *mut YamlParserT) {
     while !STACK_EMPTY!((*parser).aliases) {
         yaml_free(POP!((*parser).aliases).anchor as *mut libc::c_void);
     }
@@ -122,15 +135,15 @@ unsafe fn yaml_parser_delete_aliases(parser: *mut yaml_parser_t) {
 }
 
 unsafe fn yaml_parser_load_document(
-    parser: *mut yaml_parser_t,
-    event: *mut yaml_event_t,
+    parser: *mut YamlParserT,
+    event: *mut YamlEventT,
 ) -> Success {
-    let mut ctx = loader_ctx {
+    let mut ctx = LoaderCtx {
         start: ptr::null_mut::<libc::c_int>(),
         end: ptr::null_mut::<libc::c_int>(),
         top: ptr::null_mut::<libc::c_int>(),
     };
-    __assert!((*event).type_ == YAML_DOCUMENT_START_EVENT);
+    __assert!((*event).type_ == YamlDocumentStartEvent);
     let fresh16 = addr_of_mut!((*(*parser).document).version_directive);
     *fresh16 = (*event).data.document_start.version_directive;
     let fresh17 = addr_of_mut!((*(*parser).document).tag_directives.start);
@@ -148,50 +161,50 @@ unsafe fn yaml_parser_load_document(
     OK
 }
 
-unsafe fn yaml_parser_load_nodes(parser: *mut yaml_parser_t, ctx: *mut loader_ctx) -> Success {
-    let mut event = MaybeUninit::<yaml_event_t>::uninit();
+unsafe fn yaml_parser_load_nodes(parser: *mut YamlParserT, ctx: *mut LoaderCtx) -> Success {
+    let mut event = MaybeUninit::<YamlEventT>::uninit();
     let event = event.as_mut_ptr();
     loop {
         if yaml_parser_parse(parser, event).fail {
             return FAIL;
         }
         match (*event).type_ {
-            YAML_ALIAS_EVENT => {
+            YamlAliasEvent => {
                 if yaml_parser_load_alias(parser, event, ctx).fail {
                     return FAIL;
                 }
             }
-            YAML_SCALAR_EVENT => {
+            YamlScalarEvent => {
                 if yaml_parser_load_scalar(parser, event, ctx).fail {
                     return FAIL;
                 }
             }
-            YAML_SEQUENCE_START_EVENT => {
+            YamlSequenceStartEvent => {
                 if yaml_parser_load_sequence(parser, event, ctx).fail {
                     return FAIL;
                 }
             }
-            YAML_SEQUENCE_END_EVENT => {
+            YamlSequenceEndEvent => {
                 if yaml_parser_load_sequence_end(parser, event, ctx).fail {
                     return FAIL;
                 }
             }
-            YAML_MAPPING_START_EVENT => {
+            YamlMappingStartEvent => {
                 if yaml_parser_load_mapping(parser, event, ctx).fail {
                     return FAIL;
                 }
             }
-            YAML_MAPPING_END_EVENT => {
+            YamlMappingEndEvent => {
                 if yaml_parser_load_mapping_end(parser, event, ctx).fail {
                     return FAIL;
                 }
             }
-            YAML_DOCUMENT_END_EVENT => {}
+            YamlDocumentEndEvent => {}
             _ => {
                 __assert!(false);
             }
         }
-        if (*event).type_ == YAML_DOCUMENT_END_EVENT {
+        if (*event).type_ == YamlDocumentEndEvent {
             break;
         }
     }
@@ -201,13 +214,13 @@ unsafe fn yaml_parser_load_nodes(parser: *mut yaml_parser_t, ctx: *mut loader_ct
 }
 
 unsafe fn yaml_parser_register_anchor(
-    parser: *mut yaml_parser_t,
+    parser: *mut YamlParserT,
     index: libc::c_int,
     anchor: *mut yaml_char_t,
 ) -> Success {
-    let mut data = MaybeUninit::<yaml_alias_data_t>::uninit();
+    let mut data = MaybeUninit::<YamlAliasDataT>::uninit();
     let data = data.as_mut_ptr();
-    let mut alias_data: *mut yaml_alias_data_t;
+    let mut alias_data: *mut YamlAliasDataT;
     if anchor.is_null() {
         return OK;
     }
@@ -241,30 +254,30 @@ unsafe fn yaml_parser_register_anchor(
 }
 
 unsafe fn yaml_parser_load_node_add(
-    parser: *mut yaml_parser_t,
-    ctx: *mut loader_ctx,
+    parser: *mut YamlParserT,
+    ctx: *mut LoaderCtx,
     index: libc::c_int,
 ) -> Success {
     if STACK_EMPTY!(*ctx) {
         return OK;
     }
     let parent_index: libc::c_int = *(*ctx).top.wrapping_offset(-1_isize);
-    let parent: *mut yaml_node_t = addr_of_mut!(
+    let parent: *mut YamlNodeT = addr_of_mut!(
         *((*(*parser).document).nodes.start).wrapping_offset((parent_index - 1) as isize)
     );
     let current_block_17: u64;
     match (*parent).type_ {
-        YAML_SEQUENCE_NODE => {
+        YamlSequenceNode => {
             if STACK_LIMIT!(parser, (*parent).data.sequence.items).fail {
                 return FAIL;
             }
             PUSH!((*parent).data.sequence.items, index);
         }
-        YAML_MAPPING_NODE => {
-            let mut pair = MaybeUninit::<yaml_node_pair_t>::uninit();
+        YamlMappingNode => {
+            let mut pair = MaybeUninit::<YamlNodePairT>::uninit();
             let pair = pair.as_mut_ptr();
             if !STACK_EMPTY!((*parent).data.mapping.pairs) {
-                let p: *mut yaml_node_pair_t =
+                let p: *mut YamlNodePairT =
                     (*parent).data.mapping.pairs.top.wrapping_offset(-1_isize);
                 if (*p).key != 0 && (*p).value == 0 {
                     (*p).value = index;
@@ -295,12 +308,12 @@ unsafe fn yaml_parser_load_node_add(
 }
 
 unsafe fn yaml_parser_load_alias(
-    parser: *mut yaml_parser_t,
-    event: *mut yaml_event_t,
-    ctx: *mut loader_ctx,
+    parser: *mut YamlParserT,
+    event: *mut YamlEventT,
+    ctx: *mut LoaderCtx,
 ) -> Success {
     let anchor: *mut yaml_char_t = (*event).data.alias.anchor;
-    let mut alias_data: *mut yaml_alias_data_t;
+    let mut alias_data: *mut YamlAliasDataT;
     alias_data = (*parser).aliases.start;
     while alias_data != (*parser).aliases.top {
         if strcmp(
@@ -322,12 +335,12 @@ unsafe fn yaml_parser_load_alias(
 }
 
 unsafe fn yaml_parser_load_scalar(
-    parser: *mut yaml_parser_t,
-    event: *mut yaml_event_t,
-    ctx: *mut loader_ctx,
+    parser: *mut YamlParserT,
+    event: *mut YamlEventT,
+    ctx: *mut LoaderCtx,
 ) -> Success {
     let current_block: u64;
-    let mut node = MaybeUninit::<yaml_node_t>::uninit();
+    let mut node = MaybeUninit::<YamlNodeT>::uninit();
     let node = node.as_mut_ptr();
     let index: libc::c_int;
     let mut tag: *mut yaml_char_t = (*event).data.scalar.tag;
@@ -354,9 +367,9 @@ unsafe fn yaml_parser_load_scalar(
             memset(
                 node as *mut libc::c_void,
                 0,
-                size_of::<yaml_node_t>() as libc::c_ulong,
+                size_of::<YamlNodeT>() as libc::c_ulong,
             );
-            (*node).type_ = YAML_SCALAR_NODE;
+            (*node).type_ = YamlScalarNode;
             (*node).tag = tag;
             (*node).start_mark = (*event).start_mark;
             (*node).end_mark = (*event).end_mark;
@@ -382,22 +395,22 @@ unsafe fn yaml_parser_load_scalar(
 }
 
 unsafe fn yaml_parser_load_sequence(
-    parser: *mut yaml_parser_t,
-    event: *mut yaml_event_t,
-    ctx: *mut loader_ctx,
+    parser: *mut YamlParserT,
+    event: *mut YamlEventT,
+    ctx: *mut LoaderCtx,
 ) -> Success {
     let current_block: u64;
-    let mut node = MaybeUninit::<yaml_node_t>::uninit();
+    let mut node = MaybeUninit::<YamlNodeT>::uninit();
     let node = node.as_mut_ptr();
     struct Items {
-        start: *mut yaml_node_item_t,
-        end: *mut yaml_node_item_t,
-        top: *mut yaml_node_item_t,
+        start: *mut YamlNodeItemT,
+        end: *mut YamlNodeItemT,
+        top: *mut YamlNodeItemT,
     }
     let mut items = Items {
-        start: ptr::null_mut::<yaml_node_item_t>(),
-        end: ptr::null_mut::<yaml_node_item_t>(),
-        top: ptr::null_mut::<yaml_node_item_t>(),
+        start: ptr::null_mut::<YamlNodeItemT>(),
+        end: ptr::null_mut::<YamlNodeItemT>(),
+        top: ptr::null_mut::<YamlNodeItemT>(),
     };
     let index: libc::c_int;
     let mut tag: *mut yaml_char_t = (*event).data.sequence_start.tag;
@@ -421,13 +434,13 @@ unsafe fn yaml_parser_load_sequence(
             current_block = 6937071982253665452;
         }
         if current_block != 13474536459355229096 {
-            STACK_INIT!(items, yaml_node_item_t);
+            STACK_INIT!(items, YamlNodeItemT);
             memset(
                 node as *mut libc::c_void,
                 0,
-                size_of::<yaml_node_t>() as libc::c_ulong,
+                size_of::<YamlNodeT>() as libc::c_ulong,
             );
-            (*node).type_ = YAML_SEQUENCE_NODE;
+            (*node).type_ = YamlSequenceNode;
             (*node).tag = tag;
             (*node).start_mark = (*event).start_mark;
             (*node).end_mark = (*event).end_mark;
@@ -461,15 +474,15 @@ unsafe fn yaml_parser_load_sequence(
 }
 
 unsafe fn yaml_parser_load_sequence_end(
-    parser: *mut yaml_parser_t,
-    event: *mut yaml_event_t,
-    ctx: *mut loader_ctx,
+    parser: *mut YamlParserT,
+    event: *mut YamlEventT,
+    ctx: *mut LoaderCtx,
 ) -> Success {
     __assert!(((*ctx).top).c_offset_from((*ctx).start) as libc::c_long > 0_i64);
     let index: libc::c_int = *(*ctx).top.wrapping_offset(-1_isize);
     __assert!(
         (*((*(*parser).document).nodes.start).wrapping_offset((index - 1) as isize)).type_
-            == YAML_SEQUENCE_NODE
+            == YamlSequenceNode
     );
     (*(*(*parser).document)
         .nodes
@@ -481,22 +494,22 @@ unsafe fn yaml_parser_load_sequence_end(
 }
 
 unsafe fn yaml_parser_load_mapping(
-    parser: *mut yaml_parser_t,
-    event: *mut yaml_event_t,
-    ctx: *mut loader_ctx,
+    parser: *mut YamlParserT,
+    event: *mut YamlEventT,
+    ctx: *mut LoaderCtx,
 ) -> Success {
     let current_block: u64;
-    let mut node = MaybeUninit::<yaml_node_t>::uninit();
+    let mut node = MaybeUninit::<YamlNodeT>::uninit();
     let node = node.as_mut_ptr();
     struct Pairs {
-        start: *mut yaml_node_pair_t,
-        end: *mut yaml_node_pair_t,
-        top: *mut yaml_node_pair_t,
+        start: *mut YamlNodePairT,
+        end: *mut YamlNodePairT,
+        top: *mut YamlNodePairT,
     }
     let mut pairs = Pairs {
-        start: ptr::null_mut::<yaml_node_pair_t>(),
-        end: ptr::null_mut::<yaml_node_pair_t>(),
-        top: ptr::null_mut::<yaml_node_pair_t>(),
+        start: ptr::null_mut::<YamlNodePairT>(),
+        end: ptr::null_mut::<YamlNodePairT>(),
+        top: ptr::null_mut::<YamlNodePairT>(),
     };
     let index: libc::c_int;
     let mut tag: *mut yaml_char_t = (*event).data.mapping_start.tag;
@@ -520,13 +533,13 @@ unsafe fn yaml_parser_load_mapping(
             current_block = 6937071982253665452;
         }
         if current_block != 13635467803606088781 {
-            STACK_INIT!(pairs, yaml_node_pair_t);
+            STACK_INIT!(pairs, YamlNodePairT);
             memset(
                 node as *mut libc::c_void,
                 0,
-                size_of::<yaml_node_t>() as libc::c_ulong,
+                size_of::<YamlNodeT>() as libc::c_ulong,
             );
-            (*node).type_ = YAML_MAPPING_NODE;
+            (*node).type_ = YamlMappingNode;
             (*node).tag = tag;
             (*node).start_mark = (*event).start_mark;
             (*node).end_mark = (*event).end_mark;
@@ -559,15 +572,15 @@ unsafe fn yaml_parser_load_mapping(
 }
 
 unsafe fn yaml_parser_load_mapping_end(
-    parser: *mut yaml_parser_t,
-    event: *mut yaml_event_t,
-    ctx: *mut loader_ctx,
+    parser: *mut YamlParserT,
+    event: *mut YamlEventT,
+    ctx: *mut LoaderCtx,
 ) -> Success {
     __assert!(((*ctx).top).c_offset_from((*ctx).start) as libc::c_long > 0_i64);
     let index: libc::c_int = *(*ctx).top.wrapping_offset(-1_isize);
     __assert!(
         (*((*(*parser).document).nodes.start).wrapping_offset((index - 1) as isize)).type_
-            == YAML_MAPPING_NODE
+            == YamlMappingNode
     );
     (*(*(*parser).document)
         .nodes

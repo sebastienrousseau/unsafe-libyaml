@@ -1,3 +1,8 @@
+// Copyright notice and licensing information.
+// These lines indicate the copyright of the software and its licensing terms.
+// SPDX-License-Identifier: Apache-2.0 OR MIT indicates dual licensing under Apache 2.0 or MIT licenses.
+// Copyright © 2024 LibYML. All rights reserved.
+
 #![allow(clippy::type_complexity, clippy::uninlined_format_args)]
 
 mod bin;
@@ -28,4 +33,4 @@ fn test(id: &str) {
     }
 }
 
-unsafe_libyaml_test_suite::test_parser_error!();
+libyml_test_suite::test_parser_error!();

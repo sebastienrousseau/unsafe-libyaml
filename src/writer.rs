@@ -1,27 +1,85 @@
-use crate::ops::ForceAdd as _;
-use crate::success::{Success, FAIL, OK};
-use crate::yaml::size_t;
+// Copyright notice and licensing information.
+// These lines indicate the copyright of the software and its licensing terms.
+// SPDX-License-Identifier: Apache-2.0 OR MIT indicates dual licensing under Apache 2.0 or MIT licenses.
+// Copyright © 2024 LibYML. All rights reserved.
+
 use crate::{
-    libc, yaml_emitter_t, PointerExt, YAML_ANY_ENCODING, YAML_UTF16LE_ENCODING, YAML_UTF8_ENCODING,
-    YAML_WRITER_ERROR,
+    libc,
+    ops::ForceAdd as _,
+    success::{Success, FAIL, OK},
+    yaml::size_t,
+    PointerExt, YamlAnyEncoding, YamlEmitterT, YamlUtf16leEncoding,
+    YamlUtf8Encoding, YamlWriterError,
 };
 use core::ptr::addr_of_mut;
 
-unsafe fn yaml_emitter_set_writer_error(
-    emitter: *mut yaml_emitter_t,
+/// Sets the writer error for the emitter.
+///
+/// This function sets the error of the emitter and updates the problem string.
+///
+/// # Arguments
+///
+/// * `emitter` - A pointer to the YamlEmitterT struct.
+/// * `problem` - A pointer to the string that describes the error.
+///
+/// # Returns
+///
+/// * `Success::FAIL` - The function sets the error of the emitter and returns FAIL.
+///
+/// # Safety
+///
+/// This function is marked unsafe as it dereferences the pointer passed to it.
+/// The caller must ensure that the pointer is valid and points to a valid memory location.
+/// The caller must also ensure that the pointer is not null.
+///
+pub(crate) unsafe fn yaml_emitter_set_writer_error(
+    emitter: *mut YamlEmitterT,
     problem: *const libc::c_char,
 ) -> Success {
-    (*emitter).error = YAML_WRITER_ERROR;
+    (*emitter).error = YamlWriterError;
     let fresh0 = addr_of_mut!((*emitter).problem);
     *fresh0 = problem;
     FAIL
 }
 
-/// Flush the accumulated characters to the output.
-pub unsafe fn yaml_emitter_flush(emitter: *mut yaml_emitter_t) -> Success {
+/// Flushes the buffer of the emitter and writes the content to the output stream.
+///
+///  This function is called when the emitter needs to flush its buffer to the output stream.
+///  It first checks if the emitter is not null and if the write handler is not null.
+///  It also checks if the encoding of the emitter is not YamlAnyEncoding.
+///
+///  If the conditions are met, it updates the last and pointer of the buffer.
+///  If the encoding is YamlUtf8Encoding, it writes the content of the buffer to the output stream.
+///  If an error occurs during the write operation, it sets the error of the emitter and returns FAIL.
+///
+///  If the encoding is not YamlUtf8Encoding, it writes the content of the buffer to the raw buffer.
+///  It then writes the raw buffer to the output stream.
+///  If an error occurs during the write operation, it sets the error of the emitter and returns FAIL.
+///  If the write operation is successful, it returns OK.
+///
+///  # Arguments
+///
+/// * `emitter` - A pointer to the YamlEmitterT struct.
+///
+///  # Returns
+///
+/// * `Success` - An enum representing the success or failure of the operation.
+///
+/// # Safety
+///
+/// * The function is marked unsafe as it dereferences the pointer passed to it.
+/// * The caller must ensure that the pointer is valid and points to a valid memory location.
+/// * The caller must also ensure that the pointer is not null.
+/// * The caller must ensure that the write handler is not null.
+/// * The caller must ensure that the encoding is not YamlAnyEncoding.
+/// * The caller must ensure that the write handler is a valid function pointer.
+///
+pub unsafe fn yaml_emitter_flush(
+    emitter: *mut YamlEmitterT,
+) -> Success {
     __assert!(!emitter.is_null());
     __assert!(((*emitter).write_handler).is_some());
-    __assert!((*emitter).encoding != YAML_ANY_ENCODING);
+    __assert!((*emitter).encoding != YamlAnyEncoding);
     let fresh1 = addr_of_mut!((*emitter).buffer.last);
     *fresh1 = (*emitter).buffer.pointer;
     let fresh2 = addr_of_mut!((*emitter).buffer.pointer);
@@ -29,14 +87,15 @@ pub unsafe fn yaml_emitter_flush(emitter: *mut yaml_emitter_t) -> Success {
     if (*emitter).buffer.start == (*emitter).buffer.last {
         return OK;
     }
-    if (*emitter).encoding == YAML_UTF8_ENCODING {
+    if (*emitter).encoding == YamlUtf8Encoding {
         if (*emitter).write_handler.expect("non-null function pointer")(
             (*emitter).write_handler_data,
             (*emitter).buffer.start,
             (*emitter)
                 .buffer
                 .last
-                .c_offset_from((*emitter).buffer.start) as size_t,
+                .c_offset_from((*emitter).buffer.start)
+                as size_t,
         ) != 0
         {
             let fresh3 = addr_of_mut!((*emitter).buffer.last);
@@ -51,16 +110,18 @@ pub unsafe fn yaml_emitter_flush(emitter: *mut yaml_emitter_t) -> Success {
             );
         }
     }
-    let low: libc::c_int = if (*emitter).encoding == YAML_UTF16LE_ENCODING {
+    let low: libc::c_int = if (*emitter).encoding == YamlUtf16leEncoding
+    {
         0
     } else {
         1
     };
-    let high: libc::c_int = if (*emitter).encoding == YAML_UTF16LE_ENCODING {
-        1
-    } else {
-        0
-    };
+    let high: libc::c_int =
+        if (*emitter).encoding == YamlUtf16leEncoding {
+            1
+        } else {
+            0
+        };
     while (*emitter).buffer.pointer != (*emitter).buffer.last {
         let mut octet: libc::c_uchar;
         let mut value: libc::c_uint;
@@ -90,14 +151,19 @@ pub unsafe fn yaml_emitter_flush(emitter: *mut yaml_emitter_t) -> Success {
         } as libc::c_uint;
         k = 1_u64;
         while k < width as libc::c_ulong {
-            octet = *(*emitter).buffer.pointer.wrapping_offset(k as isize);
-            value = (value << 6).force_add((octet & 0x3F) as libc::c_uint);
+            octet =
+                *(*emitter).buffer.pointer.wrapping_offset(k as isize);
+            value =
+                (value << 6).force_add((octet & 0x3F) as libc::c_uint);
             k = k.force_add(1);
         }
         let fresh5 = addr_of_mut!((*emitter).buffer.pointer);
         *fresh5 = (*fresh5).wrapping_offset(width as isize);
         if value < 0x10000 {
-            *(*emitter).raw_buffer.last.wrapping_offset(high as isize) =
+            *(*emitter)
+                .raw_buffer
+                .last
+                .wrapping_offset(high as isize) =
                 (value >> 8) as libc::c_uchar;
             *(*emitter).raw_buffer.last.wrapping_offset(low as isize) =
                 (value & 0xFF) as libc::c_uchar;
@@ -105,7 +171,10 @@ pub unsafe fn yaml_emitter_flush(emitter: *mut yaml_emitter_t) -> Success {
             *fresh6 = (*fresh6).wrapping_offset(2_isize);
         } else {
             value = value.wrapping_sub(0x10000);
-            *(*emitter).raw_buffer.last.wrapping_offset(high as isize) =
+            *(*emitter)
+                .raw_buffer
+                .last
+                .wrapping_offset(high as isize) =
                 0xD8_u32.force_add(value >> 18) as libc::c_uchar;
             *(*emitter).raw_buffer.last.wrapping_offset(low as isize) =
                 (value >> 10 & 0xFF) as libc::c_uchar;
@@ -117,7 +186,8 @@ pub unsafe fn yaml_emitter_flush(emitter: *mut yaml_emitter_t) -> Success {
             *(*emitter)
                 .raw_buffer
                 .last
-                .wrapping_offset((low + 2) as isize) = (value & 0xFF) as libc::c_uchar;
+                .wrapping_offset((low + 2) as isize) =
+                (value & 0xFF) as libc::c_uchar;
             let fresh7 = addr_of_mut!((*emitter).raw_buffer.last);
             *fresh7 = (*fresh7).wrapping_offset(4_isize);
         }
@@ -128,7 +198,8 @@ pub unsafe fn yaml_emitter_flush(emitter: *mut yaml_emitter_t) -> Success {
         (*emitter)
             .raw_buffer
             .last
-            .c_offset_from((*emitter).raw_buffer.start) as size_t,
+            .c_offset_from((*emitter).raw_buffer.start)
+            as size_t,
     ) != 0
     {
         let fresh8 = addr_of_mut!((*emitter).buffer.last);

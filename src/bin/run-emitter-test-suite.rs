@@ -1,3 +1,8 @@
+// Copyright notice and licensing information.
+// These lines indicate the copyright of the software and its licensing terms.
+// SPDX-License-Identifier: Apache-2.0 OR MIT indicates dual licensing under Apache 2.0 or MIT licenses.
+// Copyright © 2024 LibYML. All rights reserved.
+
 #![warn(clippy::pedantic)]
 #![allow(
     clippy::cast_lossless,
@@ -17,6 +22,8 @@
 
 mod cstr;
 
+use libyml::api::ScalarEventData;
+pub(crate) use core::primitive::u8 as yaml_char_t;
 use self::cstr::CStr;
 use std::env;
 use std::error::Error;
@@ -26,35 +33,36 @@ use std::io::{self, Read, Write};
 use std::mem::MaybeUninit;
 use std::process::{self, ExitCode};
 use std::ptr::{self, addr_of_mut};
-use std::slice;
-use unsafe_libyaml::{
+// use std::slice;
+use libyml::{
     yaml_alias_event_initialize, yaml_document_end_event_initialize,
     yaml_document_start_event_initialize, yaml_emitter_delete, yaml_emitter_emit,
     yaml_emitter_initialize, yaml_emitter_set_canonical, yaml_emitter_set_output,
-    yaml_emitter_set_unicode, yaml_emitter_t, yaml_event_t, yaml_mapping_end_event_initialize,
-    yaml_mapping_start_event_initialize, yaml_scalar_event_initialize, yaml_scalar_style_t,
+    yaml_emitter_set_unicode, YamlEmitterT, YamlEventT, yaml_mapping_end_event_initialize,
+    yaml_mapping_start_event_initialize, yaml_scalar_event_initialize, YamlScalarStyleT,
     yaml_sequence_end_event_initialize, yaml_sequence_start_event_initialize,
-    yaml_stream_end_event_initialize, yaml_stream_start_event_initialize, yaml_tag_directive_t,
-    yaml_version_directive_t, YAML_ANY_SCALAR_STYLE, YAML_BLOCK_MAPPING_STYLE,
-    YAML_BLOCK_SEQUENCE_STYLE, YAML_DOUBLE_QUOTED_SCALAR_STYLE, YAML_EMITTER_ERROR,
-    YAML_FOLDED_SCALAR_STYLE, YAML_LITERAL_SCALAR_STYLE, YAML_MEMORY_ERROR,
-    YAML_PLAIN_SCALAR_STYLE, YAML_SINGLE_QUOTED_SCALAR_STYLE, YAML_UTF8_ENCODING,
-    YAML_WRITER_ERROR,
+    yaml_stream_end_event_initialize, yaml_stream_start_event_initialize, YamlTagDirectiveT,
+    YamlVersionDirectiveT, YamlAnyScalarStyle, YamlBlockMappingStyle,
+    YamlBlockSequenceStyle, YamlDoubleQuotedScalarStyle, YamlEmitterError,
+    YamlFoldedScalarStyle, YamlLiteralScalarStyle, YamlMemoryError,
+    YamlPlainScalarStyle, YamlSingleQuotedScalarStyle, YamlUtf8Encoding,
+    YamlWriterError,
 };
+
 
 pub(crate) unsafe fn unsafe_main(
     stdin: &mut dyn Read,
     mut stdout: &mut dyn Write,
 ) -> Result<(), Box<dyn Error>> {
-    let mut emitter = MaybeUninit::<yaml_emitter_t>::uninit();
+    let mut emitter = MaybeUninit::<YamlEmitterT>::uninit();
     let emitter = emitter.as_mut_ptr();
     if yaml_emitter_initialize(emitter).fail {
         return Err("Could not initialize the emitter object".into());
     }
 
     unsafe fn write_to_stdio(data: *mut c_void, buffer: *mut u8, size: u64) -> i32 {
-        let stdout: *mut &mut dyn Write = data.cast();
-        let bytes = slice::from_raw_parts(buffer.cast(), size as usize);
+        let stdout: *mut &mut dyn Write = data as _;
+        let bytes = std::slice::from_raw_parts(buffer, size as usize);
         match (*stdout).write(bytes) {
             Ok(n) => n as i32,
             Err(_) => 0,
@@ -66,7 +74,7 @@ pub(crate) unsafe fn unsafe_main(
     yaml_emitter_set_unicode(emitter, false);
 
     let mut buf = ReadBuf::new();
-    let mut event = MaybeUninit::<yaml_event_t>::uninit();
+    let mut event = MaybeUninit::<YamlEventT>::uninit();
     let event = event.as_mut_ptr();
     let result = loop {
         let line = match buf.get_line(stdin) {
@@ -77,16 +85,16 @@ pub(crate) unsafe fn unsafe_main(
         let mut anchor = [0u8; 256];
         let mut tag = [0u8; 256];
         let result = if line.starts_with(b"+STR") {
-            yaml_stream_start_event_initialize(event, YAML_UTF8_ENCODING)
+            yaml_stream_start_event_initialize(event, YamlUtf8Encoding)
         } else if line.starts_with(b"-STR") {
             yaml_stream_end_event_initialize(event)
         } else if line.starts_with(b"+DOC") {
             let implicit = !line[4..].starts_with(b" ---");
             yaml_document_start_event_initialize(
                 event,
-                ptr::null_mut::<yaml_version_directive_t>(),
-                ptr::null_mut::<yaml_tag_directive_t>(),
-                ptr::null_mut::<yaml_tag_directive_t>(),
+                ptr::null_mut::<YamlVersionDirectiveT>(),
+                ptr::null_mut::<YamlTagDirectiveT>(),
+                ptr::null_mut::<YamlTagDirectiveT>(),
                 implicit,
             )
         } else if line.starts_with(b"-DOC") {
@@ -98,7 +106,7 @@ pub(crate) unsafe fn unsafe_main(
                 get_anchor(b'&', line, anchor.as_mut_ptr()),
                 get_tag(line, tag.as_mut_ptr()),
                 false,
-                YAML_BLOCK_MAPPING_STYLE,
+                YamlBlockMappingStyle,
             )
         } else if line.starts_with(b"-MAP") {
             yaml_mapping_end_event_initialize(event)
@@ -108,29 +116,41 @@ pub(crate) unsafe fn unsafe_main(
                 get_anchor(b'&', line, anchor.as_mut_ptr()),
                 get_tag(line, tag.as_mut_ptr()),
                 false,
-                YAML_BLOCK_SEQUENCE_STYLE,
+                YamlBlockSequenceStyle,
             )
         } else if line.starts_with(b"-SEQ") {
             yaml_sequence_end_event_initialize(event)
         } else if line.starts_with(b"=VAL") {
             let mut value = [0i8; 1024];
-            let mut style = YAML_ANY_SCALAR_STYLE;
+            let mut style = YamlAnyScalarStyle;
             get_value(line, value.as_mut_ptr(), &mut style);
             let implicit = get_tag(line, tag.as_mut_ptr()).is_null();
-            yaml_scalar_event_initialize(
-                event,
-                get_anchor(b'&', line, anchor.as_mut_ptr()),
-                get_tag(line, tag.as_mut_ptr()),
-                value.as_mut_ptr() as *mut u8,
-                -1,
-                implicit,
-                implicit,
+            let scalar_event_data = ScalarEventData {
+                anchor: get_anchor(b'&', line, anchor.as_mut_ptr()),
+                tag: get_tag(line, tag.as_mut_ptr()),
+                value: value.as_mut_ptr() as *const yaml_char_t,
+                length: -1,
+                plain_implicit: implicit,
+                quoted_implicit: implicit,
                 style,
-            )
+                _marker: core::marker::PhantomData,
+            };
+            
+            yaml_scalar_event_initialize(event, scalar_event_data)
+            // yaml_scalar_event_initialize(
+            //     event,
+            //     get_anchor(b'&', line, anchor.as_mut_ptr()),
+            //     get_tag(line, tag.as_mut_ptr()),
+            //     value.as_mut_ptr() as *mut u8,
+            //     -1,
+            //     implicit,
+            //     implicit,
+            //     style,
+            // )
         } else if line.starts_with(b"=ALI") {
             yaml_alias_event_initialize(event, get_anchor(b'*', line, anchor.as_mut_ptr()))
         } else {
-            let line = line as *mut [u8] as *mut i8;
+            let line = line.as_mut_ptr() as *mut i8;
             break Err(format!("Unknown event: '{}'", CStr::from_ptr(line)).into());
         };
 
@@ -139,11 +159,11 @@ pub(crate) unsafe fn unsafe_main(
         }
         if yaml_emitter_emit(emitter, event).fail {
             break Err(match (*emitter).error {
-                YAML_MEMORY_ERROR => "Memory error: Not enough memory for emitting".into(),
-                YAML_WRITER_ERROR => {
+                YamlMemoryError => "Memory error: Not enough memory for emitting".into(),
+                YamlWriterError => {
                     format!("Writer error: {}", CStr::from_ptr((*emitter).problem)).into()
                 }
-                YAML_EMITTER_ERROR => {
+                YamlEmitterError => {
                     format!("Emitter error: {}", CStr::from_ptr((*emitter).problem)).into()
                 }
                 // Couldn't happen.
@@ -208,13 +228,13 @@ impl ReadBuf {
 unsafe fn get_anchor(sigil: u8, line: &[u8], anchor: *mut u8) -> *mut u8 {
     let start = match line.iter().position(|ch| *ch == sigil) {
         Some(offset) => offset + 1,
-        None => return ptr::null_mut::<u8>(),
+        None => return ptr::null_mut(),
     };
     let end = match line[start..].iter().position(|ch| *ch == b' ') {
         Some(offset) => start + offset,
         None => line.len(),
     };
-    ptr::copy_nonoverlapping(line[start..end].as_ptr(), anchor, end - start);
+    anchor.copy_from_nonoverlapping(line[start..end].as_ptr(), end - start);
     *anchor.add(end - start) = b'\0';
     anchor
 }
@@ -222,20 +242,20 @@ unsafe fn get_anchor(sigil: u8, line: &[u8], anchor: *mut u8) -> *mut u8 {
 unsafe fn get_tag(line: &[u8], tag: *mut u8) -> *mut u8 {
     let start = match line.iter().position(|ch| *ch == b'<') {
         Some(offset) => offset + 1,
-        None => return ptr::null_mut::<u8>(),
+        None => return ptr::null_mut(),
     };
     let end = match line[start..].iter().position(|ch| *ch == b'>') {
         Some(offset) => start + offset,
-        None => return ptr::null_mut::<u8>(),
+        None => return ptr::null_mut(),
     };
-    ptr::copy_nonoverlapping(line[start..end].as_ptr(), tag, end - start);
+    tag.copy_from_nonoverlapping(line[start..end].as_ptr(), end - start);
     *tag.add(end - start) = b'\0';
     tag
 }
 
-unsafe fn get_value(line: &[u8], value: *mut i8, style: *mut yaml_scalar_style_t) {
+unsafe fn get_value(line: &[u8], value: *mut i8, style: *mut YamlScalarStyleT) {
     let line_len = line.len();
-    let line = line as *const [u8] as *mut i8;
+    let line = line.as_ptr() as *mut i8;
     let mut start = ptr::null_mut::<i8>();
     let end = line.add(line_len);
     let mut c = line.offset(4);
@@ -243,11 +263,11 @@ unsafe fn get_value(line: &[u8], value: *mut i8, style: *mut yaml_scalar_style_t
         if *c as u8 == b' ' {
             start = c.offset(1);
             *style = match *start as u8 {
-                b':' => YAML_PLAIN_SCALAR_STYLE,
-                b'\'' => YAML_SINGLE_QUOTED_SCALAR_STYLE,
-                b'"' => YAML_DOUBLE_QUOTED_SCALAR_STYLE,
-                b'|' => YAML_LITERAL_SCALAR_STYLE,
-                b'>' => YAML_FOLDED_SCALAR_STYLE,
+                b':' => YamlPlainScalarStyle,
+                b'\'' => YamlSingleQuotedScalarStyle,
+                b'"' => YamlDoubleQuotedScalarStyle,
+                b'|' => YamlLiteralScalarStyle,
+                b'>' => YamlFoldedScalarStyle,
                 _ => {
                     start = ptr::null_mut::<i8>();
                     c = c.offset(1);

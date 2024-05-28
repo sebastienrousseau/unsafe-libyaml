@@ -69,4 +69,3 @@ WZ62: Spec Example 7.2. Empty Content
 X38W: Aliases in Flow Objects
 XLQ9: Multiline scalar that looks like a YAML directive
 Y2GN: Anchor with colon in the middle
-ZWK4: Key with anchor after missing explicit mapping value

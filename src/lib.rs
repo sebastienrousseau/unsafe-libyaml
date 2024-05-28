@@ -1,54 +1,60 @@
-//! [![github]](https://github.com/dtolnay/unsafe-libyaml)&ensp;[![crates-io]](https://crates.io/crates/unsafe-libyaml)&ensp;[![docs-rs]](https://docs.rs/unsafe-libyaml)
+// Copyright notice and licensing information.
+// These lines indicate the copyright of the software and its licensing terms.
+// SPDX-License-Identifier: Apache-2.0 OR MIT indicates dual licensing under Apache 2.0 or MIT licenses.
+// Copyright © 2024 LibYML. All rights reserved.
+
+//! # LibYML
 //!
-//! [github]: https://img.shields.io/badge/github-8da0cb?style=for-the-badge&labelColor=555555&logo=github
-//! [crates-io]: https://img.shields.io/badge/crates.io-fc8d62?style=for-the-badge&labelColor=555555&logo=rust
-//! [docs-rs]: https://img.shields.io/badge/docs.rs-66c2a5?style=for-the-badge&labelColor=555555&logo=docs.rs
+//! [`LibYML`][00] is a Rust library for parsing and emitting YAML data in a safe and efficient manner. The library is designed to be easy to use and provides a comprehensive set of tools for working with YAML data.
+//!
+//! [![LibYML Logo](https://kura.pro/libyml/images/banners/banner-libyml.svg)](https://libyml.one "LibYML: Unleashing the Power of Safe and Efficient YAML Parsing in Rust")
+//!
+//! ## Seamless YAML Serialization for [Rust][01].
+//!
+//! [![Made With RustRust](https://img.shields.io/badge/rust-f04041?style=for-the-badge&labelColor=c0282d&logo=rust)](https://www.rust-lang.org "Rust")
+//! [![Crates.io](https://img.shields.io/crates/v/libyml.svg?style=for-the-badge&color=success&labelColor=27A006)](https://crates.io/crates/libyml "Crates.io")
+//! [![Lib.rs](https://img.shields.io/badge/lib.rs-v0.0.2-success.svg?style=for-the-badge&color=8A48FF&labelColor=6F36E4)](https://lib.rs/crates/libyml "Lib.rs")
+//! [![Github](https://img.shields.io/badge/github-8da0cb?style=for-the-badge&labelColor=555555&logo=github)](https://github.com/sebastienrousseau/libyml "Github")
+//! [![License](https://img.shields.io/crates/l/libyml.svg?style=for-the-badge&color=007EC6&labelColor=03589B)](https://opensource.org/license/apache-2-0/ "MIT or Apache License, Version 2.0")
+//!
+//! ## Features
+//!
+//! - **Serialization and Deserialization**: LibYML provides easy-to-use APIs for serializing Rust structs and enums into YAML format and deserializing YAML data into Rust types.
+//! - **Custom Struct and Enum Support**: The library allows you to work with custom structs and enums, enabling seamless serialization and deserialization of your own data types.
+//! - **Error Handling**: LibYML provides comprehensive error handling mechanisms, including detailed error messages and the ability to handle and recover from parsing and emission errors.
+//! - **Streaming Support**: The library supports streaming of YAML data, allowing you to efficiently process large YAML documents incrementally.
+//! - **Alias and Anchor Support**: LibYML handles YAML aliases and anchors, enabling you to work with complex YAML structures that involve references and duplicated data.
+//! - **Tag Handling**: The library provides support for custom tags, allowing you to serialize and deserialize YAML data with specific type information.
+//! - **Configurable Emitter**: LibYML allows you to customize the emitter settings, such as indentation, line width, and scalar style, to generate YAML output according to your preferences.
+//! - **Extensive Documentation**: The library comes with detailed documentation and examples, making it easy to get started and understand how to use its various features effectively.
+//! - **Safety and Efficiency**: LibYML is designed with safety and efficiency in mind. It minimizes the use of unsafe code and provides an interface that helps prevent common pitfalls and errors.
+//!
+//! ## Rust Version Compatibility
+//!
+//! This library is compatible with Rust 1.60 and above.
+//!
+//! [00]: https://libyml.com "LibYML: Unleashing the Power of Safe and Efficient YAML Parsing in Rust"
+//! [01]: https://www.rust-lang.org "Rust Programming Language"
+//!
 
 #![no_std]
-#![doc(html_root_url = "https://docs.rs/unsafe-libyaml/0.2.11")]
-#![allow(non_camel_case_types, non_snake_case, unsafe_op_in_unsafe_fn)]
-#![warn(clippy::pedantic)]
-#![allow(
-    clippy::bool_to_int_with_if,
-    clippy::cast_lossless,
-    clippy::cast_possible_truncation,
-    clippy::cast_possible_wrap,
-    clippy::cast_ptr_alignment,
-    clippy::cast_sign_loss,
-    clippy::collapsible_if,
-    clippy::doc_markdown,
-    clippy::fn_params_excessive_bools,
-    clippy::if_not_else,
-    clippy::items_after_statements,
-    clippy::let_underscore_untyped,
-    clippy::manual_range_contains,
-    clippy::manual_swap,
-    clippy::missing_panics_doc,
-    clippy::missing_safety_doc,
-    clippy::module_name_repetitions,
-    clippy::must_use_candidate,
-    clippy::nonminimal_bool,
-    clippy::ptr_as_ptr,
-    clippy::redundant_else,
-    clippy::similar_names,
-    clippy::single_match,
-    clippy::single_match_else,
-    clippy::too_many_arguments,
-    clippy::too_many_lines,
-    clippy::uninlined_format_args,
-    clippy::unnecessary_cast,
-    clippy::unreadable_literal,
-    clippy::while_immutable_condition, // https://github.com/rust-lang/rust-clippy/issues/3548
+#![doc(
+    html_favicon_url = "https://kura.pro/libyml/images/favicon.ico",
+    html_logo_url = "https://kura.pro/libyml/images/logos/libyml.svg",
+    html_root_url = "https://docs.rs/libyml"
 )]
+#![crate_name = "libyml"]
+#![crate_type = "lib"]
 
 extern crate alloc;
 
 use core::mem::size_of;
 
 mod libc {
-    pub use core::ffi::c_void;
-    pub use core::primitive::{
-        i32 as c_int, i64 as c_long, i8 as c_char, u32 as c_uint, u64 as c_ulong, u8 as c_uchar,
+    pub(crate) use core::ffi::c_void;
+    pub(crate) use core::primitive::{
+        i32 as c_int, i64 as c_long, i8 as c_char, u32 as c_uint,
+        u64 as c_ulong, u8 as c_uchar,
     };
 }
 
@@ -79,7 +85,9 @@ mod externs {
         }
     };
 
-    pub unsafe fn malloc(size: libc::c_ulong) -> *mut libc::c_void {
+    pub(crate) unsafe fn malloc(
+        size: libc::c_ulong,
+    ) -> *mut libc::c_void {
         let size = HEADER.force_add(size.force_into());
         let layout = Layout::from_size_align(size, MALLOC_ALIGN)
             .ok()
@@ -92,14 +100,19 @@ mod externs {
         memory.add(HEADER).cast()
     }
 
-    pub unsafe fn realloc(ptr: *mut libc::c_void, new_size: libc::c_ulong) -> *mut libc::c_void {
+    pub(crate) unsafe fn realloc(
+        ptr: *mut libc::c_void,
+        new_size: libc::c_ulong,
+    ) -> *mut libc::c_void {
         let mut memory = ptr.cast::<u8>().sub(HEADER);
         let size = memory.cast::<usize>().read();
-        let layout = Layout::from_size_align_unchecked(size, MALLOC_ALIGN);
+        let layout =
+            Layout::from_size_align_unchecked(size, MALLOC_ALIGN);
         let new_size = HEADER.force_add(new_size.force_into());
-        let new_layout = Layout::from_size_align(new_size, MALLOC_ALIGN)
-            .ok()
-            .unwrap_or_else(die);
+        let new_layout =
+            Layout::from_size_align(new_size, MALLOC_ALIGN)
+                .ok()
+                .unwrap_or_else(die);
         memory = rust::realloc(memory, layout, new_size);
         if memory.is_null() {
             rust::handle_alloc_error(new_layout);
@@ -108,24 +121,27 @@ mod externs {
         memory.add(HEADER).cast()
     }
 
-    pub unsafe fn free(ptr: *mut libc::c_void) {
+    pub(crate) unsafe fn free(ptr: *mut libc::c_void) {
         let memory = ptr.cast::<u8>().sub(HEADER);
         let size = memory.cast::<usize>().read();
-        let layout = Layout::from_size_align_unchecked(size, MALLOC_ALIGN);
+        let layout =
+            Layout::from_size_align_unchecked(size, MALLOC_ALIGN);
         rust::dealloc(memory, layout);
     }
 
-    pub unsafe fn memcmp(
+    pub(crate) unsafe fn memcmp(
         lhs: *const libc::c_void,
         rhs: *const libc::c_void,
         count: libc::c_ulong,
     ) -> libc::c_int {
-        let lhs = slice::from_raw_parts(lhs.cast::<u8>(), count as usize);
-        let rhs = slice::from_raw_parts(rhs.cast::<u8>(), count as usize);
+        let lhs =
+            slice::from_raw_parts(lhs.cast::<u8>(), count as usize);
+        let rhs =
+            slice::from_raw_parts(rhs.cast::<u8>(), count as usize);
         lhs.cmp(rhs) as libc::c_int
     }
 
-    pub unsafe fn memcpy(
+    pub(crate) unsafe fn memcpy(
         dest: *mut libc::c_void,
         src: *const libc::c_void,
         count: libc::c_ulong,
@@ -138,7 +154,7 @@ mod externs {
         dest
     }
 
-    pub unsafe fn memmove(
+    pub(crate) unsafe fn memmove(
         dest: *mut libc::c_void,
         src: *const libc::c_void,
         count: libc::c_ulong,
@@ -151,7 +167,7 @@ mod externs {
         dest
     }
 
-    pub unsafe fn memset(
+    pub(crate) unsafe fn memset(
         dest: *mut libc::c_void,
         ch: libc::c_int,
         count: libc::c_ulong,
@@ -160,20 +176,33 @@ mod externs {
         dest
     }
 
-    pub unsafe fn strcmp(lhs: *const libc::c_char, rhs: *const libc::c_char) -> libc::c_int {
-        let lhs = slice::from_raw_parts(lhs.cast::<u8>(), strlen(lhs) as usize);
-        let rhs = slice::from_raw_parts(rhs.cast::<u8>(), strlen(rhs) as usize);
+    pub(crate) unsafe fn strcmp(
+        lhs: *const libc::c_char,
+        rhs: *const libc::c_char,
+    ) -> libc::c_int {
+        let lhs = slice::from_raw_parts(
+            lhs.cast::<u8>(),
+            strlen(lhs) as usize,
+        );
+        let rhs = slice::from_raw_parts(
+            rhs.cast::<u8>(),
+            strlen(rhs) as usize,
+        );
         lhs.cmp(rhs) as libc::c_int
     }
 
-    pub unsafe fn strdup(src: *const libc::c_char) -> *mut libc::c_char {
+    pub(crate) unsafe fn strdup(
+        src: *const libc::c_char,
+    ) -> *mut libc::c_char {
         let len = strlen(src);
         let dest = malloc(len + 1);
         memcpy(dest, src.cast(), len + 1);
         dest.cast()
     }
 
-    pub unsafe fn strlen(str: *const libc::c_char) -> libc::c_ulong {
+    pub(crate) unsafe fn strlen(
+        str: *const libc::c_char,
+    ) -> libc::c_ulong {
         let mut end = str;
         while *end != 0 {
             end = end.add(1);
@@ -181,7 +210,7 @@ mod externs {
         end.offset_from(str) as libc::c_ulong
     }
 
-    pub unsafe fn strncmp(
+    pub(crate) unsafe fn strncmp(
         lhs: *const libc::c_char,
         rhs: *const libc::c_char,
         mut count: libc::c_ulong,
@@ -202,11 +231,19 @@ mod externs {
 
     macro_rules! __assert {
         (false $(,)?) => {
-            $crate::externs::__assert_fail(stringify!(false), file!(), line!())
+            $crate::externs::__assert_fail(
+                stringify!(false),
+                file!(),
+                line!(),
+            )
         };
         ($assertion:expr $(,)?) => {
             if !$assertion {
-                $crate::externs::__assert_fail(stringify!($assertion), file!(), line!());
+                $crate::externs::__assert_fail(
+                    stringify!($assertion),
+                    file!(),
+                    line!(),
+                );
             }
         };
     }
@@ -223,7 +260,10 @@ mod externs {
             }
         }
         let _abort_on_panic = Abort;
-        panic!("{}:{}: Assertion `{}` failed.", __file, __line, __assertion);
+        panic!(
+            "{}:{}: Assertion `{}` failed.",
+            __file, __line, __assertion
+        );
     }
 }
 
@@ -232,16 +272,16 @@ mod fmt {
     use core::fmt::{self, Write};
     use core::ptr;
 
-    pub struct WriteToPtr {
+    pub(crate) struct WriteToPtr {
         ptr: *mut yaml_char_t,
     }
 
     impl WriteToPtr {
-        pub unsafe fn new(ptr: *mut yaml_char_t) -> Self {
+        pub(crate) unsafe fn new(ptr: *mut yaml_char_t) -> Self {
             WriteToPtr { ptr }
         }
 
-        pub fn write_fmt(&mut self, args: fmt::Arguments) {
+        pub(crate) fn write_fmt(&mut self, args: fmt::Arguments<'_>) {
             let _ = Write::write_fmt(self, args);
         }
     }
@@ -276,7 +316,7 @@ impl<T> PointerExt for *mut T {
 #[macro_use]
 mod macros;
 
-mod api;
+pub mod api;
 mod dumper;
 mod emitter;
 mod loader;
@@ -286,40 +326,52 @@ mod reader;
 mod scanner;
 mod success;
 mod writer;
-mod yaml;
+pub mod yaml;
 
 pub use crate::api::{
-    yaml_alias_event_initialize, yaml_document_add_mapping, yaml_document_add_scalar,
-    yaml_document_add_sequence, yaml_document_append_mapping_pair,
-    yaml_document_append_sequence_item, yaml_document_delete, yaml_document_end_event_initialize,
-    yaml_document_get_node, yaml_document_get_root_node, yaml_document_initialize,
-    yaml_document_start_event_initialize, yaml_emitter_delete, yaml_emitter_initialize,
-    yaml_emitter_set_break, yaml_emitter_set_canonical, yaml_emitter_set_encoding,
-    yaml_emitter_set_indent, yaml_emitter_set_output, yaml_emitter_set_output_string,
-    yaml_emitter_set_unicode, yaml_emitter_set_width, yaml_event_delete,
-    yaml_mapping_end_event_initialize, yaml_mapping_start_event_initialize, yaml_parser_delete,
-    yaml_parser_initialize, yaml_parser_set_encoding, yaml_parser_set_input,
-    yaml_parser_set_input_string, yaml_scalar_event_initialize, yaml_sequence_end_event_initialize,
-    yaml_sequence_start_event_initialize, yaml_stream_end_event_initialize,
+    yaml_alias_event_initialize, yaml_document_add_mapping,
+    yaml_document_add_scalar, yaml_document_add_sequence,
+    yaml_document_append_mapping_pair,
+    yaml_document_append_sequence_item, yaml_document_delete,
+    yaml_document_end_event_initialize, yaml_document_get_node,
+    yaml_document_get_root_node, yaml_document_initialize,
+    yaml_document_start_event_initialize, yaml_emitter_delete,
+    yaml_emitter_initialize, yaml_emitter_set_break,
+    yaml_emitter_set_canonical, yaml_emitter_set_encoding,
+    yaml_emitter_set_indent, yaml_emitter_set_output,
+    yaml_emitter_set_output_string, yaml_emitter_set_unicode,
+    yaml_emitter_set_width, yaml_event_delete,
+    yaml_mapping_end_event_initialize,
+    yaml_mapping_start_event_initialize, yaml_parser_delete,
+    yaml_parser_initialize, yaml_parser_set_encoding,
+    yaml_parser_set_input, yaml_parser_set_input_string,
+    yaml_scalar_event_initialize, yaml_sequence_end_event_initialize,
+    yaml_sequence_start_event_initialize,
+    yaml_stream_end_event_initialize,
     yaml_stream_start_event_initialize, yaml_token_delete,
 };
-pub use crate::dumper::{yaml_emitter_close, yaml_emitter_dump, yaml_emitter_open};
+pub use crate::dumper::{
+    yaml_emitter_close, yaml_emitter_dump, yaml_emitter_open,
+};
 pub use crate::emitter::yaml_emitter_emit;
 pub use crate::loader::yaml_parser_load;
 pub use crate::parser::yaml_parser_parse;
 pub use crate::scanner::yaml_parser_scan;
 pub use crate::writer::yaml_emitter_flush;
 pub use crate::yaml::{
-    yaml_alias_data_t, yaml_break_t, yaml_document_t, yaml_emitter_state_t, yaml_emitter_t,
-    yaml_encoding_t, yaml_error_type_t, yaml_event_t, yaml_event_type_t, yaml_mapping_style_t,
-    yaml_mark_t, yaml_node_item_t, yaml_node_pair_t, yaml_node_t, yaml_node_type_t,
-    yaml_parser_state_t, yaml_parser_t, yaml_read_handler_t, yaml_scalar_style_t,
-    yaml_sequence_style_t, yaml_simple_key_t, yaml_stack_t, yaml_tag_directive_t, yaml_token_t,
-    yaml_token_type_t, yaml_version_directive_t, yaml_write_handler_t,
+    YamlAliasDataT, YamlBreakT, YamlDocumentT, YamlEmitterStateT,
+    YamlEmitterT, YamlEncodingT, YamlErrorTypeT, YamlEventT,
+    YamlEventTypeT, YamlMappingStyleT, YamlMarkT, YamlNodeItemT,
+    YamlNodePairT, YamlNodeT, YamlNodeTypeT, YamlParserStateT,
+    YamlParserT, YamlReadHandlerT, YamlScalarStyleT,
+    YamlSequenceStyleT, YamlSimpleKeyT, YamlStackT, YamlTagDirectiveT,
+    YamlTokenT, YamlTokenTypeT, YamlVersionDirectiveT,
+    YamlWriteHandlerT,
 };
 #[doc(hidden)]
 pub use crate::yaml::{
-    yaml_break_t::*, yaml_emitter_state_t::*, yaml_encoding_t::*, yaml_error_type_t::*,
-    yaml_event_type_t::*, yaml_mapping_style_t::*, yaml_node_type_t::*, yaml_parser_state_t::*,
-    yaml_scalar_style_t::*, yaml_sequence_style_t::*, yaml_token_type_t::*,
+    YamlBreakT::*, YamlEmitterStateT::*, YamlEncodingT::*,
+    YamlErrorTypeT::*, YamlEventTypeT::*, YamlMappingStyleT::*,
+    YamlNodeTypeT::*, YamlParserStateT::*, YamlScalarStyleT::*,
+    YamlSequenceStyleT::*, YamlTokenTypeT::*,
 };

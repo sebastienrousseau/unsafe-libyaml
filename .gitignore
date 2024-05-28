@@ -1,4 +1,10 @@
+*.DS_Store
+*.log
+*.profraw
+/.vscode/
 /build.rs
 /rust-toolchain
-target
+/target/
+build
 Cargo.lock
+Icon?

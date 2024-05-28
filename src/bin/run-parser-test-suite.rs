@@ -1,3 +1,8 @@
+// Copyright notice and licensing information.
+// These lines indicate the copyright of the software and its licensing terms.
+// SPDX-License-Identifier: Apache-2.0 OR MIT indicates dual licensing under Apache 2.0 or MIT licenses.
+// Copyright © 2024 LibYML. All rights reserved.
+
 #![warn(clippy::pedantic)]
 #![allow(
     clippy::cast_lossless,
@@ -25,21 +30,21 @@ use std::mem::MaybeUninit;
 use std::process::{self, ExitCode};
 use std::ptr::addr_of_mut;
 use std::slice;
-use unsafe_libyaml::{
-    yaml_event_delete, yaml_event_t, yaml_event_type_t, yaml_parser_delete, yaml_parser_initialize,
-    yaml_parser_parse, yaml_parser_set_input, yaml_parser_t, YAML_ALIAS_EVENT,
-    YAML_DOCUMENT_END_EVENT, YAML_DOCUMENT_START_EVENT, YAML_DOUBLE_QUOTED_SCALAR_STYLE,
-    YAML_FOLDED_SCALAR_STYLE, YAML_LITERAL_SCALAR_STYLE, YAML_MAPPING_END_EVENT,
-    YAML_MAPPING_START_EVENT, YAML_NO_EVENT, YAML_PLAIN_SCALAR_STYLE, YAML_SCALAR_EVENT,
-    YAML_SEQUENCE_END_EVENT, YAML_SEQUENCE_START_EVENT, YAML_SINGLE_QUOTED_SCALAR_STYLE,
-    YAML_STREAM_END_EVENT, YAML_STREAM_START_EVENT,
+use libyml::{
+    yaml_event_delete, YamlEventT, YamlEventTypeT, yaml_parser_delete, yaml_parser_initialize,
+    yaml_parser_parse, yaml_parser_set_input, YamlParserT, YamlAliasEvent,
+    YamlDocumentEndEvent, YamlDocumentStartEvent, YamlDoubleQuotedScalarStyle,
+    YamlFoldedScalarStyle, YamlLiteralScalarStyle, YamlMappingEndEvent,
+    YamlMappingStartEvent, YamlNoEvent, YamlPlainScalarStyle, YamlScalarEvent,
+    YamlSequenceEndEvent, YamlSequenceStartEvent, YamlSingleQuotedScalarStyle,
+    YamlStreamEndEvent, YamlStreamStartEvent,
 };
 
 pub(crate) unsafe fn unsafe_main(
     mut stdin: &mut dyn Read,
     stdout: &mut dyn Write,
 ) -> Result<(), Box<dyn Error>> {
-    let mut parser = MaybeUninit::<yaml_parser_t>::uninit();
+    let mut parser = MaybeUninit::<YamlParserT>::uninit();
     let parser = parser.as_mut_ptr();
     if yaml_parser_initialize(parser).fail {
         return Err("Could not initialize the parser object".into());
@@ -64,7 +69,7 @@ pub(crate) unsafe fn unsafe_main(
 
     yaml_parser_set_input(parser, read_from_stdio, addr_of_mut!(stdin).cast());
 
-    let mut event = MaybeUninit::<yaml_event_t>::uninit();
+    let mut event = MaybeUninit::<YamlEventT>::uninit();
     let event = event.as_mut_ptr();
     loop {
         if yaml_parser_parse(parser, event).fail {
@@ -81,26 +86,26 @@ pub(crate) unsafe fn unsafe_main(
             return Err(error.into());
         }
 
-        let type_: yaml_event_type_t = (*event).type_;
-        if type_ == YAML_NO_EVENT {
+        let type_: YamlEventTypeT = (*event).type_;
+        if type_ == YamlNoEvent {
             let _ = writeln!(stdout, "???");
-        } else if type_ == YAML_STREAM_START_EVENT {
+        } else if type_ == YamlStreamStartEvent {
             let _ = writeln!(stdout, "+STR");
-        } else if type_ == YAML_STREAM_END_EVENT {
+        } else if type_ == YamlStreamEndEvent {
             let _ = writeln!(stdout, "-STR");
-        } else if type_ == YAML_DOCUMENT_START_EVENT {
+        } else if type_ == YamlDocumentStartEvent {
             let _ = write!(stdout, "+DOC");
             if !(*event).data.document_start.implicit {
                 let _ = write!(stdout, " ---");
             }
             let _ = writeln!(stdout);
-        } else if type_ == YAML_DOCUMENT_END_EVENT {
+        } else if type_ == YamlDocumentEndEvent {
             let _ = write!(stdout, "-DOC");
             if !(*event).data.document_end.implicit {
                 let _ = write!(stdout, " ...");
             }
             let _ = writeln!(stdout);
-        } else if type_ == YAML_MAPPING_START_EVENT {
+        } else if type_ == YamlMappingStartEvent {
             let _ = write!(stdout, "+MAP");
             if !(*event).data.mapping_start.anchor.is_null() {
                 let _ = write!(
@@ -117,9 +122,9 @@ pub(crate) unsafe fn unsafe_main(
                 );
             }
             let _ = writeln!(stdout);
-        } else if type_ == YAML_MAPPING_END_EVENT {
+        } else if type_ == YamlMappingEndEvent {
             let _ = writeln!(stdout, "-MAP");
-        } else if type_ == YAML_SEQUENCE_START_EVENT {
+        } else if type_ == YamlSequenceStartEvent {
             let _ = write!(stdout, "+SEQ");
             if !(*event).data.sequence_start.anchor.is_null() {
                 let _ = write!(
@@ -136,9 +141,9 @@ pub(crate) unsafe fn unsafe_main(
                 );
             }
             let _ = writeln!(stdout);
-        } else if type_ == YAML_SEQUENCE_END_EVENT {
+        } else if type_ == YamlSequenceEndEvent {
             let _ = writeln!(stdout, "-SEQ");
-        } else if type_ == YAML_SCALAR_EVENT {
+        } else if type_ == YamlScalarEvent {
             let _ = write!(stdout, "=VAL");
             if !(*event).data.scalar.anchor.is_null() {
                 let _ = write!(
@@ -155,11 +160,11 @@ pub(crate) unsafe fn unsafe_main(
                 );
             }
             let _ = stdout.write_all(match (*event).data.scalar.style {
-                YAML_PLAIN_SCALAR_STYLE => b" :",
-                YAML_SINGLE_QUOTED_SCALAR_STYLE => b" '",
-                YAML_DOUBLE_QUOTED_SCALAR_STYLE => b" \"",
-                YAML_LITERAL_SCALAR_STYLE => b" |",
-                YAML_FOLDED_SCALAR_STYLE => b" >",
+                YamlPlainScalarStyle => b" :",
+                YamlSingleQuotedScalarStyle => b" '",
+                YamlDoubleQuotedScalarStyle => b" \"",
+                YamlLiteralScalarStyle => b" |",
+                YamlFoldedScalarStyle => b" >",
                 _ => process::abort(),
             });
             print_escaped(
@@ -168,7 +173,7 @@ pub(crate) unsafe fn unsafe_main(
                 (*event).data.scalar.length,
             );
             let _ = writeln!(stdout);
-        } else if type_ == YAML_ALIAS_EVENT {
+        } else if type_ == YamlAliasEvent {
             let _ = writeln!(
                 stdout,
                 "=ALI *{}",
@@ -179,7 +184,7 @@ pub(crate) unsafe fn unsafe_main(
         }
 
         yaml_event_delete(event);
-        if type_ == YAML_STREAM_END_EVENT {
+        if type_ == YamlStreamEndEvent {
             break;
         }
     }

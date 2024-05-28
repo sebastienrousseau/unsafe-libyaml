@@ -1,16 +1,21 @@
+// Copyright notice and licensing information.
+// These lines indicate the copyright of the software and its licensing terms.
+// SPDX-License-Identifier: Apache-2.0 OR MIT indicates dual licensing under Apache 2.0 or MIT licenses.
+// Copyright © 2024 LibYML. All rights reserved.
+
 use std::error::Error;
 use std::fs::File;
 use std::io::{Read, Write};
 use std::path::Path;
 use std::process::{Command, Stdio};
 
-pub struct Output {
-    pub success: bool,
-    pub stdout: Vec<u8>,
-    pub stderr: Vec<u8>,
+pub(crate) struct Output {
+    pub(crate) success: bool,
+    pub(crate) stdout: Vec<u8>,
+    pub(crate) stderr: Vec<u8>,
 }
 
-pub fn run(
+pub(crate) fn run(
     compiled: &str,
     unsafe_main: unsafe fn(
         stdin: &mut dyn Read,
