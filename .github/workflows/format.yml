@@ -1,4 +1,4 @@
-name: 🧪 Audit
+name: 💾 Format
 
 on:
   push:
@@ -12,17 +12,13 @@ on:
     types: [created]
 
 jobs:
-  dependencies:
-    name: Audit dependencies
+  all:
+    name: Format
     runs-on: ubuntu-latest
     steps:
       - uses: hecrj/setup-rust-action@v2
-      - name: Install cargo-audit
-        run: cargo install cargo-audit
-
+        with:
+          components: clippy
       - uses: actions/checkout@v4
-      - name: Resolve dependencies
-        run: cargo update
-
-      - name: Audit vulnerabilities
-        run: cargo audit
+      - name: Check format
+        run: cargo fmt --all -- --check --verbose
